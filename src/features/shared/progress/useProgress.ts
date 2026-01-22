@@ -3,9 +3,17 @@
 import { useCallback, useMemo, useState, useEffect } from 'react';
 import type { ModuleType } from '@/data/types';
 import type { WatchProgress } from '@/data/types/user';
-import { MOCK_USER_PROGRESS, getInProgressItems, hasAnyProgress } from '@/data/user-data/progress';
+import { MOCK_USER_PROGRESS } from '@/data/user-data/progress';
 
 const PROGRESS_STORAGE_KEY = 'nuva-user-progress';
+
+const MODULE_ITEM_TYPES: Record<ModuleType, string[]> = {
+  learn: ['course', 'lesson'],
+  forum: ['post'],
+  space: ['companion'],
+  sprint: ['sprint-project'],
+  shop: ['product'],
+};
 
 interface UserProgress {
   items: WatchProgress[];
@@ -47,16 +55,7 @@ export function useProgress(moduleType?: ModuleType) {
 
   const getItemsInProgress = useCallback(
     (module: ModuleType, userId = 'user-1') => {
-      // Filter by module type (course items for learn, etc.)
-      const moduleItemTypes: Record<ModuleType, string[]> = {
-        learn: ['course', 'lesson'],
-        forum: ['post'],
-        space: ['companion'],
-        sprint: ['sprint-project'],
-        shop: ['product'],
-      };
-
-      const validTypes = moduleItemTypes[module] || [];
+      const validTypes = MODULE_ITEM_TYPES[module] || [];
 
       return progress.items
         .filter(
@@ -73,15 +72,7 @@ export function useProgress(moduleType?: ModuleType) {
 
   const hasProgress = useCallback(
     (module: ModuleType, userId = 'user-1') => {
-      const moduleItemTypes: Record<ModuleType, string[]> = {
-        learn: ['course', 'lesson'],
-        forum: ['post'],
-        space: ['companion'],
-        sprint: ['sprint-project'],
-        shop: ['product'],
-      };
-
-      const validTypes = moduleItemTypes[module] || [];
+      const validTypes = MODULE_ITEM_TYPES[module] || [];
 
       return progress.items.some(
         (item) =>

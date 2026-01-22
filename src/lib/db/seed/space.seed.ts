@@ -462,7 +462,7 @@ export async function seedSpace(db: MockDB): Promise<void> {
     {
       id: 'matching-post-1',
       authorId: 'user-2',
-      type: 'offering-nunu',
+      type: 'nunu-looking-for-vava',
       title: 'Automation Expert Looking for Vava! Learn Make.com and Zapier Together',
       content:
         'I am a Nunu focused on automation, skilled in Make.com, Zapier, and other tools. If you want to learn how to automate workflows, feel free to match with me!\n\nMy teaching style is hands-on oriented, I will guide you step by step to build your own automation workflows.',
@@ -478,7 +478,7 @@ export async function seedSpace(db: MockDB): Promise<void> {
     {
       id: 'matching-post-2',
       authorId: 'user-4',
-      type: 'offering-nunu',
+      type: 'nunu-looking-for-vava',
       title: '[Certified Nunu] AI Strategy and Business Application Guidance',
       content:
         'As a Certified Nunu, I focus on helping learners apply AI to real business scenarios.\n\nSuitable for:\n- Professionals who want to integrate AI into their work\n- People interested in AI product planning\n- Learners who want to develop AI strategic thinking\n\nWeekly online consultation, seasonal matching.',
@@ -494,7 +494,7 @@ export async function seedSpace(db: MockDB): Promise<void> {
     {
       id: 'matching-post-3',
       authorId: 'user-5',
-      type: 'looking-for-nunu',
+      type: 'vava-looking-for-nunu',
       title: 'Beginner Looking for Nunu! Want to Learn AI Copywriting',
       content:
         'I am a beginner with AI tools, hoping to find a patient Nunu to guide me.\n\nI especially want to learn:\n- Basic ChatGPT operations\n- AI-assisted copywriting\n- Prompt writing techniques\n\nMy schedule is flexible, hoping to have a session once a week!',
@@ -510,7 +510,7 @@ export async function seedSpace(db: MockDB): Promise<void> {
     {
       id: 'matching-post-4',
       authorId: 'user-10',
-      type: 'looking-for-vava',
+      type: 'nunu-looking-for-vava',
       title: 'Master-Level Nunu Recruiting Vava! Comprehensive AI Guidance',
       content:
         'I am an N1 level Certified Nunu with extensive teaching experience.\n\nCurrently opening 2 Vava slots, suitable for:\n- Learners who are serious about learning AI\n- People willing to invest time in practice\n- Friends with long-term AI learning plans\n\nAfter matching, I will create a learning plan based on your needs.',
@@ -526,7 +526,7 @@ export async function seedSpace(db: MockDB): Promise<void> {
     {
       id: 'matching-post-5',
       authorId: 'user-5',
-      type: 'looking-for-nunu',
+      type: 'vava-looking-for-nunu',
       title: 'Advanced Learner Looking for Certified Nunu! Want to Dive Deep into AI Product Planning',
       content:
         'I already have a solid AI foundation and now want to dive deeper into AI product planning.\n\nLooking for a Nunu who:\n- Has AI product experience\n- Can guide on business applications\n- Certified Nunu preferred\n\nI am currently working on my own AI side project and hope to get guidance.',
@@ -542,7 +542,7 @@ export async function seedSpace(db: MockDB): Promise<void> {
     {
       id: 'matching-post-6',
       authorId: 'user-6',
-      type: 'offering-nunu',
+      type: 'nunu-looking-for-vava',
       title: '[Matched] Beginner Nunu Looking for Vava',
       content: 'I am a beginner Nunu, looking for a Vava to grow and learn together.',
       timeSelection: 'monthly',

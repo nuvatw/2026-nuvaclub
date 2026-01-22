@@ -20,6 +20,7 @@ export interface User {
   avatar?: string;
   bio?: string;
   discordId?: string;
+  githubUsername?: string;
   identity: IdentityType;
   duoTicket?: DuoTicket;
   createdAt: Date;
@@ -42,3 +43,24 @@ export const IDENTITY_COLORS: Record<IdentityType, string> = {
   'duo-run': 'bg-purple-500',
   'duo-fly': 'bg-amber-500',
 };
+
+export interface MembershipDisplay {
+  label: string;
+  color: string;
+}
+
+export function getMembershipDisplay(identity: IdentityType): MembershipDisplay {
+  const labels: Record<IdentityType, string> = {
+    guest: 'Guest',
+    explorer: 'Explorer',
+    'solo-traveler': 'Solo Traveler',
+    'duo-go': 'Duo Go',
+    'duo-run': 'Duo Run',
+    'duo-fly': 'Duo Fly',
+  };
+
+  return {
+    label: labels[identity],
+    color: IDENTITY_COLORS[identity],
+  };
+}

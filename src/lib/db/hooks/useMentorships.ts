@@ -12,11 +12,15 @@ export interface MentorshipWithRelations extends UserMentorshipRecord {
     avatar?: string;
     level?: string;
     type?: string;
+    discordId?: string;
+    githubUsername?: string;
   };
   vava?: {
     id: string;
     name: string;
     avatar?: string;
+    discordId?: string;
+    githubUsername?: string;
   };
 }
 
@@ -34,11 +38,11 @@ export function useMentorships(userId?: string) {
 
     // Batch fetch all vava users
     const vavaIds = new Set(mentorships.map((m) => m.vavaId));
-    const vavasMap = new Map<string, { id: string; name: string; avatar?: string }>();
+    const vavasMap = new Map<string, { id: string; name: string; avatar?: string; discordId?: string; githubUsername?: string }>();
     for (const vavaId of vavaIds) {
       const user = db.users.findById(vavaId);
       if (user) {
-        vavasMap.set(vavaId, { id: user.id, name: user.name, avatar: user.avatar });
+        vavasMap.set(vavaId, { id: user.id, name: user.name, avatar: user.avatar, discordId: user.discordId, githubUsername: user.githubUsername });
       }
     }
 
@@ -56,13 +60,13 @@ export function useMentorships(userId?: string) {
 
     // Batch fetch all nunu users and profiles
     const nunuIds = new Set(mentorships.map((m) => m.nunuId));
-    const nunusMap = new Map<string, { id: string; name: string; avatar?: string }>();
+    const nunusMap = new Map<string, { id: string; name: string; avatar?: string; discordId?: string; githubUsername?: string }>();
     const profilesMap = new Map<string, { level?: string; type?: string }>();
 
     for (const nunuId of nunuIds) {
       const user = db.users.findById(nunuId);
       if (user) {
-        nunusMap.set(nunuId, { id: user.id, name: user.name, avatar: user.avatar });
+        nunusMap.set(nunuId, { id: user.id, name: user.name, avatar: user.avatar, discordId: user.discordId, githubUsername: user.githubUsername });
       }
       const profile = db.nunuProfiles.findFirst({ where: { userId: nunuId } });
       if (profile) {
@@ -149,11 +153,11 @@ export function useAllMentorships() {
       nunuIds.add(m.nunuId);
     }
 
-    const usersMap = new Map<string, { id: string; name: string; avatar?: string }>();
+    const usersMap = new Map<string, { id: string; name: string; avatar?: string; discordId?: string; githubUsername?: string }>();
     for (const id of userIds) {
       const user = db.users.findById(id);
       if (user) {
-        usersMap.set(id, { id: user.id, name: user.name, avatar: user.avatar });
+        usersMap.set(id, { id: user.id, name: user.name, avatar: user.avatar, discordId: user.discordId, githubUsername: user.githubUsername });
       }
     }
 
@@ -224,6 +228,8 @@ export function useMentorship(mentorshipId: string): MentorshipWithRelations | n
             avatar: nunuUser.avatar,
             level: nunuProfile?.level,
             type: nunuProfile?.type,
+            discordId: nunuUser.discordId,
+            githubUsername: nunuUser.githubUsername,
           }
         : undefined,
       vava: vavaUser
@@ -231,6 +237,8 @@ export function useMentorship(mentorshipId: string): MentorshipWithRelations | n
             id: vavaUser.id,
             name: vavaUser.name,
             avatar: vavaUser.avatar,
+            discordId: vavaUser.discordId,
+            githubUsername: vavaUser.githubUsername,
           }
         : undefined,
     };

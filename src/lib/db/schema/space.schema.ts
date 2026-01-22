@@ -169,7 +169,7 @@ export interface NunuProfileRecord {
 // ==========================================
 // Matching Board Posts Table
 // ==========================================
-export type MatchingPostType = 'offering-nunu' | 'looking-for-nunu' | 'looking-for-vava';
+export type MatchingPostType = 'nunu-looking-for-vava' | 'vava-looking-for-nunu';
 export type TimeSelectionType = 'monthly' | 'seasonal';
 
 export interface MatchingPostRecord {

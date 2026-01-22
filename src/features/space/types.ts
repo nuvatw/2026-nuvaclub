@@ -154,25 +154,22 @@ export interface NunuProfile {
 // ==========================================
 // Matching Board Types
 // ==========================================
-export type MatchingPostType = 'offering-nunu' | 'looking-for-nunu' | 'looking-for-vava';
+export type MatchingPostType = 'nunu-looking-for-vava' | 'vava-looking-for-nunu';
 export type TimeSelectionType = 'monthly' | 'seasonal';
 
 export const MATCHING_POST_TYPE_LABELS: Record<MatchingPostType, string> = {
-  'offering-nunu': 'Nunu Looking for Vava',
-  'looking-for-nunu': 'Looking for Nunu',
-  'looking-for-vava': 'Nunu Recruiting Vava',
+  'nunu-looking-for-vava': 'Nunu Looking for Vava',
+  'vava-looking-for-nunu': 'Vava Looking for Nunu',
 };
 
 export const MATCHING_POST_TYPE_COLORS: Record<MatchingPostType, string> = {
-  'offering-nunu': 'bg-green-600/20 text-green-400',
-  'looking-for-nunu': 'bg-blue-600/20 text-blue-400',
-  'looking-for-vava': 'bg-purple-600/20 text-purple-400',
+  'nunu-looking-for-vava': 'bg-purple-600/20 text-purple-400',
+  'vava-looking-for-nunu': 'bg-blue-600/20 text-blue-400',
 };
 
 export const MATCHING_POST_TYPE_ICONS: Record<MatchingPostType, string> = {
-  'offering-nunu': '🎓',
-  'looking-for-nunu': '🔍',
-  'looking-for-vava': '📢',
+  'nunu-looking-for-vava': '🎓',
+  'vava-looking-for-nunu': '🔍',
 };
 
 export const TIME_SELECTION_LABELS: Record<TimeSelectionType, string> = {

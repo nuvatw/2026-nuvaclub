@@ -181,26 +181,22 @@ export function useMatchingPosts(filters?: MatchingPostFilters, sortBy: Matching
   // Stats - computed in single pass instead of multiple filter iterations
   const stats = useMemo(() => {
     let active = 0;
-    let offeringNunu = 0;
-    let lookingForNunu = 0;
-    let lookingForVava = 0;
+    let nunuLookingForVava = 0;
+    let vavaLookingForNunu = 0;
 
     for (const post of allPosts) {
       if (post.isActive) active++;
       switch (post.type) {
-        case 'offering-nunu':
-          offeringNunu++;
+        case 'nunu-looking-for-vava':
+          nunuLookingForVava++;
           break;
-        case 'looking-for-nunu':
-          lookingForNunu++;
-          break;
-        case 'looking-for-vava':
-          lookingForVava++;
+        case 'vava-looking-for-nunu':
+          vavaLookingForNunu++;
           break;
       }
     }
 
-    return { total: allPosts.length, active, offeringNunu, lookingForNunu, lookingForVava };
+    return { total: allPosts.length, active, nunuLookingForVava, vavaLookingForNunu };
   }, [allPosts]);
 
   return {
@@ -261,25 +257,20 @@ export function useMatchingPostLimits(userId?: string) {
     return db.matchingPosts.findMany({ where: { authorId: userId, isActive: true } });
   }, [db, userId]);
 
-  const canPostOfferingNunu = useMemo(() => {
-    return !userPosts.some((p) => p.type === 'offering-nunu');
+  const canPostNunuLookingForVava = useMemo(() => {
+    return !userPosts.some((p) => p.type === 'nunu-looking-for-vava');
   }, [userPosts]);
 
-  const canPostLookingForNunu = useMemo(() => {
-    return !userPosts.some((p) => p.type === 'looking-for-nunu');
-  }, [userPosts]);
-
-  const canPostLookingForVava = useMemo(() => {
-    return !userPosts.some((p) => p.type === 'looking-for-vava');
+  const canPostVavaLookingForNunu = useMemo(() => {
+    return !userPosts.some((p) => p.type === 'vava-looking-for-nunu');
   }, [userPosts]);
 
   const totalActivePosts = userPosts.length;
 
   return {
     userPosts,
-    canPostOfferingNunu,
-    canPostLookingForNunu,
-    canPostLookingForVava,
+    canPostNunuLookingForVava,
+    canPostVavaLookingForNunu,
     totalActivePosts,
     maxPosts: 3,
     canPost: totalActivePosts < 3,

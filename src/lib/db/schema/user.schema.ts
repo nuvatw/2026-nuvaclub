@@ -10,6 +10,7 @@ export interface UserRecord {
   avatar?: string;
   bio?: string; // Self-introduction (visible on profile)
   discordId?: string; // Discord username for contact
+  githubUsername?: string; // GitHub username for profile link
   identityType: IdentityType;
   emailVerified: boolean;
   createdAt: Date;

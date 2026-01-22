@@ -297,11 +297,29 @@ export function VideoPlayer({
   };
 
   const selectEpisode = (index: number) => {
-    setCurrentLessonIndex(index);
-    setShowEpisodes(false);
-    // In a real app, you'd load the episode's video
-    // For now, we just track the selection
+    const lesson = course.lessons[index];
+    if (lesson?.videoUrl) {
+      setCurrentLessonIndex(index);
+      setShowEpisodes(false);
+      setIsLoading(true);
+
+      // Extract video ID from lesson URL
+      const lessonVideoId = getYouTubeVideoId(lesson.videoUrl);
+      if (lessonVideoId && player) {
+        player.loadVideoById(lessonVideoId);
+      }
+    }
   };
+
+  // Helper to extract YouTube video ID
+  function getYouTubeVideoId(urlOrId: string): string {
+    if (!urlOrId) return '';
+    if (/^[a-zA-Z0-9_-]{11}$/.test(urlOrId)) return urlOrId;
+    const match = urlOrId.match(
+      /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+    );
+    return match ? match[1] : urlOrId;
+  }
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '@/features/auth/components/AuthProvider';
+import { getMembershipDisplay } from '@/features/auth/types';
 import { LoginModal } from '@/features/auth/components/LoginModal';
 import { Button } from '@/components/atoms';
 import { CartIcon, CartDrawer } from '@/features/shop/components/cart';
@@ -21,30 +22,13 @@ const NAV_ITEMS = [
   { href: '/shop', label: 'Shop' },
 ];
 
-function getMembershipLabel(identity: string): { label: string; color: string } {
-  switch (identity) {
-    case 'explorer':
-      return { label: 'Explorer', color: 'bg-primary-600' };
-    case 'solo-traveler':
-      return { label: 'Solo Traveler', color: 'bg-accent-500' };
-    case 'duo-go':
-      return { label: 'Duo Go', color: 'bg-green-500' };
-    case 'duo-run':
-      return { label: 'Duo Run', color: 'bg-purple-500' };
-    case 'duo-fly':
-      return { label: 'Duo Fly', color: 'bg-amber-500' };
-    default:
-      return { label: 'Guest', color: 'bg-neutral-600' };
-  }
-}
-
 export function Navbar() {
   const pathname = usePathname();
   const { user, identity, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
-  const membership = getMembershipLabel(identity);
+  const membership = getMembershipDisplay(identity);
 
   return (
     <>
@@ -58,31 +42,43 @@ export function Navbar() {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-1">
+            <div className="hidden md:flex items-center gap-6">
               {NAV_ITEMS.map((item) => {
                 const isActive = pathname.startsWith(item.href);
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={cn(
-                      'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                      isActive
-                        ? 'bg-neutral-800 text-white'
-                        : 'text-neutral-400 hover:text-white hover:bg-neutral-800/50'
-                    )}
+                    className="relative py-5 group"
                   >
-                    {item.label}
+                    <span
+                      className={cn(
+                        'text-sm font-medium transition-all duration-200',
+                        isActive
+                          ? 'text-white'
+                          : 'text-neutral-500 group-hover:text-white'
+                      )}
+                    >
+                      {item.label}
+                    </span>
+                    {/* Active underline indicator */}
+                    {isActive && (
+                      <motion.div
+                        layoutId="navbar-indicator"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-white"
+                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                      />
+                    )}
                   </Link>
                 );
               })}
             </div>
 
             {/* User Area */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-4">
               <Link
                 href="/document"
-                className="p-2 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
+                className="p-2 text-neutral-500 hover:text-white transition-colors"
                 title="Playbook"
               >
                 <BookIcon className="w-5 h-5" />
@@ -137,7 +133,7 @@ export function Navbar() {
               exit={{ opacity: 0, height: 0 }}
               className="md:hidden border-t border-neutral-800"
             >
-              <div className="px-4 py-4 space-y-2 bg-neutral-900">
+              <div className="px-4 py-4 space-y-1 bg-neutral-900">
                 {NAV_ITEMS.map((item) => {
                   const isActive = pathname.startsWith(item.href);
                   return (
@@ -146,12 +142,15 @@ export function Navbar() {
                       href={item.href}
                       onClick={() => setMobileMenuOpen(false)}
                       className={cn(
-                        'block px-4 py-3 rounded-lg text-sm font-medium transition-colors',
+                        'relative block px-4 py-3 text-sm font-medium transition-colors',
                         isActive
-                          ? 'bg-neutral-800 text-white'
-                          : 'text-neutral-400 hover:text-white hover:bg-neutral-800/50'
+                          ? 'text-white'
+                          : 'text-neutral-500 hover:text-white'
                       )}
                     >
+                      {isActive && (
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-white rounded-full" />
+                      )}
                       {item.label}
                     </Link>
                   );
@@ -161,12 +160,15 @@ export function Navbar() {
                   href="/document"
                   onClick={() => setMobileMenuOpen(false)}
                   className={cn(
-                    'flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
+                    'relative flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors',
                     pathname === '/document'
-                      ? 'bg-neutral-800 text-white'
-                      : 'text-neutral-400 hover:text-white hover:bg-neutral-800/50'
+                      ? 'text-white'
+                      : 'text-neutral-500 hover:text-white'
                   )}
                 >
+                  {pathname === '/document' && (
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-white rounded-full" />
+                  )}
                   <BookIcon className="w-4 h-4" />
                   Playbook
                 </Link>

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { motion } from 'motion/react';
 import { Button, Badge, Card, CardContent } from '@/components/atoms';
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import { MySpaceSection } from '@/features/space/components/MySpaceSection';
+import { MyNunuSection, MyVavaSection } from '@/features/space/components/MySpaceSection';
 import { MatchingBoardSection } from '@/features/space/components/MatchingBoard';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { SpacePageSkeleton, SpaceLockedSkeleton } from '@/components/skeletons';
@@ -121,10 +121,13 @@ export default function SpacePage() {
           </div>
         </motion.div>
 
-        {/* Section 1: My Space / Pairing Info */}
-        <MySpaceSection />
+        {/* Section 1: My Nunu */}
+        <MyNunuSection onNavigateToMatchingBoard={() => {}} />
 
-        {/* Section 2: Matching Board */}
+        {/* Section 2: My Vava */}
+        <MyVavaSection onNavigateToMatchingBoard={() => {}} />
+
+        {/* Section 3: Matching Board */}
         <MatchingBoardSection />
       </div>
     </div>

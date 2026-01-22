@@ -5,12 +5,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'motion/react';
 import { Button, Badge, Card, CardContent } from '@/components/atoms';
-import { Gate } from '@/features/auth/components/Gate';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 import { getCourseById } from '@/features/learn/data/courses';
 import { cn } from '@/lib/utils';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { CourseDetailSkeleton } from '@/components/skeletons';
+import { LEVEL_LABELS, LEVEL_BADGE_VARIANTS } from '@/features/learn/types';
 
 interface CoursePageProps {
   params: Promise<{ courseId: string }>;
@@ -34,23 +34,17 @@ export default function CoursePage({ params }: CoursePageProps) {
     );
   }
 
-  const accessLabel = {
-    'first-chapter': 'First Chapter Free',
-    free: 'Free Course',
-    paid: 'Premium Course',
-  };
+  // Derive access level from course level (level 1 = free, others = paid)
+  const isFreeCourse = course.level === 1;
+  const courseAccessLevel = isFreeCourse ? 'free' : 'paid';
 
-  const accessVariant = {
-    'first-chapter': 'default' as const,
-    free: 'success' as const,
-    paid: 'warning' as const,
-  };
-
-  const canAccessLesson = (lessonAccess: string) => {
-    if (lessonAccess === 'first-chapter') return true;
-    if (lessonAccess === 'free') {
-      return identity !== 'guest';
-    }
+  // Check if user can access lesson
+  // Level 1 courses: all lessons free
+  // Level 2+ courses: first lesson free (preview), rest require subscription
+  const canAccessLesson = (lessonIndex: number) => {
+    if (isFreeCourse) return true; // Level 1 courses are fully free
+    if (lessonIndex === 0) return true; // First lesson always available as preview
+    // Paid content requires subscription
     return ['solo-traveler', 'duo-go', 'duo-run', 'duo-fly'].includes(identity);
   };
 
@@ -78,9 +72,12 @@ export default function CoursePage({ params }: CoursePageProps) {
             >
               <div className="flex items-center gap-2 mb-4">
                 <Badge variant="primary">{course.category}</Badge>
-                <Badge variant={accessVariant[course.accessLevel]}>
-                  {accessLabel[course.accessLevel]}
+                <Badge variant={LEVEL_BADGE_VARIANTS[course.level]}>
+                  {LEVEL_LABELS[course.level]}
                 </Badge>
+                {isFreeCourse && (
+                  <Badge variant="success">Free</Badge>
+                )}
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">
@@ -135,7 +132,8 @@ export default function CoursePage({ params }: CoursePageProps) {
                 </h2>
                 <div className="space-y-2">
                   {course.lessons.map((lesson, index) => {
-                    const hasAccess = canAccessLesson(lesson.accessLevel);
+                    const hasAccess = canAccessLesson(index);
+                    const isPreview = !isFreeCourse && index === 0;
 
                     return (
                       <div
@@ -156,12 +154,12 @@ export default function CoursePage({ params }: CoursePageProps) {
                             <span className="text-white font-medium truncate">
                               {lesson.title}
                             </span>
-                            {lesson.accessLevel === 'first-chapter' && (
+                            {isPreview && (
                               <Badge variant="default" size="sm">
                                 Preview
                               </Badge>
                             )}
-                            {lesson.accessLevel === 'free' && (
+                            {isFreeCourse && (
                               <Badge variant="success" size="sm">
                                 Free
                               </Badge>
@@ -237,12 +235,12 @@ export default function CoursePage({ params }: CoursePageProps) {
                   </div>
                 </div>
 
-                {course.accessLevel === 'paid' && identity !== 'solo-traveler' && !identity.startsWith('duo') ? (
+                {!isFreeCourse && identity !== 'solo-traveler' && !identity.startsWith('duo') ? (
                   <div className="space-y-4">
                     <p className="text-sm text-neutral-400 text-center">
                       Upgrade to Traveler to watch the full course
                     </p>
-                    <Link href="/shop/tickets">
+                    <Link href="/shop">
                       <Button className="w-full">Upgrade Plan</Button>
                     </Link>
                     <Button variant="secondary" className="w-full">

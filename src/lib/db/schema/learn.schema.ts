@@ -24,7 +24,7 @@ export interface CourseCategoryRecord {
 // ==========================================
 // Courses Table
 // ==========================================
-export type CourseAccessLevel = 'first-chapter' | 'free' | 'paid';
+import type { CourseLevel } from '@/features/learn/types';
 
 export interface CourseRecord {
   id: string;
@@ -36,7 +36,7 @@ export interface CourseRecord {
   trailerUrl?: string;
   categoryId: string;
   instructorId: string;
-  accessLevel: CourseAccessLevel;
+  level: CourseLevel;
   totalDuration: number; // seconds
   lessonCount: number;
   isFeatured: boolean;
@@ -65,7 +65,6 @@ export interface LessonRecord {
   description?: string;
   duration: number; // seconds
   videoUrl: string;
-  accessLevel: CourseAccessLevel;
   order: number;
   createdAt: Date;
   updatedAt: Date;

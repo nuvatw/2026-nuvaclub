@@ -9,6 +9,7 @@ import {
   type PreviewAction,
 } from '@/components/organisms/HoverPreviewPanel';
 import type { Course } from '@/features/learn/types';
+import { LEVEL_LABELS, LEVEL_BADGE_VARIANTS } from '@/features/learn/types';
 
 // Lazy loaded video component with loading state
 function LazyTrailerVideo({
@@ -84,18 +85,6 @@ function getYouTubeVideoId(url: string): string | null {
   const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
   return match ? match[1] : null;
 }
-
-const ACCESS_LABELS = {
-  'first-chapter': 'First Chapter Free',
-  free: 'Free',
-  paid: 'Premium',
-};
-
-const ACCESS_VARIANTS = {
-  'first-chapter': 'default' as const,
-  free: 'success' as const,
-  paid: 'warning' as const,
-};
 
 export function LearnHoverPreview() {
   const router = useRouter();
@@ -181,10 +170,10 @@ export function LearnHoverPreview() {
           </>
         )}
 
-        {/* Access Badge */}
+        {/* Level Badge */}
         <div className="absolute top-2 right-2 z-20">
-          <Badge variant={ACCESS_VARIANTS[course.accessLevel]} size="sm">
-            {ACCESS_LABELS[course.accessLevel]}
+          <Badge variant={LEVEL_BADGE_VARIANTS[course.level]} size="sm">
+            {LEVEL_LABELS[course.level]}
           </Badge>
         </div>
 

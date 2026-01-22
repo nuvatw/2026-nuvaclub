@@ -979,6 +979,176 @@ Iteration support enables efficient refinement. Feedback incorporation suggests 
   },
 ];
 
+// Curated list of real working Unsplash images for projects
+const PROJECT_IMAGES = [
+  // AI & Technology
+  'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800',
+  'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800',
+  'https://images.unsplash.com/photo-1535378917042-10a22c95931a?w=800',
+  'https://images.unsplash.com/photo-1555255707-c07966088b7b?w=800',
+  'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800',
+  'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800',
+  'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800',
+  'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=800',
+  'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800',
+  'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800',
+  // Video & Media
+  'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=800',
+  'https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?w=800',
+  'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800',
+  'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800',
+  'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800',
+  // Music & Audio
+  'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800',
+  'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800',
+  'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800',
+  'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=800',
+  'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=800',
+  // Coding & Development
+  'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800',
+  'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800',
+  'https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=800',
+  'https://images.unsplash.com/photo-1605379399642-870262d3d051?w=800',
+  'https://images.unsplash.com/photo-1537432376769-00f5c2f4c8d2?w=800',
+  // Data & Analytics
+  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800',
+  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800',
+  'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800',
+  'https://images.unsplash.com/photo-1543286386-713bdd548da4?w=800',
+  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800',
+  // Customer Service & Chat
+  'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=800',
+  'https://images.unsplash.com/photo-1556745757-8d76bdb6984b?w=800',
+  'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800',
+  'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800',
+  'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800',
+  // Writing & Content
+  'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800',
+  'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800',
+  'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800',
+  'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800',
+  'https://images.unsplash.com/photo-1471107340929-a87cd0f5b5f3?w=800',
+  // Education
+  'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800',
+  'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800',
+  'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=800',
+  'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800',
+  'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=800',
+  // Healthcare
+  'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800',
+  'https://images.unsplash.com/photo-1559757175-5700dde675bc?w=800',
+  'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=800',
+  'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=800',
+  'https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?w=800',
+  // Finance
+  'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800',
+  'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=800',
+  'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800',
+  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800',
+  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=800',
+  // Social Media
+  'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=800',
+  'https://images.unsplash.com/photo-1562577309-4932fdd64cd1?w=800',
+  'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=800',
+  'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=800',
+  'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800',
+  // Productivity
+  'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800',
+  'https://images.unsplash.com/photo-1507925921958-8a62f3d1a50d?w=800',
+  'https://images.unsplash.com/photo-1512758017271-d7b84c2113f1?w=800',
+  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800',
+  'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800',
+  // Image Generation
+  'https://images.unsplash.com/photo-1617791160505-6f00504e3519?w=800',
+  'https://images.unsplash.com/photo-1633355444132-695d5876cd00?w=800',
+  'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800',
+  'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=800',
+  'https://images.unsplash.com/photo-1614851099175-e5b30eb6f696?w=800',
+  // Search & Discovery
+  'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800',
+  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800',
+  'https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?w=800',
+  'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800',
+  'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800',
+  // Documents & Email
+  'https://images.unsplash.com/photo-1568667256549-094345857637?w=800',
+  'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=800',
+  'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800',
+  'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800',
+  'https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?w=800',
+  // Voice & Audio
+  'https://images.unsplash.com/photo-1589254065878-42c9da997008?w=800',
+  'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=800',
+  'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=800',
+  'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800',
+  'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800',
+  // Research & Knowledge
+  'https://images.unsplash.com/photo-1456324504439-367cee3b3c32?w=800',
+  'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=800',
+  'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800',
+  'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800',
+  'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=800',
+  // Chatbots & Plugins
+  'https://images.unsplash.com/photo-1676299081847-824916de030a?w=800',
+  'https://images.unsplash.com/photo-1655720828018-edd2daec9349?w=800',
+  'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=800',
+  'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800',
+  'https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800',
+  // More Tech & Innovation
+  'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800',
+  'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800',
+  'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=800',
+  'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800',
+  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800',
+  // Design & Creative
+  'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800',
+  'https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=800',
+  'https://images.unsplash.com/photo-1541462608143-67571c6738dd?w=800',
+  'https://images.unsplash.com/photo-1572044162444-ad60f128bdea?w=800',
+  'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=800',
+  // Travel & Lifestyle
+  'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800',
+  'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800',
+  'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800',
+  'https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=800',
+  // Food & Recipe
+  'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=800',
+  'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800',
+  'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800',
+  'https://images.unsplash.com/photo-1466637574441-749b8f19452f?w=800',
+  'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800',
+  // Fitness & Wellness
+  'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800',
+  'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800',
+  'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800',
+  'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800',
+  'https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=800',
+  // Business & Office
+  'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800',
+  'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=800',
+  'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800',
+  'https://images.unsplash.com/photo-1551135049-8a33b5883817?w=800',
+  'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800',
+  // More AI images
+  'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800',
+  'https://images.unsplash.com/photo-1625314887424-9f190599bd56?w=800',
+  'https://images.unsplash.com/photo-1666597107756-ef489e9f1f09?w=800',
+  'https://images.unsplash.com/photo-1679083216051-aa510a1a2c0e?w=800',
+  'https://images.unsplash.com/photo-1684369176170-463e84248b70?w=800',
+  // Additional varied images
+  'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800',
+  'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800',
+  'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800',
+  'https://images.unsplash.com/photo-1557426272-fc759fdf7a8d?w=800',
+  'https://images.unsplash.com/photo-1553484771-371a605b060b?w=800',
+  'https://images.unsplash.com/photo-1560472355-536de3962603?w=800',
+  'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800',
+  'https://images.unsplash.com/photo-1573167243872-43c6433b9d40?w=800',
+  'https://images.unsplash.com/photo-1560807707-8cc77767d783?w=800',
+  'https://images.unsplash.com/photo-1593508512255-86ab42a8e620?w=800',
+];
+
 // Generate projects from templates
 function generateProjects(): Project[] {
   const projects: Project[] = [];
@@ -1006,7 +1176,7 @@ function generateProjects(): Project[] {
         sprintId: sprint.id,
         title: template.title,
         description: template.description,
-        thumbnailUrl: `https://images.unsplash.com/photo-${1500000000000 + (projectIndex * 7919) % 100000000}?w=800`,
+        thumbnailUrl: PROJECT_IMAGES[projectIndex % PROJECT_IMAGES.length],
         githubUrl: i % 2 === 0 ? `https://github.com/example/project-${projectIndex + 1}` : undefined,
         liveUrl: i % 3 === 0 ? `https://demo-${projectIndex + 1}.example.com` : undefined,
         techStack: template.techStack,

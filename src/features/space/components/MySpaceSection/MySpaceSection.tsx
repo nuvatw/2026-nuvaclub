@@ -105,12 +105,12 @@ export function MySpaceSection({ onNavigateToMatchingBoard }: MySpaceSectionProp
                 avatar: myNunu.avatar,
                 level: myNunu.level as NunuLevel | undefined,
                 nunuType: myNunu.type as NunuType | undefined,
+                discordId: myNunu.discordId,
+                githubUsername: myNunu.githubUsername,
               }}
               status="active"
               startedAt={new Date()}
               sessionCount={8}
-              onViewProfile={() => console.log('View profile', myNunu.id)}
-              onMessage={() => console.log('Message', myNunu.id)}
             />
           ) : (
             <EmptyPairingState

@@ -6,7 +6,7 @@
  * work while new components use the database directly.
  */
 
-import type { Course, Lesson, CourseCategory } from '@/features/learn/types';
+import type { Course, Lesson, CourseCategory, CourseLevel } from '@/features/learn/types';
 import type { Post, Comment } from '@/features/forum/types';
 import type { Companion } from '@/features/space/types';
 import type { Season, Sprint, Project } from '@/features/sprint/types';
@@ -59,7 +59,7 @@ export function dbCourseToLegacy(course: CourseWithRelations): Course {
     instructor: course.instructor
       ? { name: course.instructor.name, avatar: course.instructor.avatar }
       : { name: 'Unknown', avatar: '' },
-    accessLevel: course.accessLevel,
+    level: course.level,
     lessons: (course.lessons ?? []).map(dbLessonToLegacy),
     totalDuration: course.totalDuration,
     lessonCount: course.lessonCount,
@@ -77,7 +77,6 @@ export function dbLessonToLegacy(lesson: LessonRecord): Lesson {
     title: lesson.title,
     duration: lesson.duration,
     videoUrl: lesson.videoUrl,
-    accessLevel: lesson.accessLevel,
     order: lesson.order,
   };
 }

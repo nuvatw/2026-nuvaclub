@@ -61,11 +61,11 @@ export class CourseRepository extends BaseRepository<CourseRecord> {
   }
 
   /**
-   * Find free courses
+   * Find free courses (level 1 courses are free)
    */
   findFree(): CourseWithRelations[] {
     const courses = this.findMany({
-      where: (c) => c.accessLevel === 'free' && c.isPublished,
+      where: (c) => c.level === 1 && c.isPublished,
       orderBy: { field: 'createdAt', direction: 'desc' },
     });
     return courses.map((c) => this.enrichCourse(c));

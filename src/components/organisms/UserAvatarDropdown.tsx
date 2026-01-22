@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '@/features/auth/components/AuthProvider';
+import { getMembershipDisplay } from '@/features/auth/types';
 import { cn } from '@/lib/utils';
 
 interface MenuItem {
@@ -67,23 +68,6 @@ const MENU_ITEMS: MenuItem[] = [
   },
 ];
 
-function getMembershipLabel(identity: string): { label: string; color: string } {
-  switch (identity) {
-    case 'explorer':
-      return { label: 'Explorer', color: 'bg-primary-600 text-white' };
-    case 'solo-traveler':
-      return { label: 'Solo Traveler', color: 'bg-accent-500 text-white' };
-    case 'duo-go':
-      return { label: 'Duo Go', color: 'bg-green-500 text-white' };
-    case 'duo-run':
-      return { label: 'Duo Run', color: 'bg-purple-500 text-white' };
-    case 'duo-fly':
-      return { label: 'Duo Fly', color: 'bg-amber-500 text-white' };
-    default:
-      return { label: 'Guest', color: 'bg-neutral-600 text-white' };
-  }
-}
-
 export function UserAvatarDropdown() {
   const { user, identity, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
@@ -115,7 +99,7 @@ export function UserAvatarDropdown() {
 
   if (!user) return null;
 
-  const membership = getMembershipLabel(identity);
+  const membership = getMembershipDisplay(identity);
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -188,7 +172,7 @@ export function UserAvatarDropdown() {
               </div>
               {/* Membership Badge */}
               <div className="mt-3">
-                <span className={cn('px-3 py-1 rounded-full text-xs font-medium', membership.color)}>
+                <span className={cn('px-3 py-1 rounded-full text-xs font-medium text-white', membership.color)}>
                   {membership.label}
                 </span>
               </div>

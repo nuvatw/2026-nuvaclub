@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Button, Badge } from '@/components/atoms';
 import { VideoPlayer } from './VideoPlayer';
 import type { Course } from '@/features/learn/types';
+import { LEVEL_LABELS, LEVEL_BADGE_VARIANTS } from '@/features/learn/types';
 
 interface VideoHeroProps {
   course: Course;
@@ -43,11 +44,11 @@ export function VideoHero({ course, videoId = '0kARDVL2nZg' }: VideoHeroProps) {
           <div className="max-w-2xl">
             <div className="flex items-center gap-2 mb-4">
               <Badge variant="primary">{course.category}</Badge>
-              {course.accessLevel === 'free' && (
+              <Badge variant={LEVEL_BADGE_VARIANTS[course.level]}>
+                {LEVEL_LABELS[course.level]}
+              </Badge>
+              {course.level === 1 && (
                 <Badge variant="success">Free</Badge>
-              )}
-              {course.accessLevel === 'paid' && (
-                <Badge variant="warning">Premium</Badge>
               )}
             </div>
 

@@ -47,9 +47,9 @@ export function useLearnSections() {
       }
     }
 
-    // Row 2: Free Courses (role-gated for guest/explorer)
+    // Row 2: Free Courses (role-gated for guest/explorer) - Level 1 courses are free
     if (shouldShowFreeContent) {
-      const freeCourses = MOCK_COURSES.filter((c) => c.accessLevel === 'free');
+      const freeCourses = MOCK_COURSES.filter((c) => c.level === 1);
       if (freeCourses.length > 0) {
         result.push({
           id: 'free-courses',
