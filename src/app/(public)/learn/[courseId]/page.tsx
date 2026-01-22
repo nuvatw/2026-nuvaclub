@@ -1,0 +1,298 @@
+'use client';
+
+import { use } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { motion } from 'motion/react';
+import { Button, Badge, Card, CardContent } from '@/components/atoms';
+import { Gate } from '@/features/auth/components/Gate';
+import { useAuth } from '@/features/auth/components/AuthProvider';
+import { getCourseById } from '@/features/learn/data/courses';
+import { cn } from '@/lib/utils';
+import { PageTransition } from '@/components/molecules/PageTransition';
+import { CourseDetailSkeleton } from '@/components/skeletons';
+
+interface CoursePageProps {
+  params: Promise<{ courseId: string }>;
+}
+
+export default function CoursePage({ params }: CoursePageProps) {
+  const { courseId } = use(params);
+  const course = getCourseById(courseId);
+  const { identity } = useAuth();
+
+  if (!course) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white mb-4">Course Not Found</h1>
+          <Link href="/learn">
+            <Button>Back to Courses</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const accessLabel = {
+    'first-chapter': 'First Chapter Free',
+    free: 'Free Course',
+    paid: 'Premium Course',
+  };
+
+  const accessVariant = {
+    'first-chapter': 'default' as const,
+    free: 'success' as const,
+    paid: 'warning' as const,
+  };
+
+  const canAccessLesson = (lessonAccess: string) => {
+    if (lessonAccess === 'first-chapter') return true;
+    if (lessonAccess === 'free') {
+      return identity !== 'guest';
+    }
+    return ['solo-traveler', 'duo-go', 'duo-run', 'duo-fly'].includes(identity);
+  };
+
+  return (
+    <PageTransition skeleton={<CourseDetailSkeleton />}>
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <div className="relative h-[50vh] min-h-[400px]">
+        <Image
+          src={course.thumbnailUrl}
+          alt={course.title}
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-950/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-transparent" />
+
+        <div className="absolute inset-0 flex items-end">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 w-full">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="max-w-2xl"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <Badge variant="primary">{course.category}</Badge>
+                <Badge variant={accessVariant[course.accessLevel]}>
+                  {accessLabel[course.accessLevel]}
+                </Badge>
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">
+                {course.title}
+              </h1>
+
+              <p className="text-lg text-neutral-300 mb-4">{course.subtitle}</p>
+
+              <div className="flex items-center gap-4 text-sm text-neutral-400">
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={course.instructor.avatar}
+                    alt={course.instructor.name}
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                  />
+                  <span>{course.instructor.name}</span>
+                </div>
+                <span>•</span>
+                <span>{course.lessonCount} lessons</span>
+                <span>•</span>
+                <span>{Math.round(course.totalDuration / 60)} mins</span>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Description */}
+            <Card>
+              <CardContent>
+                <h2 className="text-xl font-semibold text-white mb-4">
+                  Course Description
+                </h2>
+                <p className="text-neutral-300 leading-relaxed">
+                  {course.description}
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Lessons */}
+            <Card>
+              <CardContent>
+                <h2 className="text-xl font-semibold text-white mb-4">
+                  Course Lessons
+                </h2>
+                <div className="space-y-2">
+                  {course.lessons.map((lesson, index) => {
+                    const hasAccess = canAccessLesson(lesson.accessLevel);
+
+                    return (
+                      <div
+                        key={lesson.id}
+                        className={cn(
+                          'flex items-center gap-4 p-4 rounded-lg',
+                          'bg-neutral-800/50 border border-neutral-800',
+                          hasAccess
+                            ? 'hover:bg-neutral-800 cursor-pointer'
+                            : 'opacity-60'
+                        )}
+                      >
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center text-sm font-medium text-neutral-300">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-white font-medium truncate">
+                              {lesson.title}
+                            </span>
+                            {lesson.accessLevel === 'first-chapter' && (
+                              <Badge variant="default" size="sm">
+                                Preview
+                              </Badge>
+                            )}
+                            {lesson.accessLevel === 'free' && (
+                              <Badge variant="success" size="sm">
+                                Free
+                              </Badge>
+                            )}
+                          </div>
+                          <span className="text-sm text-neutral-400">
+                            {Math.round(lesson.duration / 60)} mins
+                          </span>
+                        </div>
+                        <div className="flex-shrink-0">
+                          {hasAccess ? (
+                            <svg
+                              className="w-5 h-5 text-primary-500"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          ) : (
+                            <svg
+                              className="w-5 h-5 text-neutral-500"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                              />
+                            </svg>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* CTA Card */}
+            <Card className="sticky top-24">
+              <CardContent>
+                <div className="aspect-video relative rounded-lg overflow-hidden mb-4">
+                  <Image
+                    src={course.thumbnailUrl}
+                    alt={course.title}
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                    <div className="p-4 rounded-full bg-white/90">
+                      <svg
+                        className="w-8 h-8 text-neutral-900"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {course.accessLevel === 'paid' && identity !== 'solo-traveler' && !identity.startsWith('duo') ? (
+                  <div className="space-y-4">
+                    <p className="text-sm text-neutral-400 text-center">
+                      Upgrade to Traveler to watch the full course
+                    </p>
+                    <Link href="/shop/tickets">
+                      <Button className="w-full">Upgrade Plan</Button>
+                    </Link>
+                    <Button variant="secondary" className="w-full">
+                      Watch First Chapter
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <Button className="w-full" size="lg">
+                      Start Learning
+                    </Button>
+                  </div>
+                )}
+
+                <div className="mt-6 pt-6 border-t border-neutral-800 space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-neutral-400">Lessons</span>
+                    <span className="text-white">{course.lessonCount}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-neutral-400">Total Duration</span>
+                    <span className="text-white">
+                      {Math.round(course.totalDuration / 60)} mins
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-neutral-400">Instructor</span>
+                    <span className="text-white">{course.instructor.name}</span>
+                  </div>
+                </div>
+
+                {/* Tags */}
+                <div className="mt-6 pt-6 border-t border-neutral-800">
+                  <div className="flex flex-wrap gap-2">
+                    {course.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2 py-1 rounded text-xs bg-neutral-800 text-neutral-300"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+    </PageTransition>
+  );
+}
