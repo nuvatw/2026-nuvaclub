@@ -2,15 +2,16 @@
 
 import Link from 'next/link';
 import { motion } from 'motion/react';
-import { Button, Badge, Card, CardContent } from '@/components/atoms';
+import { Button, Card, CardContent } from '@/components/atoms';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 import { MyNunuSection, MyVavaSection } from '@/features/space/components/MySpaceSection';
 import { MatchingBoardSection } from '@/features/space/components/MatchingBoard';
+import { DuoStatusBar } from '@/features/space/components/DuoStatusBar';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { SpacePageSkeleton, SpaceLockedSkeleton } from '@/components/skeletons';
 
 export default function SpacePage() {
-  const { identity, hasPermission } = useAuth();
+  const { hasPermission } = useAuth();
 
   const canEnterSpace = hasPermission('space:enter');
 
@@ -64,8 +65,8 @@ export default function SpacePage() {
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-lg bg-neutral-800">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-purple-600/20 flex items-center justify-center">
-                        <span className="text-purple-400 font-medium">Run</span>
+                      <div className="w-8 h-8 rounded-full bg-amber-600/20 flex items-center justify-center">
+                        <span className="text-amber-400 font-medium">Run</span>
                       </div>
                       <div>
                         <div className="font-medium text-white">Seasonal Pass</div>
@@ -75,8 +76,8 @@ export default function SpacePage() {
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-lg bg-neutral-800">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-amber-600/20 flex items-center justify-center">
-                        <span className="text-amber-400 font-medium">Fly</span>
+                      <div className="w-8 h-8 rounded-full bg-red-600/20 flex items-center justify-center">
+                        <span className="text-red-400 font-medium">Fly</span>
                       </div>
                       <div>
                         <div className="font-medium text-white">Seasonal Pass</div>
@@ -105,21 +106,16 @@ export default function SpacePage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-6"
         >
           <h1 className="text-3xl font-bold text-white mb-2">Space</h1>
           <p className="text-neutral-400">
             Find your partner and grow together
           </p>
-          <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-neutral-800">
-            <span className="text-sm text-neutral-400">Current status:</span>
-            <Badge variant="primary">
-              {identity === 'duo-go' && 'Go Monthly Pass'}
-              {identity === 'duo-run' && 'Run Seasonal Pass'}
-              {identity === 'duo-fly' && 'Fly Seasonal Pass'}
-            </Badge>
-          </div>
         </motion.div>
+
+        {/* Duo Status Bar */}
+        <DuoStatusBar />
 
         {/* Section 1: My Nunu */}
         <MyNunuSection onNavigateToMatchingBoard={() => {}} />

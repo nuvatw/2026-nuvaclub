@@ -6,12 +6,20 @@ import type {
   TestAnswerRecord,
   UserTestProgressRecord,
   LevelAttemptRecord,
+  TestLevelRecord,
+  QuestionOptionRecord,
 } from '../schema';
-import { getLevelDuration } from '@/features/test/constants';
+import { getLevelDuration } from '../seed/test.seed';
+
+export interface QuestionWithOptions extends QuestionRecord {
+  options?: QuestionOptionRecord[];
+  level?: number; // Resolved from levelId
+}
 
 export interface TestSessionWithDetails extends TestSessionRecord {
-  questions: QuestionRecord[];
+  questions: QuestionWithOptions[];
   answers: TestAnswerRecord[];
+  levelInfo?: TestLevelRecord;
 }
 
 export class TestRepository extends BaseRepository<TestSessionRecord> {
@@ -20,20 +28,56 @@ export class TestRepository extends BaseRepository<TestSessionRecord> {
   }
 
   /**
+   * Get test level info by level number
+   */
+  getTestLevel(level: number): TestLevelRecord | undefined {
+    return this.db.testLevels.findFirst({
+      where: { level },
+    });
+  }
+
+  /**
    * Get all questions for a specific level
    */
-  getQuestionsForLevel(level: number): QuestionRecord[] {
-    return this.db.questions.findMany({
-      where: { level },
+  getQuestionsForLevel(level: number): QuestionWithOptions[] {
+    // Find the level record
+    const levelRecord = this.getTestLevel(level);
+    if (!levelRecord) return [];
+
+    const questions = this.db.questions.findMany({
+      where: { levelId: levelRecord.id, isActive: true },
       orderBy: { field: 'id', direction: 'asc' },
     });
+
+    return questions.map((q) => this.enrichQuestion(q, level));
   }
 
   /**
    * Get a single question
    */
-  getQuestion(questionId: string): QuestionRecord | undefined {
-    return this.db.questions.findById(questionId);
+  getQuestion(questionId: string): QuestionWithOptions | undefined {
+    const question = this.db.questions.findById(questionId);
+    if (!question) return undefined;
+
+    // Resolve level from levelId
+    const levelRecord = this.db.testLevels.findById(question.levelId);
+    return this.enrichQuestion(question, levelRecord?.level);
+  }
+
+  /**
+   * Enrich question with options
+   */
+  private enrichQuestion(question: QuestionRecord, level?: number): QuestionWithOptions {
+    const options = this.db.questionOptions.findMany({
+      where: { questionId: question.id },
+      orderBy: { field: 'sortOrder', direction: 'asc' },
+    });
+
+    return {
+      ...question,
+      options,
+      level,
+    };
   }
 
   /**
@@ -44,16 +88,19 @@ export class TestRepository extends BaseRepository<TestSessionRecord> {
     const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
     const passingScore = Math.ceil(maxScore * 0.6);
 
+    const levelRecord = this.getTestLevel(level);
     const durationMinutes = getLevelDuration(level);
     const startedAt = new Date();
-    const expiredAt = new Date(startedAt.getTime() + durationMinutes * 60 * 1000);
+    const expiresAt = new Date(startedAt.getTime() + durationMinutes * 60 * 1000);
 
     const session = this.create({
       userId,
-      level,
+      levelId: levelRecord?.id ?? `level-${level}`,
+      questionCount: questions.length,
+      timeLimit: durationMinutes * 60, // Convert to seconds
       status: 'in-progress',
       startedAt,
-      expiredAt,
+      expiresAt,
       maxScore,
       passingScore,
       createdAt: new Date(),
@@ -80,13 +127,18 @@ export class TestRepository extends BaseRepository<TestSessionRecord> {
     const session = this.findById(sessionId);
     if (!session) return undefined;
 
-    const questions = this.getQuestionsForLevel(session.level);
+    // Resolve level from levelId
+    const levelRecord = this.db.testLevels.findById(session.levelId);
+    const level = levelRecord?.level ?? 1;
+
+    const questions = this.getQuestionsForLevel(level);
     const answers = this.getAnswersForSession(sessionId);
 
     return {
       ...session,
       questions,
       answers,
+      levelInfo: levelRecord,
     };
   }
 
@@ -112,6 +164,7 @@ export class TestRepository extends BaseRepository<TestSessionRecord> {
         highestPassedLevel: 0,
         totalAttempts: 0,
         totalPassed: 0,
+        totalFailed: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -124,8 +177,11 @@ export class TestRepository extends BaseRepository<TestSessionRecord> {
    * Get user's history for a specific level
    */
   getLevelHistory(userId: string, level: number): LevelAttemptRecord[] {
+    const levelRecord = this.getTestLevel(level);
+    if (!levelRecord) return [];
+
     return this.db.levelAttempts.findMany({
-      where: (r) => r.userId === userId && r.level === level,
+      where: (r) => r.userId === userId && r.levelId === levelRecord.id,
       orderBy: { field: 'attemptedAt', direction: 'desc' },
     });
   }
@@ -188,6 +244,7 @@ export class TestRepository extends BaseRepository<TestSessionRecord> {
     const newAnswer = this.db.testAnswers.create({
       id: `ans-${sessionId}-${questionId}`,
       sessionId,
+      sessionQuestionId: `sq-${sessionId}-${questionId}`, // Link to session question
       questionId,
       answer,
       isCorrect,
@@ -205,8 +262,12 @@ export class TestRepository extends BaseRepository<TestSessionRecord> {
     const session = this.findById(sessionId);
     if (!session) return undefined;
 
+    // Resolve level from levelId
+    const levelRecord = this.db.testLevels.findById(session.levelId);
+    const level = levelRecord?.level ?? 1;
+
     const answers = this.getAnswersForSession(sessionId);
-    const questions = this.getQuestionsForLevel(session.level);
+    const questions = this.getQuestionsForLevel(level);
 
     // Calculate total score (only for auto-graded questions)
     let totalScore = 0;
@@ -258,27 +319,32 @@ export class TestRepository extends BaseRepository<TestSessionRecord> {
 
         if (passed) {
           updates.totalPassed = progress.totalPassed + 1;
-          if (session.level > progress.highestPassedLevel) {
-            updates.highestPassedLevel = session.level;
+          if (level > progress.highestPassedLevel) {
+            updates.highestPassedLevel = level;
           }
-          if (session.level >= progress.currentLevel && session.level < 12) {
-            updates.currentLevel = session.level + 1;
+          if (level >= progress.currentLevel && level < 12) {
+            updates.currentLevel = level + 1;
           }
+        } else {
+          updates.totalFailed = (progress.totalFailed ?? 0) + 1;
         }
 
         this.db.userTestProgress.update(progress.id, updates);
       }
 
       // Record attempt history
-      const previousAttempts = this.getLevelHistory(session.userId, session.level);
+      const previousAttempts = this.getLevelHistory(session.userId, level);
       this.db.levelAttempts.create({
         id: `la-${sessionId}`,
         userId: session.userId,
-        level: session.level,
+        levelId: session.levelId,
         sessionId,
         attemptNumber: previousAttempts.length + 1,
         score: totalScore,
+        maxScore: session.maxScore,
+        percentage: session.maxScore > 0 ? Math.round((totalScore / session.maxScore) * 100) : 0,
         passed,
+        timeSpentSeconds: timeSpent,
         attemptedAt: now,
       });
 
@@ -293,8 +359,8 @@ export class TestRepository extends BaseRepository<TestSessionRecord> {
    */
   isSessionExpired(sessionId: string): boolean {
     const session = this.findById(sessionId);
-    if (!session || !session.expiredAt) return false;
-    return new Date() > session.expiredAt;
+    if (!session || !session.expiresAt) return false;
+    return new Date() > session.expiresAt;
   }
 
   /**
@@ -350,15 +416,11 @@ export class TestRepository extends BaseRepository<TestSessionRecord> {
     const bestScore = Math.max(...history.map((h) => h.score));
     const passed = history.some((h) => h.passed);
 
-    // Calculate average time
-    const sessionsWithTime = history
-      .map((h) => this.findById(h.sessionId))
-      .filter((s) => s?.timeSpentSeconds != null);
-
+    // Calculate average time from history
+    const withTime = history.filter((h) => h.timeSpentSeconds != null);
     const averageTime =
-      sessionsWithTime.length > 0
-        ? sessionsWithTime.reduce((sum, s) => sum + (s?.timeSpentSeconds ?? 0), 0) /
-          sessionsWithTime.length
+      withTime.length > 0
+        ? withTime.reduce((sum, h) => sum + (h.timeSpentSeconds ?? 0), 0) / withTime.length
         : null;
 
     return {

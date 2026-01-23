@@ -115,6 +115,8 @@ export interface CartItem {
   quantity: number;
   selectedVariant?: string;
   selectedPeriod?: string;
+  // For Duo tickets - array of YYYY-MM month strings
+  selectedMonths?: string[];
 }
 
 export interface Cart {

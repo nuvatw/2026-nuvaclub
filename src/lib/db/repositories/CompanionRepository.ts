@@ -4,10 +4,17 @@ import type {
   CompanionRecord,
   CompanionType,
   MatchRecord,
+  CompanionStatsRecord,
 } from '../schema';
 
 export interface CompanionWithRelations extends CompanionRecord {
   expertise?: string[];
+  stats?: {
+    matchCount: number;
+    totalRatings: number;
+    sumRatings: number;
+    avgRating: number;
+  };
 }
 
 export class CompanionRepository extends BaseRepository<CompanionRecord> {
@@ -83,35 +90,44 @@ export class CompanionRepository extends BaseRepository<CompanionRecord> {
    * Update companion rating after a match is rated
    */
   updateRating(companionId: string, newRating: number): void {
-    const companion = this.findById(companionId);
-    if (!companion) return;
-
-    const totalRatings = companion.totalRatings + 1;
-    const avgRating =
-      (companion.avgRating * companion.totalRatings + newRating) / totalRatings;
-
-    this.update(companionId, {
-      avgRating: Math.round(avgRating * 10) / 10,
-      totalRatings,
-      updatedAt: new Date(),
+    const stats = this.db.companionStats.findFirst({
+      where: { companionId },
     });
+    if (!stats) return;
+
+    const totalRatings = stats.totalRatings + 1;
+    const sumRatings = stats.sumRatings + newRating;
+    const avgRating = sumRatings / totalRatings;
+
+    this.db.companionStats.update(companionId, {
+      totalRatings,
+      sumRatings,
+      avgRating: Math.round(avgRating * 10) / 10,
+      lastUpdatedAt: new Date(),
+    });
+
+    this.persist();
   }
 
   /**
    * Increment match count
    */
   incrementMatchCount(companionId: string): void {
-    const companion = this.findById(companionId);
-    if (!companion) return;
-
-    this.update(companionId, {
-      matchCount: companion.matchCount + 1,
-      updatedAt: new Date(),
+    const stats = this.db.companionStats.findFirst({
+      where: { companionId },
     });
+    if (!stats) return;
+
+    this.db.companionStats.update(companionId, {
+      matchCount: stats.matchCount + 1,
+      lastUpdatedAt: new Date(),
+    });
+
+    this.persist();
   }
 
   /**
-   * Enrich companion with expertise
+   * Enrich companion with expertise and stats
    */
   private enrichCompanion(companion: CompanionRecord): CompanionWithRelations {
     const expertiseRecords = this.db.companionExpertise.findMany({
@@ -119,9 +135,22 @@ export class CompanionRepository extends BaseRepository<CompanionRecord> {
     });
     const expertise = expertiseRecords.map((e) => e.expertise);
 
+    // Get stats from separate table
+    const companionStats = this.db.companionStats.findFirst({
+      where: { companionId: companion.id },
+    });
+
     return {
       ...companion,
       expertise,
+      stats: companionStats
+        ? {
+            matchCount: companionStats.matchCount,
+            totalRatings: companionStats.totalRatings,
+            sumRatings: companionStats.sumRatings,
+            avgRating: companionStats.avgRating,
+          }
+        : undefined,
     };
   }
 }

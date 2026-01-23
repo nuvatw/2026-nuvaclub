@@ -2,102 +2,11 @@
 
 import { useState, useCallback } from 'react';
 import { useAuth } from '@/features/auth/components/AuthProvider';
+import { getMembershipDetails } from '@/features/auth/types';
 import { useDBContext } from '@/lib/db';
 import { Modal, Button } from '@/components/atoms';
 import { cn } from '@/lib/utils';
-
-function formatDate(date: Date | undefined): string {
-  if (!date) return 'N/A';
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }).format(new Date(date));
-}
-
-function getMembershipDetails(identity: string) {
-  switch (identity) {
-    case 'explorer':
-      return {
-        label: 'Explorer',
-        color: 'bg-primary-600',
-        textColor: 'text-primary-400',
-        borderColor: 'border-primary-500/30',
-        description: 'Free membership with access to free courses and community features.',
-        features: [
-          'Access to free courses',
-          'First chapter of paid courses',
-          'Forum participation',
-          'Browse projects in Sprint',
-        ],
-      };
-    case 'solo-traveler':
-      return {
-        label: 'Solo Traveler',
-        color: 'bg-accent-500',
-        textColor: 'text-accent-400',
-        borderColor: 'border-accent-500/30',
-        description: 'Premium membership with full access to all learning content.',
-        features: [
-          'All courses unlocked',
-          'Priority forum support',
-          'Upload projects to Sprint',
-          'Download course materials',
-        ],
-      };
-    case 'duo-go':
-      return {
-        label: 'Duo Go',
-        color: 'bg-green-500',
-        textColor: 'text-green-400',
-        borderColor: 'border-green-500/30',
-        description: 'Connect with 1 learning companion for collaborative growth.',
-        features: [
-          'All Traveler benefits',
-          '1 Nunu mentor',
-          '1 Vava companion',
-          'Space matching access',
-        ],
-      };
-    case 'duo-run':
-      return {
-        label: 'Duo Run',
-        color: 'bg-purple-500',
-        textColor: 'text-purple-400',
-        borderColor: 'border-purple-500/30',
-        description: 'Build your learning team with up to 5 companions.',
-        features: [
-          'All Traveler benefits',
-          '1 Nunu mentor',
-          'Up to 5 Vava companions',
-          'Priority matching',
-        ],
-      };
-    case 'duo-fly':
-      return {
-        label: 'Duo Fly',
-        color: 'bg-amber-500',
-        textColor: 'text-amber-400',
-        borderColor: 'border-amber-500/30',
-        description: 'Unlimited companions for maximum collaborative learning.',
-        features: [
-          'All Traveler benefits',
-          '1 Nunu mentor',
-          'Unlimited Vava companions',
-          'VIP matching priority',
-        ],
-      };
-    default:
-      return {
-        label: 'Guest',
-        color: 'bg-neutral-600',
-        textColor: 'text-neutral-400',
-        borderColor: 'border-neutral-500/30',
-        description: 'Create an account to access all features.',
-        features: ['Browse public content', 'View course previews'],
-      };
-  }
-}
+import { formatDateMedium } from '@/lib/utils/date';
 
 export default function ProfilePage() {
   const { user, identity } = useAuth();
@@ -162,12 +71,12 @@ export default function ProfilePage() {
 
   // Get duo ticket info
   const duoTicket = isReady && db
-    ? db.duoTickets.findFirst({ where: { userId: user.id, status: 'active' } })
+    ? db.userDuoTickets.findFirst({ where: { userId: user.id, status: 'active' } })
     : null;
 
   // Get user stats
   const courseProgress = isReady && db
-    ? db.userCourseProgress.findMany({ where: { userId: user.id } })
+    ? db.userCourseEnrollments.findMany({ where: { userId: user.id } })
     : [];
 
   const completedCourses = courseProgress.filter(p => p.completedAt);
@@ -213,7 +122,7 @@ export default function ProfilePage() {
                   {membership.label}
                 </span>
                 <span className="text-sm text-neutral-500">
-                  Member since {formatDate(user.createdAt)}
+                  Member since {formatDateMedium(user.createdAt)}
                 </span>
               </div>
             </div>
@@ -336,11 +245,11 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <span className="text-neutral-500">Current Period</span>
-                  <p className="text-white font-medium">{formatDate(subscription.currentPeriodStart)}</p>
+                  <p className="text-white font-medium">{formatDateMedium(subscription.periodStart)}</p>
                 </div>
                 <div>
                   <span className="text-neutral-500">Renews On</span>
-                  <p className="text-white font-medium">{formatDate(subscription.currentPeriodEnd)}</p>
+                  <p className="text-white font-medium">{formatDateMedium(subscription.periodEnd)}</p>
                 </div>
               </div>
             </div>
@@ -353,7 +262,7 @@ export default function ProfilePage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
                 <div>
                   <span className="text-neutral-500">Ticket Type</span>
-                  <p className="text-white font-medium capitalize">Duo {duoTicket.ticketType}</p>
+                  <p className="text-white font-medium capitalize">Duo {duoTicket.tier}</p>
                 </div>
                 <div>
                   <span className="text-neutral-500">Status</span>
@@ -361,11 +270,11 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <span className="text-neutral-500">Valid From</span>
-                  <p className="text-white font-medium">{formatDate(duoTicket.validFrom)}</p>
+                  <p className="text-white font-medium">{formatDateMedium(duoTicket.validFrom)}</p>
                 </div>
                 <div>
                   <span className="text-neutral-500">Valid Until</span>
-                  <p className="text-white font-medium">{formatDate(duoTicket.validUntil)}</p>
+                  <p className="text-white font-medium">{formatDateMedium(duoTicket.validUntil)}</p>
                 </div>
               </div>
             </div>

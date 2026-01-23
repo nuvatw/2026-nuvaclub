@@ -1,10 +1,10 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import type { QuestionRecord } from '@/lib/db/schema';
+import type { QuestionWithOptions } from '@/lib/db/repositories/TestRepository';
 
 interface MultipleChoiceQuestionProps {
-  question: QuestionRecord;
+  question: QuestionWithOptions;
   selectedAnswer?: string;
   onSelect: (answer: string) => void;
   showResult?: boolean;
@@ -20,23 +20,24 @@ export function MultipleChoiceQuestion({
   showResult = false,
   disabled = false,
 }: MultipleChoiceQuestionProps) {
-  const options = question.options ?? [];
+  const options = question.options?.map(o => o.optionText) ?? [];
 
   return (
     <div className="space-y-4">
       <p className="text-lg text-neutral-100">{question.content}</p>
 
       <div className="space-y-3">
-        {options.map((option, index) => {
-          const isSelected = selectedAnswer === option;
-          const isCorrect = question.correctAnswer === option;
+        {options.map((optionText, index) => {
+          const optionRecord = question.options?.[index];
+          const isSelected = selectedAnswer === optionText;
+          const isCorrect = optionRecord?.isCorrect ?? question.correctAnswer === optionText;
           const showCorrect = showResult && isCorrect;
           const showWrong = showResult && isSelected && !isCorrect;
 
           return (
             <button
-              key={option}
-              onClick={() => !disabled && onSelect(option)}
+              key={optionText}
+              onClick={() => !disabled && onSelect(optionText)}
               disabled={disabled}
               className={cn(
                 'w-full flex items-center gap-4 py-3 px-4 rounded-xl text-left transition-all border-2',
@@ -58,7 +59,7 @@ export function MultipleChoiceQuestion({
               >
                 {OPTION_LABELS[index]}
               </span>
-              <span className="flex-1">{option}</span>
+              <span className="flex-1">{optionText}</span>
               {showCorrect && (
                 <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />

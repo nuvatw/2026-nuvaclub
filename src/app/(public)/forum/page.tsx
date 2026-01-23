@@ -1,21 +1,30 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'motion/react';
 import { Button, Badge } from '@/components/atoms';
 import { Gate } from '@/features/auth/components/Gate';
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import { MOCK_POSTS, MOCK_COMMENTS } from '@/features/forum/data/posts';
+import {
+  useTrendingPosts,
+  usePostsFiltered,
+  useLeaderboard,
+  useShare,
+  useBookmark,
+  type SortOption,
+  type TimeFilter,
+} from '@/lib/db/hooks';
+import type { PostWithRelations } from '@/lib/db/repositories/PostRepository';
 import {
   POST_CATEGORY_LABELS,
   POST_CATEGORY_COLORS,
   POST_CATEGORY_ICONS,
   type PostCategory,
-  type Post,
 } from '@/features/forum/types';
 import { IDENTITY_COLORS, IDENTITY_LABELS, type IdentityType } from '@/features/auth/types';
+import type { ForumPostCategory } from '@/lib/db/schema/forum.schema';
 import { cn } from '@/lib/utils';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { ForumPageSkeleton } from '@/components/skeletons';
@@ -24,9 +33,6 @@ import { formatTimeAgo } from '@/lib/utils/date';
 // ============================================================================
 // TYPES & CONSTANTS
 // ============================================================================
-
-type SortOption = 'recent' | 'popular' | 'comments';
-type TimeFilter = 'all' | 'day' | 'week' | 'month';
 
 const CATEGORIES: (PostCategory | 'all')[] = [
   'all',
@@ -47,91 +53,43 @@ const TIME_FILTERS: { value: TimeFilter; label: string }[] = [
 const SORT_OPTIONS: { value: SortOption; label: string; icon: string }[] = [
   { value: 'recent', label: 'Latest', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
   { value: 'popular', label: 'Top', icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' },
-  { value: 'comments', label: 'Hot', icon: 'M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z' },
+  { value: 'hot', label: 'Hot', icon: 'M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z' },
 ];
-
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
-
-function getTimeFilterDate(filter: TimeFilter): Date | null {
-  if (filter === 'all') return null;
-  const now = new Date();
-  switch (filter) {
-    case 'day':
-      return new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    case 'week':
-      return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    case 'month':
-      return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    default:
-      return null;
-  }
-}
-
-// Get top contributors from comments and posts
-function getTopContributors() {
-  const contributorMap = new Map<string, {
-    id: string;
-    name: string;
-    avatar?: string;
-    identity: IdentityType;
-    posts: number;
-    comments: number;
-    score: number;
-  }>();
-
-  // Count posts
-  MOCK_POSTS.forEach(post => {
-    const existing = contributorMap.get(post.author.id);
-    if (existing) {
-      existing.posts++;
-      existing.score += post.score;
-    } else {
-      contributorMap.set(post.author.id, {
-        id: post.author.id,
-        name: post.author.name,
-        avatar: post.author.avatar,
-        identity: post.author.identity,
-        posts: 1,
-        comments: 0,
-        score: post.score,
-      });
-    }
-  });
-
-  // Count comments
-  MOCK_COMMENTS.forEach(comment => {
-    const existing = contributorMap.get(comment.author.id);
-    if (existing) {
-      existing.comments++;
-      existing.score += comment.score;
-    } else {
-      contributorMap.set(comment.author.id, {
-        id: comment.author.id,
-        name: comment.author.name,
-        avatar: comment.author.avatar,
-        identity: 'explorer' as IdentityType,
-        posts: 0,
-        comments: 1,
-        score: comment.score,
-      });
-    }
-  });
-
-  return Array.from(contributorMap.values())
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 5);
-}
 
 // ============================================================================
 // COMPONENTS
 // ============================================================================
 
-function TrendingPosts({ posts }: { posts: Post[] }) {
-  const trending = posts.slice(0, 3);
+function TrendingPostsSection() {
+  const { posts, isLoading } = useTrendingPosts(5);
 
-  if (trending.length === 0) return null;
+  if (isLoading) {
+    return (
+      <div className="bg-gradient-to-br from-primary-600/10 via-neutral-900 to-neutral-900 border border-neutral-800 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="p-1.5 rounded-lg bg-primary-600/20">
+            <svg className="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+            </svg>
+          </div>
+          <h3 className="font-semibold text-white">Trending Now</h3>
+        </div>
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex items-start gap-3 animate-pulse">
+              <div className="w-6 h-6 rounded-full bg-neutral-800" />
+              <div className="flex-1">
+                <div className="h-4 bg-neutral-800 rounded w-full mb-2" />
+                <div className="h-3 bg-neutral-800 rounded w-2/3" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (posts.length === 0) return null;
 
   return (
     <div className="bg-gradient-to-br from-primary-600/10 via-neutral-900 to-neutral-900 border border-neutral-800 rounded-xl p-5">
@@ -144,7 +102,7 @@ function TrendingPosts({ posts }: { posts: Post[] }) {
         <h3 className="font-semibold text-white">Trending Now</h3>
       </div>
       <div className="space-y-3">
-        {trending.map((post, index) => (
+        {posts.slice(0, 3).map((post, index) => (
           <Link
             key={post.id}
             href={`/forum/${post.id}`}
@@ -158,9 +116,9 @@ function TrendingPosts({ posts }: { posts: Post[] }) {
                 {post.title}
               </p>
               <div className="flex items-center gap-2 mt-1 text-xs text-neutral-500">
-                <span>{post.score} points</span>
+                <span>{post.stats?.postPoints ?? post.stats?.score ?? 0} points</span>
                 <span>•</span>
-                <span>{post.commentCount} replies</span>
+                <span>{post.stats?.commentCount ?? 0} replies</span>
               </div>
             </div>
           </Link>
@@ -170,8 +128,34 @@ function TrendingPosts({ posts }: { posts: Post[] }) {
   );
 }
 
-function TopContributors() {
-  const contributors = getTopContributors();
+function TopContributorsSection() {
+  const { entries, isLoading } = useLeaderboard(5);
+
+  if (isLoading) {
+    return (
+      <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="p-1.5 rounded-lg bg-amber-500/20">
+            <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
+          </div>
+          <h3 className="font-semibold text-white">Top Contributors</h3>
+        </div>
+        <div className="space-y-3">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="flex items-center gap-3 animate-pulse">
+              <div className="w-9 h-9 rounded-full bg-neutral-800" />
+              <div className="flex-1">
+                <div className="h-4 bg-neutral-800 rounded w-2/3 mb-1" />
+                <div className="h-3 bg-neutral-800 rounded w-1/2" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-5">
@@ -184,8 +168,8 @@ function TopContributors() {
         <h3 className="font-semibold text-white">Top Contributors</h3>
       </div>
       <div className="space-y-3">
-        {contributors.map((contributor, index) => (
-          <div key={contributor.id} className="flex items-center gap-3">
+        {entries.map((contributor, index) => (
+          <div key={contributor.userId} className="flex items-center gap-3">
             <div className="relative">
               {contributor.avatar ? (
                 <Image
@@ -214,10 +198,10 @@ function TopContributors() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-sm font-medium text-white truncate">{contributor.name}</span>
-                <span className={cn('w-1.5 h-1.5 rounded-full', IDENTITY_COLORS[contributor.identity])} />
+                <span className={cn('w-1.5 h-1.5 rounded-full', IDENTITY_COLORS[contributor.identityType as IdentityType])} />
               </div>
               <div className="text-xs text-neutral-500">
-                {contributor.score} points • {contributor.posts} posts
+                {contributor.totalPoints} points
               </div>
             </div>
           </div>
@@ -264,20 +248,21 @@ function CategoryFilter({
   );
 }
 
-function PostCard({ post, index }: { post: Post; index: number }) {
-  const [showCopied, setShowCopied] = useState(false);
+function PostCard({ post, index, userId }: { post: PostWithRelations; index: number; userId?: string | null }) {
+  const { share, showCopied } = useShare(post.id, userId);
+  const { isBookmarked, toggleBookmark, canBookmark } = useBookmark(post.id, userId ?? null);
+  const authorIdentity = (post.author?.identityType || 'explorer') as IdentityType;
 
   const handleShare = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const url = `${window.location.origin}/forum/${post.id}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      setShowCopied(true);
-      setTimeout(() => setShowCopied(false), 2000);
-    } catch {
-      // Fallback
-    }
+    await share();
+  };
+
+  const handleBookmark = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleBookmark();
   };
 
   return (
@@ -305,9 +290,9 @@ function PostCard({ post, index }: { post: Post; index: number }) {
               </button>
               <span className={cn(
                 'text-sm font-semibold',
-                post.score > 0 ? 'text-green-400' : post.score < 0 ? 'text-red-400' : 'text-neutral-400'
+                (post.stats?.score ?? 0) > 0 ? 'text-green-400' : (post.stats?.score ?? 0) < 0 ? 'text-red-400' : 'text-neutral-400'
               )}>
-                {post.score}
+                {post.stats?.score ?? 0}
               </span>
               <button
                 onClick={(e) => e.preventDefault()}
@@ -354,7 +339,7 @@ function PostCard({ post, index }: { post: Post; index: number }) {
               </p>
 
               {/* Tags */}
-              {post.tags.length > 0 && (
+              {post.tags && post.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mb-3">
                   {post.tags.slice(0, 3).map((tag) => (
                     <span
@@ -375,7 +360,7 @@ function PostCard({ post, index }: { post: Post; index: number }) {
                 <div className="flex items-center gap-3">
                   {/* Author */}
                   <div className="flex items-center gap-2">
-                    {post.author.avatar && (
+                    {post.author?.avatar && (
                       <Image
                         src={post.author.avatar}
                         alt={post.author.name}
@@ -384,29 +369,48 @@ function PostCard({ post, index }: { post: Post; index: number }) {
                         className="rounded-full"
                       />
                     )}
-                    <span className="text-sm text-neutral-300">{post.author.name}</span>
-                    <span className={cn('w-1.5 h-1.5 rounded-full', IDENTITY_COLORS[post.author.identity])}
-                          title={IDENTITY_LABELS[post.author.identity]} />
+                    <span className="text-sm text-neutral-300">{post.author?.name ?? 'Unknown'}</span>
+                    <span className={cn('w-1.5 h-1.5 rounded-full', IDENTITY_COLORS[authorIdentity])}
+                          title={IDENTITY_LABELS[authorIdentity]} />
                   </div>
                   <span className="text-xs text-neutral-500">{formatTimeAgo(post.createdAt, 'en-US')}</span>
                 </div>
 
                 {/* Stats */}
                 <div className="flex items-center gap-4 text-xs text-neutral-500">
-                  <span className="sm:hidden font-medium text-neutral-300">{post.score}</span>
+                  <span className="sm:hidden font-medium text-neutral-300">{post.stats?.score ?? 0}</span>
                   <span className="flex items-center gap-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
-                    {post.commentCount}
+                    {post.stats?.commentCount ?? 0}
                   </span>
                   <span className="hidden sm:flex items-center gap-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
-                    {post.viewCount}
+                    {post.stats?.viewCount ?? 0}
                   </span>
+                  {canBookmark && (
+                    <button
+                      onClick={handleBookmark}
+                      className={cn(
+                        'p-1 transition-colors relative',
+                        isBookmarked ? 'text-amber-400' : 'hover:text-amber-400'
+                      )}
+                      title={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill={isBookmarked ? 'currentColor' : 'none'}
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                      </svg>
+                    </button>
+                  )}
                   <button
                     onClick={handleShare}
                     className="p-1 hover:text-primary-400 transition-colors relative"
@@ -436,58 +440,19 @@ function PostCard({ post, index }: { post: Post; index: number }) {
 // ============================================================================
 
 export default function ForumPage() {
-  const { hasPermission } = useAuth();
+  const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<PostCategory | 'all'>('all');
   const [sortBy, setSortBy] = useState<SortOption>('recent');
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Filter and sort posts
-  const filteredPosts = useMemo(() => {
-    return MOCK_POSTS.filter((post) => {
-      // Category filter
-      if (selectedCategory !== 'all' && post.category !== selectedCategory) {
-        return false;
-      }
-
-      // Time filter
-      const minDate = getTimeFilterDate(timeFilter);
-      if (minDate && post.createdAt < minDate) {
-        return false;
-      }
-
-      // Search filter
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        return (
-          post.title.toLowerCase().includes(query) ||
-          post.content.toLowerCase().includes(query) ||
-          post.tags.some(tag => tag.toLowerCase().includes(query))
-        );
-      }
-
-      return true;
-    }).sort((a, b) => {
-      // Always show pinned first
-      if (a.isPinned && !b.isPinned) return -1;
-      if (!a.isPinned && b.isPinned) return 1;
-
-      switch (sortBy) {
-        case 'popular':
-          return b.score - a.score;
-        case 'comments':
-          return b.commentCount - a.commentCount;
-        case 'recent':
-        default:
-          return b.createdAt.getTime() - a.createdAt.getTime();
-      }
-    });
-  }, [selectedCategory, sortBy, timeFilter, searchQuery]);
-
-  // Get trending posts (by score)
-  const trendingPosts = useMemo(() => {
-    return [...MOCK_POSTS].sort((a, b) => b.score - a.score);
-  }, []);
+  // Use the database hooks
+  const { posts, isLoading } = usePostsFiltered({
+    sort: sortBy,
+    timeFilter,
+    category: selectedCategory === 'all' ? undefined : selectedCategory as ForumPostCategory,
+    searchQuery,
+  });
 
   return (
     <PageTransition skeleton={<ForumPageSkeleton />}>
@@ -530,8 +495,8 @@ export default function ForumPage() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Left Sidebar - Filters (Desktop) */}
             <div className="hidden lg:block space-y-6">
-              <TrendingPosts posts={trendingPosts} />
-              <TopContributors />
+              <TrendingPostsSection />
+              <TopContributorsSection />
             </div>
 
             {/* Main Feed */}
@@ -628,19 +593,45 @@ export default function ForumPage() {
 
               {/* Mobile Sidebar Content */}
               <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <TrendingPosts posts={trendingPosts} />
-                <TopContributors />
+                <TrendingPostsSection />
+                <TopContributorsSection />
               </div>
+
+              {/* Loading State */}
+              {isLoading && (
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 animate-pulse">
+                      <div className="flex gap-4">
+                        <div className="hidden sm:block w-12">
+                          <div className="h-20 bg-neutral-800 rounded" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="h-4 bg-neutral-800 rounded w-1/4 mb-3" />
+                          <div className="h-5 bg-neutral-800 rounded w-3/4 mb-2" />
+                          <div className="h-4 bg-neutral-800 rounded w-full mb-3" />
+                          <div className="flex gap-2">
+                            <div className="h-6 bg-neutral-800 rounded w-16" />
+                            <div className="h-6 bg-neutral-800 rounded w-16" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Posts */}
-              <div className="space-y-3">
-                {filteredPosts.map((post, index) => (
-                  <PostCard key={post.id} post={post} index={index} />
-                ))}
-              </div>
+              {!isLoading && (
+                <div className="space-y-3">
+                  {posts.map((post, index) => (
+                    <PostCard key={post.id} post={post} index={index} userId={user?.id} />
+                  ))}
+                </div>
+              )}
 
               {/* Empty State */}
-              {filteredPosts.length === 0 && (
+              {!isLoading && posts.length === 0 && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}

@@ -1,6 +1,6 @@
 import type { StorageAdapter } from './StorageAdapter';
 
-const STORAGE_VERSION = 2;
+const STORAGE_VERSION = 4;
 
 interface StorageWrapper {
   version: number;

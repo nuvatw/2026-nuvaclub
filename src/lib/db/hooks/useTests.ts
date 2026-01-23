@@ -6,6 +6,7 @@ import { TestRepository, type TestSessionWithDetails } from '../repositories';
 import type {
   QuestionRecord,
   TestSessionRecord,
+  TestLevelRecord,
   UserTestProgressRecord,
   LevelAttemptRecord,
 } from '../schema';
@@ -88,7 +89,11 @@ export function useTestSession(userId: string | null) {
       const existingSession = repo.findById(sessionId);
       if (existingSession) {
         setSession(existingSession);
-        const levelQuestions = repo.getQuestionsForLevel(existingSession.level);
+        // Resolve level from levelId
+        const levelRecord = repo.getTestLevel(1); // Get level 1 as fallback
+        const levelFromId = db?.testLevels.findById(existingSession.levelId);
+        const level = levelFromId?.level ?? 1;
+        const levelQuestions = repo.getQuestionsForLevel(level);
         setQuestions(levelQuestions);
 
         // Load existing answers
@@ -136,15 +141,15 @@ export function useTestSession(userId: string | null) {
 
   // Check if expired
   const isExpired = useMemo(() => {
-    if (!session?.expiredAt) return false;
-    return new Date() > session.expiredAt;
+    if (!session?.expiresAt) return false;
+    return new Date() > session.expiresAt;
   }, [session]);
 
   // Remaining time (seconds)
   const remainingTime = useMemo(() => {
-    if (!session?.expiredAt) return 0;
+    if (!session?.expiresAt) return 0;
     const now = new Date();
-    const remaining = Math.max(0, session.expiredAt.getTime() - now.getTime());
+    const remaining = Math.max(0, session.expiresAt.getTime() - now.getTime());
     return Math.floor(remaining / 1000);
   }, [session]);
 
@@ -232,15 +237,30 @@ export function useLevelStats(userId: string | null, level: number) {
 }
 
 /**
+ * Active session with level info
+ */
+export interface ActiveTestSession extends TestSessionRecord {
+  levelInfo?: TestLevelRecord;
+}
+
+/**
  * Hook to check if user has an active session
  */
-export function useActiveTestSession(userId: string | null): TestSessionRecord | null {
+export function useActiveTestSession(userId: string | null): ActiveTestSession | null {
   const db = useDB();
 
   return useMemo(() => {
     if (!db || !userId) return null;
     const repo = new TestRepository(db);
-    return repo.getActiveSession(userId) ?? null;
+    const session = repo.getActiveSession(userId);
+    if (!session) return null;
+
+    // Enrich with level info
+    const levelInfo = db.testLevels.findById(session.levelId);
+    return {
+      ...session,
+      levelInfo: levelInfo ?? undefined,
+    };
   }, [db, userId]);
 }
 

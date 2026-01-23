@@ -7,26 +7,18 @@ import ReactMarkdown from 'react-markdown';
 import { motion } from 'motion/react';
 import { Button, Badge, Card, CardContent } from '@/components/atoms';
 import { Gate } from '@/features/auth/components/Gate';
+import { useAuth } from '@/features/auth/components/AuthProvider';
 import { usePost } from '@/lib/db/hooks/usePosts';
+import { useTrackView, useBookmark, useShare } from '@/lib/db/hooks';
 import { POST_CATEGORY_LABELS, POST_CATEGORY_COLORS } from '@/features/forum/types';
 import { IDENTITY_LABELS, IDENTITY_COLORS, type IdentityType } from '@/features/auth/types';
 import { cn } from '@/lib/utils';
+import { formatDateWithTime } from '@/lib/utils/date';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { PostDetailSkeleton } from '@/components/skeletons';
 
 interface PostPageProps {
   params: Promise<{ postId: string }>;
-}
-
-function formatDate(date: Date | string): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
 }
 
 function LoadingState() {
@@ -48,46 +40,22 @@ function NotFoundState() {
 
 export default function PostPage({ params }: PostPageProps) {
   const { postId } = use(params);
+  const { user } = useAuth();
   const { post, isLoading } = usePost(postId);
-  const [showCopied, setShowCopied] = useState(false);
+
+  // Track view on mount
+  useTrackView(postId, user?.id);
+
+  // Share and bookmark hooks
+  const { share, showCopied } = useShare(postId, user?.id);
+  const { isBookmarked, toggleBookmark, canBookmark } = useBookmark(postId, user?.id ?? null);
 
   const handleShare = async () => {
-    const url = window.location.href;
-    const title = post?.title || 'Forum Post';
-    const text = post?.content?.slice(0, 100) + '...' || '';
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: title,
-          text: text,
-          url: url,
-        });
-      } catch {
-        // User cancelled or share failed, fall back to clipboard
-        await copyToClipboard(url);
-      }
-    } else {
-      await copyToClipboard(url);
-    }
+    await share();
   };
 
-  const copyToClipboard = async (url: string) => {
-    try {
-      await navigator.clipboard.writeText(url);
-      setShowCopied(true);
-      setTimeout(() => setShowCopied(false), 2000);
-    } catch {
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = url;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      setShowCopied(true);
-      setTimeout(() => setShowCopied(false), 2000);
-    }
+  const handleBookmark = () => {
+    toggleBookmark();
   };
 
   // Loading state
@@ -171,7 +139,7 @@ export default function PostPage({ params }: PostPageProps) {
                         {IDENTITY_LABELS[authorIdentity]}
                       </span>
                     </div>
-                    <span className="text-sm text-neutral-400">{formatDate(post.createdAt)}</span>
+                    <span className="text-sm text-neutral-400">{formatDateWithTime(post.createdAt)}</span>
                   </div>
                 </div>
               </div>
@@ -234,7 +202,7 @@ export default function PostPage({ params }: PostPageProps) {
                             d="M5 15l7-7 7 7"
                           />
                         </svg>
-                        <span className="text-sm text-neutral-300">{post.upvotes}</span>
+                        <span className="text-sm text-neutral-300">{post.stats?.upvotes ?? 0}</span>
                       </button>
                       <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 transition-colors">
                         <svg
@@ -250,16 +218,42 @@ export default function PostPage({ params }: PostPageProps) {
                             d="M19 9l-7 7-7-7"
                           />
                         </svg>
-                        <span className="text-sm text-neutral-300">{post.downvotes}</span>
+                        <span className="text-sm text-neutral-300">{post.stats?.downvotes ?? 0}</span>
                       </button>
                     </div>
                   </Gate>
                 </div>
 
                 <div className="flex items-center gap-4 text-sm text-neutral-400">
-                  <span>{post.viewCount} views</span>
+                  <span>{post.stats?.viewCount ?? 0} views</span>
                   <span>•</span>
-                  <span>{post.commentCount} replies</span>
+                  <span>{post.stats?.commentCount ?? 0} replies</span>
+                  {canBookmark && (
+                    <button
+                      onClick={handleBookmark}
+                      className={cn(
+                        'flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 transition-colors',
+                        isBookmarked && 'text-amber-400'
+                      )}
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill={isBookmarked ? 'currentColor' : 'none'}
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                        />
+                      </svg>
+                      <span className={isBookmarked ? 'text-amber-400' : 'text-neutral-300'}>
+                        {isBookmarked ? 'Saved' : 'Save'}
+                      </span>
+                    </button>
+                  )}
                   <button
                     onClick={handleShare}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 transition-colors relative"
@@ -343,7 +337,7 @@ export default function PostPage({ params }: PostPageProps) {
                             {comment.author?.name || 'Anonymous User'}
                           </span>
                           <span className="text-sm text-neutral-500">
-                            {formatDate(comment.createdAt)}
+                            {formatDateWithTime(comment.createdAt)}
                           </span>
                         </div>
                         <p className="text-neutral-300">{comment.content}</p>
@@ -363,7 +357,7 @@ export default function PostPage({ params }: PostPageProps) {
                                   d="M5 15l7-7 7 7"
                                 />
                               </svg>
-                              {comment.score}
+                              {comment.stats?.score ?? 0}
                             </button>
                           </Gate>
                         </div>

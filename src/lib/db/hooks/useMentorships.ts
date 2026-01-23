@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useDB } from '../provider/DBProvider';
 import type { UserMentorshipRecord, MentorshipStatus, NunuProfileRecord } from '../schema';
-import { NUNU_LEVEL_MAX_VAVAS } from '../schema';
+import { NUNU_LEVEL_CONFIG } from '../schema';
 
 export interface MentorshipWithRelations extends UserMentorshipRecord {
   nunu?: {

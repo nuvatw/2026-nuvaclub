@@ -3,13 +3,13 @@ import type { MockDB } from '../core/MockDB';
 import type {
   UserRecord,
   UserSubscriptionRecord,
-  DuoTicketRecord,
+  UserDuoTicketRecord,
 } from '../schema';
 import type { IdentityType } from '@/features/auth/types';
 
 export interface UserWithRelations extends UserRecord {
   subscription?: UserSubscriptionRecord;
-  duoTicket?: DuoTicketRecord;
+  duoTicket?: UserDuoTicketRecord;
 }
 
 export class UserRepository extends BaseRepository<UserRecord> {
@@ -35,7 +35,7 @@ export class UserRepository extends BaseRepository<UserRecord> {
       where: (s) => s.userId === id && s.status === 'active',
     });
 
-    const duoTicket = this.db.duoTickets.findFirst({
+    const duoTicket = this.db.userDuoTickets.findFirst({
       where: (t) => t.userId === id && t.status === 'active',
     });
 
@@ -75,8 +75,8 @@ export class UserRepository extends BaseRepository<UserRecord> {
   /**
    * Get user's active duo ticket
    */
-  getActiveDuoTicket(userId: string): DuoTicketRecord | undefined {
-    return this.db.duoTickets.findFirst({
+  getActiveDuoTicket(userId: string): UserDuoTicketRecord | undefined {
+    return this.db.userDuoTickets.findFirst({
       where: (t) => t.userId === userId && t.status === 'active',
     });
   }

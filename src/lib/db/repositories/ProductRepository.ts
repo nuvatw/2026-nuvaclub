@@ -10,21 +10,43 @@ import type {
   MerchandiseVariantRecord,
   EventAgendaItemRecord,
   EventFAQRecord,
+  ProductStatsRecord,
 } from '../schema';
+
+export interface PlanDetails extends PlanProductRecord {
+  features?: string[];
+}
+
+export interface DuoTicketDetails extends DuoTicketProductRecord {
+  benefits?: string[];
+}
+
+export interface EventDetails extends EventProductRecord {
+  agenda?: EventAgendaItemRecord[];
+  faqs?: EventFAQRecord[];
+  whatYouWillLearn?: string[];
+  whoIsItFor?: string[];
+}
+
+export interface MerchandiseDetails extends MerchandiseProductRecord {
+  variants?: MerchandiseVariantRecord[];
+}
 
 export interface ProductWithDetails extends ProductRecord {
   // Plan specific
-  planDetails?: PlanProductRecord;
+  planDetails?: PlanDetails;
   // Duo ticket specific
-  duoTicketDetails?: DuoTicketProductRecord;
+  duoTicketDetails?: DuoTicketDetails;
   // Event specific
-  eventDetails?: EventProductRecord & {
-    agenda?: EventAgendaItemRecord[];
-    faqs?: EventFAQRecord[];
-  };
+  eventDetails?: EventDetails;
   // Merchandise specific
-  merchandiseDetails?: MerchandiseProductRecord & {
-    variants?: MerchandiseVariantRecord[];
+  merchandiseDetails?: MerchandiseDetails;
+  // Stats
+  stats?: {
+    avgRating: number;
+    totalRatings: number;
+    totalSold: number;
+    viewCount: number;
   };
 }
 
@@ -150,19 +172,53 @@ export class ProductRepository extends BaseRepository<ProductRecord> {
   private enrichProduct(product: ProductRecord): ProductWithDetails {
     const result: ProductWithDetails = { ...product };
 
+    // Get stats from separate table
+    const productStats = this.db.productStats.findFirst({
+      where: { productId: product.id },
+    });
+
+    if (productStats) {
+      result.stats = {
+        avgRating: productStats.avgRating,
+        totalRatings: productStats.totalRatings,
+        totalSold: productStats.totalSold,
+        viewCount: productStats.viewCount,
+      };
+    }
+
     switch (product.type) {
       case 'plan': {
         const planDetails = this.db.planProducts.findFirst({
           where: { productId: product.id },
         });
-        result.planDetails = planDetails;
+        if (planDetails) {
+          // Get features from junction table
+          const featureRecords = this.db.planProductFeatures.findMany({
+            where: { planProductId: planDetails.id },
+            orderBy: { field: 'sortOrder', direction: 'asc' },
+          });
+          result.planDetails = {
+            ...planDetails,
+            features: featureRecords.map((f) => f.feature),
+          };
+        }
         break;
       }
       case 'duo-ticket': {
         const duoDetails = this.db.duoTicketProducts.findFirst({
           where: { productId: product.id },
         });
-        result.duoTicketDetails = duoDetails;
+        if (duoDetails) {
+          // Get benefits from junction table
+          const benefitRecords = this.db.duoTicketProductBenefits.findMany({
+            where: { duoTicketProductId: duoDetails.id },
+            orderBy: { field: 'sortOrder', direction: 'asc' },
+          });
+          result.duoTicketDetails = {
+            ...duoDetails,
+            benefits: benefitRecords.map((b) => b.benefit),
+          };
+        }
         break;
       }
       case 'event': {
@@ -178,7 +234,23 @@ export class ProductRepository extends BaseRepository<ProductRecord> {
             where: { eventProductId: eventDetails.id },
             orderBy: { field: 'sortOrder', direction: 'asc' },
           });
-          result.eventDetails = { ...eventDetails, agenda, faqs };
+          // Get learning outcomes from junction table
+          const outcomeRecords = this.db.eventLearningOutcomes.findMany({
+            where: { eventProductId: eventDetails.id },
+            orderBy: { field: 'sortOrder', direction: 'asc' },
+          });
+          // Get target audiences from junction table
+          const audienceRecords = this.db.eventTargetAudiences.findMany({
+            where: { eventProductId: eventDetails.id },
+            orderBy: { field: 'sortOrder', direction: 'asc' },
+          });
+          result.eventDetails = {
+            ...eventDetails,
+            agenda,
+            faqs,
+            whatYouWillLearn: outcomeRecords.map((o) => o.outcome),
+            whoIsItFor: audienceRecords.map((a) => a.audience),
+          };
         }
         break;
       }

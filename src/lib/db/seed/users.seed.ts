@@ -30,7 +30,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       avatar: 'https://i.pravatar.cc/150?u=alex',
       bio: 'Passionate learner exploring web development and design.',
       discordId: 'alexchen#1234',
-      githubUsername: 'sindresorhus',
+      githubUsername: 'OliverTai688',
       identityType: 'solo-traveler',
       emailVerified: true,
       createdAt: new Date('2025-10-15'),
@@ -45,7 +45,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       avatar: 'https://i.pravatar.cc/150?u=sarah',
       bio: 'Senior developer and mentor. Love helping others grow!',
       discordId: 'sarahlin#5678',
-      githubUsername: 'gaearon',
+      githubUsername: 'OliverTai688',
       identityType: 'duo-run',
       emailVerified: true,
       createdAt: new Date('2025-08-01'),
@@ -60,7 +60,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       avatar: 'https://i.pravatar.cc/150?u=mike',
       bio: 'Full-stack developer diving deep into React and TypeScript.',
       discordId: 'mikewang#9012',
-      githubUsername: 'tj',
+      githubUsername: 'OliverTai688',
       identityType: 'solo-traveler',
       emailVerified: true,
       createdAt: new Date('2025-09-10'),
@@ -75,7 +75,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       avatar: 'https://i.pravatar.cc/150?u=emily',
       bio: 'Content creator and tech educator. Building cool stuff!',
       discordId: 'emilyhuang#3456',
-      githubUsername: 'addyosmani',
+      githubUsername: 'OliverTai688',
       identityType: 'duo-fly',
       emailVerified: true,
       createdAt: new Date('2025-07-01'),
@@ -90,7 +90,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       avatar: 'https://i.pravatar.cc/150?u=kevin',
       bio: 'Newbie developer eager to learn and grow.',
       discordId: 'kevinlee#7890',
-      githubUsername: 'kentcdodds',
+      githubUsername: 'OliverTai688',
       identityType: 'explorer',
       emailVerified: true,
       createdAt: new Date('2026-01-10'),
@@ -105,7 +105,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       avatar: 'https://i.pravatar.cc/150?u=jessica',
       bio: 'UI/UX enthusiast learning frontend development.',
       discordId: 'jessicawu#2345',
-      githubUsername: 'wesbos',
+      githubUsername: 'OliverTai688',
       identityType: 'duo-go',
       emailVerified: true,
       createdAt: new Date('2025-11-15'),
@@ -120,7 +120,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       avatar: 'https://i.pravatar.cc/150?u=david',
       bio: 'Casual coder exploring different technologies.',
       discordId: 'davidzhang#6789',
-      githubUsername: 'yyx990803',
+      githubUsername: 'OliverTai688',
       identityType: 'explorer',
       emailVerified: true,
       createdAt: new Date('2026-01-05'),
@@ -135,7 +135,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       avatar: 'https://i.pravatar.cc/150?u=lisa',
       bio: 'Active community member and aspiring developer.',
       discordId: 'lisachen#0123',
-      githubUsername: 'rauchg',
+      githubUsername: 'OliverTai688',
       identityType: 'duo-go',
       emailVerified: true,
       createdAt: new Date('2025-12-01'),
@@ -150,7 +150,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       avatar: 'https://i.pravatar.cc/150?u=tom',
       bio: 'Open source contributor and community helper.',
       discordId: 'tomhuang#4567',
-      githubUsername: 'mxstbr',
+      githubUsername: 'OliverTai688',
       identityType: 'solo-traveler',
       emailVerified: true,
       createdAt: new Date('2025-10-01'),
@@ -165,7 +165,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       avatar: 'https://i.pravatar.cc/150?u=amy',
       bio: 'Expert mentor with 10+ years of experience in tech.',
       discordId: 'amylin#8901',
-      githubUsername: 'Rich-Harris',
+      githubUsername: 'OliverTai688',
       identityType: 'duo-fly',
       emailVerified: true,
       createdAt: new Date('2025-06-01'),
@@ -175,172 +175,187 @@ export async function seedUsers(db: MockDB): Promise<void> {
   ]);
 
   // ==========================================
-  // Subscriptions
+  // User Subscriptions (updated schema)
   // ==========================================
   db.userSubscriptions.createMany([
     // Solo Traveler subscriptions (user-1, user-3, user-9)
     {
       id: 'sub-user-1',
       userId: 'user-1',
-      planType: 'traveler',
+      plan: 'traveler',
       status: 'active',
       billingCycle: 'monthly',
-      currentPeriodStart: new Date('2026-01-01'),
-      currentPeriodEnd: new Date('2026-02-01'),
+      periodStart: new Date('2026-01-01'),
+      periodEnd: new Date('2026-02-01'),
       createdAt: new Date('2025-10-15'),
+      updatedAt: now,
     },
     {
       id: 'sub-user-3',
       userId: 'user-3',
-      planType: 'traveler',
+      plan: 'traveler',
       status: 'active',
       billingCycle: 'monthly',
-      currentPeriodStart: new Date('2026-01-01'),
-      currentPeriodEnd: new Date('2026-02-01'),
+      periodStart: new Date('2026-01-01'),
+      periodEnd: new Date('2026-02-01'),
       createdAt: new Date('2025-09-10'),
+      updatedAt: now,
     },
     {
       id: 'sub-user-9',
       userId: 'user-9',
-      planType: 'traveler',
+      plan: 'traveler',
       status: 'active',
       billingCycle: 'monthly',
-      currentPeriodStart: new Date('2026-01-01'),
-      currentPeriodEnd: new Date('2026-02-01'),
+      periodStart: new Date('2026-01-01'),
+      periodEnd: new Date('2026-02-01'),
       createdAt: new Date('2025-10-01'),
+      updatedAt: now,
     },
     // Duo Run subscription (user-2)
     {
       id: 'sub-user-2',
       userId: 'user-2',
-      planType: 'traveler',
+      plan: 'traveler',
       status: 'active',
       billingCycle: 'monthly',
-      currentPeriodStart: new Date('2026-01-01'),
-      currentPeriodEnd: new Date('2026-02-01'),
+      periodStart: new Date('2026-01-01'),
+      periodEnd: new Date('2026-02-01'),
       createdAt: new Date('2025-08-01'),
+      updatedAt: now,
     },
     // Duo Fly subscriptions (user-4, user-10)
     {
       id: 'sub-user-4',
       userId: 'user-4',
-      planType: 'traveler',
+      plan: 'traveler',
       status: 'active',
       billingCycle: 'yearly',
-      currentPeriodStart: new Date('2025-07-01'),
-      currentPeriodEnd: new Date('2026-07-01'),
+      periodStart: new Date('2025-07-01'),
+      periodEnd: new Date('2026-07-01'),
       createdAt: new Date('2025-07-01'),
+      updatedAt: now,
     },
     {
       id: 'sub-user-10',
       userId: 'user-10',
-      planType: 'traveler',
+      plan: 'traveler',
       status: 'active',
       billingCycle: 'yearly',
-      currentPeriodStart: new Date('2025-06-01'),
-      currentPeriodEnd: new Date('2026-06-01'),
+      periodStart: new Date('2025-06-01'),
+      periodEnd: new Date('2026-06-01'),
       createdAt: new Date('2025-06-01'),
+      updatedAt: now,
     },
     // Duo Go subscriptions (user-6, user-8)
     {
       id: 'sub-user-6',
       userId: 'user-6',
-      planType: 'traveler',
+      plan: 'traveler',
       status: 'active',
       billingCycle: 'monthly',
-      currentPeriodStart: new Date('2026-01-01'),
-      currentPeriodEnd: new Date('2026-02-01'),
+      periodStart: new Date('2026-01-01'),
+      periodEnd: new Date('2026-02-01'),
       createdAt: new Date('2025-11-15'),
+      updatedAt: now,
     },
     {
       id: 'sub-user-8',
       userId: 'user-8',
-      planType: 'traveler',
+      plan: 'traveler',
       status: 'active',
       billingCycle: 'monthly',
-      currentPeriodStart: new Date('2026-01-01'),
-      currentPeriodEnd: new Date('2026-02-01'),
+      periodStart: new Date('2026-01-01'),
+      periodEnd: new Date('2026-02-01'),
       createdAt: new Date('2025-12-01'),
+      updatedAt: now,
     },
     // Explorer subscriptions (user-5, user-7)
     {
       id: 'sub-user-5',
       userId: 'user-5',
-      planType: 'explorer',
+      plan: 'explorer',
       status: 'active',
       billingCycle: 'monthly',
-      currentPeriodStart: new Date('2026-01-10'),
-      currentPeriodEnd: new Date('2026-02-10'),
+      periodStart: new Date('2026-01-10'),
+      periodEnd: new Date('2026-02-10'),
       createdAt: new Date('2026-01-10'),
+      updatedAt: now,
     },
     {
       id: 'sub-user-7',
       userId: 'user-7',
-      planType: 'explorer',
+      plan: 'explorer',
       status: 'active',
       billingCycle: 'monthly',
-      currentPeriodStart: new Date('2026-01-05'),
-      currentPeriodEnd: new Date('2026-02-05'),
+      periodStart: new Date('2026-01-05'),
+      periodEnd: new Date('2026-02-05'),
       createdAt: new Date('2026-01-05'),
+      updatedAt: now,
     },
   ]);
 
   // ==========================================
-  // Duo Tickets
+  // User Duo Tickets (updated schema)
   // ==========================================
-  db.duoTickets.createMany([
+  db.userDuoTickets.createMany([
     // Duo Run ticket (user-2)
     {
       id: 'ticket-user-2',
       userId: 'user-2',
-      ticketType: 'run',
+      tier: 'run',
       status: 'active',
       validFrom: new Date('2026-01-01'),
       validUntil: new Date('2026-03-31'),
       purchasedAt: new Date('2025-08-01'),
+      createdAt: new Date('2025-08-01'),
     },
     // Duo Fly tickets (user-4, user-10)
     {
       id: 'ticket-user-4',
       userId: 'user-4',
-      ticketType: 'fly',
+      tier: 'fly',
       status: 'active',
       validFrom: new Date('2025-07-01'),
       validUntil: new Date('2026-07-01'),
       purchasedAt: new Date('2025-07-01'),
+      createdAt: new Date('2025-07-01'),
     },
     {
       id: 'ticket-user-10',
       userId: 'user-10',
-      ticketType: 'fly',
+      tier: 'fly',
       status: 'active',
       validFrom: new Date('2025-06-01'),
       validUntil: new Date('2026-06-01'),
       purchasedAt: new Date('2025-06-01'),
+      createdAt: new Date('2025-06-01'),
     },
     // Duo Go tickets (user-6, user-8)
     {
       id: 'ticket-user-6',
       userId: 'user-6',
-      ticketType: 'go',
+      tier: 'go',
       status: 'active',
       validFrom: new Date('2026-01-01'),
       validUntil: new Date('2026-03-31'),
       purchasedAt: new Date('2025-11-15'),
+      createdAt: new Date('2025-11-15'),
     },
     {
       id: 'ticket-user-8',
       userId: 'user-8',
-      ticketType: 'go',
+      tier: 'go',
       status: 'active',
       validFrom: new Date('2026-01-01'),
       validUntil: new Date('2026-03-31'),
       purchasedAt: new Date('2025-12-01'),
+      createdAt: new Date('2025-12-01'),
     },
   ]);
 
   // ==========================================
-  // User Favorites
+  // User Favorites (updated schema)
   // ==========================================
   db.userFavorites.createMany([
     // User 1 favorites
@@ -349,21 +364,21 @@ export async function seedUsers(db: MockDB): Promise<void> {
       userId: 'user-1',
       itemType: 'course',
       itemId: 'course-1',
-      addedAt: new Date('2026-01-15'),
+      createdAt: new Date('2026-01-15'),
     },
     {
       id: 'fav-1-2',
       userId: 'user-1',
       itemType: 'course',
       itemId: 'course-7',
-      addedAt: new Date('2026-01-18'),
+      createdAt: new Date('2026-01-18'),
     },
     {
       id: 'fav-1-3',
       userId: 'user-1',
       itemType: 'post',
       itemId: 'post-4',
-      addedAt: new Date('2026-01-16'),
+      createdAt: new Date('2026-01-16'),
     },
     // User 2 favorites
     {
@@ -371,14 +386,14 @@ export async function seedUsers(db: MockDB): Promise<void> {
       userId: 'user-2',
       itemType: 'course',
       itemId: 'course-3',
-      addedAt: new Date('2026-01-12'),
+      createdAt: new Date('2026-01-12'),
     },
     {
       id: 'fav-2-2',
       userId: 'user-2',
       itemType: 'post',
       itemId: 'post-1',
-      addedAt: new Date('2026-01-14'),
+      createdAt: new Date('2026-01-14'),
     },
     // User 3 favorites
     {
@@ -386,14 +401,14 @@ export async function seedUsers(db: MockDB): Promise<void> {
       userId: 'user-3',
       itemType: 'course',
       itemId: 'course-5',
-      addedAt: new Date('2026-01-10'),
+      createdAt: new Date('2026-01-10'),
     },
     {
       id: 'fav-3-2',
       userId: 'user-3',
       itemType: 'post',
       itemId: 'post-2',
-      addedAt: new Date('2026-01-15'),
+      createdAt: new Date('2026-01-15'),
     },
     // User 4 favorites
     {
@@ -401,14 +416,14 @@ export async function seedUsers(db: MockDB): Promise<void> {
       userId: 'user-4',
       itemType: 'course',
       itemId: 'course-6',
-      addedAt: new Date('2026-01-08'),
+      createdAt: new Date('2026-01-08'),
     },
     {
       id: 'fav-4-2',
       userId: 'user-4',
       itemType: 'course',
       itemId: 'course-8',
-      addedAt: new Date('2026-01-12'),
+      createdAt: new Date('2026-01-12'),
     },
     // User 5 favorites
     {
@@ -416,7 +431,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       userId: 'user-5',
       itemType: 'course',
       itemId: 'course-1',
-      addedAt: new Date('2026-01-18'),
+      createdAt: new Date('2026-01-18'),
     },
     // User 6 favorites
     {
@@ -424,14 +439,14 @@ export async function seedUsers(db: MockDB): Promise<void> {
       userId: 'user-6',
       itemType: 'course',
       itemId: 'course-4',
-      addedAt: new Date('2026-01-11'),
+      createdAt: new Date('2026-01-11'),
     },
     {
       id: 'fav-6-2',
       userId: 'user-6',
       itemType: 'post',
       itemId: 'post-3',
-      addedAt: new Date('2026-01-17'),
+      createdAt: new Date('2026-01-17'),
     },
     // User 7 favorites
     {
@@ -439,7 +454,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       userId: 'user-7',
       itemType: 'course',
       itemId: 'course-2',
-      addedAt: new Date('2026-01-13'),
+      createdAt: new Date('2026-01-13'),
     },
     // User 8 favorites
     {
@@ -447,14 +462,14 @@ export async function seedUsers(db: MockDB): Promise<void> {
       userId: 'user-8',
       itemType: 'course',
       itemId: 'course-5',
-      addedAt: new Date('2026-01-09'),
+      createdAt: new Date('2026-01-09'),
     },
     {
       id: 'fav-8-2',
       userId: 'user-8',
       itemType: 'post',
       itemId: 'post-4',
-      addedAt: new Date('2026-01-19'),
+      createdAt: new Date('2026-01-19'),
     },
     // User 9 favorites
     {
@@ -462,7 +477,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       userId: 'user-9',
       itemType: 'course',
       itemId: 'course-7',
-      addedAt: new Date('2026-01-14'),
+      createdAt: new Date('2026-01-14'),
     },
     // User 10 favorites
     {
@@ -470,14 +485,204 @@ export async function seedUsers(db: MockDB): Promise<void> {
       userId: 'user-10',
       itemType: 'course',
       itemId: 'course-8',
-      addedAt: new Date('2026-01-07'),
+      createdAt: new Date('2026-01-07'),
     },
     {
       id: 'fav-10-2',
       userId: 'user-10',
       itemType: 'post',
       itemId: 'post-2',
-      addedAt: new Date('2026-01-16'),
+      createdAt: new Date('2026-01-16'),
+    },
+  ]);
+
+  // ==========================================
+  // User Activities (sample analytics data)
+  // ==========================================
+  db.userActivities.createMany([
+    {
+      id: 'activity-1',
+      userId: 'user-1',
+      activityType: 'view',
+      targetType: 'course',
+      targetId: 'course-1',
+      metadata: { duration: 120, source: 'homepage' },
+      createdAt: new Date('2026-01-20T10:00:00'),
+    },
+    {
+      id: 'activity-2',
+      userId: 'user-1',
+      activityType: 'complete',
+      targetType: 'lesson',
+      targetId: 'l1-1',
+      metadata: { progress: 100 },
+      createdAt: new Date('2026-01-20T10:30:00'),
+    },
+    {
+      id: 'activity-3',
+      userId: 'user-2',
+      activityType: 'comment',
+      targetType: 'post',
+      targetId: 'post-1',
+      createdAt: new Date('2026-01-21T14:00:00'),
+    },
+    {
+      id: 'activity-4',
+      userId: 'user-5',
+      activityType: 'view',
+      targetType: 'course',
+      targetId: 'course-2',
+      metadata: { duration: 60, source: 'search', referrer: 'google' },
+      createdAt: new Date('2026-01-21T15:00:00'),
+    },
+  ]);
+
+  // ==========================================
+  // User Points (reputation system)
+  // ==========================================
+  const todayStart = new Date();
+  todayStart.setUTCHours(0, 0, 0, 0);
+
+  db.userPoints.createMany([
+    // user-1 (Alex Chen) - Active community member
+    {
+      id: 'points-user-1',
+      userId: 'user-1',
+      totalPoints: 850,
+      learningPoints: 450,
+      communityPoints: 400,
+      dailyLearningPoints: 30,
+      dailyCommunityPoints: 25,
+      dailyUpvotePoints: 10,
+      lastDailyReset: todayStart,
+      createdAt: new Date('2025-10-15'),
+      updatedAt: now,
+    },
+    // user-2 (Sarah Lin) - Power user, mentor
+    {
+      id: 'points-user-2',
+      userId: 'user-2',
+      totalPoints: 2450,
+      learningPoints: 1200,
+      communityPoints: 1250,
+      dailyLearningPoints: 50,
+      dailyCommunityPoints: 45,
+      dailyUpvotePoints: 20,
+      lastDailyReset: todayStart,
+      createdAt: new Date('2025-08-01'),
+      updatedAt: now,
+    },
+    // user-3 (Mike Wang) - Experienced learner
+    {
+      id: 'points-user-3',
+      userId: 'user-3',
+      totalPoints: 1120,
+      learningPoints: 720,
+      communityPoints: 400,
+      dailyLearningPoints: 40,
+      dailyCommunityPoints: 15,
+      dailyUpvotePoints: 8,
+      lastDailyReset: todayStart,
+      createdAt: new Date('2025-09-10'),
+      updatedAt: now,
+    },
+    // user-4 (Emily Huang) - Premium user, content creator
+    {
+      id: 'points-user-4',
+      userId: 'user-4',
+      totalPoints: 3200,
+      learningPoints: 1500,
+      communityPoints: 1700,
+      dailyLearningPoints: 60,
+      dailyCommunityPoints: 55,
+      dailyUpvotePoints: 25,
+      lastDailyReset: todayStart,
+      createdAt: new Date('2025-07-01'),
+      updatedAt: now,
+    },
+    // user-5 (Kevin Lee) - New user
+    {
+      id: 'points-user-5',
+      userId: 'user-5',
+      totalPoints: 180,
+      learningPoints: 100,
+      communityPoints: 80,
+      dailyLearningPoints: 20,
+      dailyCommunityPoints: 10,
+      dailyUpvotePoints: 4,
+      lastDailyReset: todayStart,
+      createdAt: new Date('2026-01-10'),
+      updatedAt: now,
+    },
+    // user-6 (Jessica Wu) - Engaged learner
+    {
+      id: 'points-user-6',
+      userId: 'user-6',
+      totalPoints: 620,
+      learningPoints: 380,
+      communityPoints: 240,
+      dailyLearningPoints: 35,
+      dailyCommunityPoints: 20,
+      dailyUpvotePoints: 12,
+      lastDailyReset: todayStart,
+      createdAt: new Date('2025-11-15'),
+      updatedAt: now,
+    },
+    // user-7 (David Zhang) - Casual user
+    {
+      id: 'points-user-7',
+      userId: 'user-7',
+      totalPoints: 95,
+      learningPoints: 60,
+      communityPoints: 35,
+      dailyLearningPoints: 10,
+      dailyCommunityPoints: 5,
+      dailyUpvotePoints: 2,
+      lastDailyReset: todayStart,
+      createdAt: new Date('2026-01-05'),
+      updatedAt: now,
+    },
+    // user-8 (Lisa Chen) - Active participant
+    {
+      id: 'points-user-8',
+      userId: 'user-8',
+      totalPoints: 480,
+      learningPoints: 250,
+      communityPoints: 230,
+      dailyLearningPoints: 25,
+      dailyCommunityPoints: 18,
+      dailyUpvotePoints: 8,
+      lastDailyReset: todayStart,
+      createdAt: new Date('2025-12-01'),
+      updatedAt: now,
+    },
+    // user-9 (Tom Huang) - Regular contributor
+    {
+      id: 'points-user-9',
+      userId: 'user-9',
+      totalPoints: 920,
+      learningPoints: 400,
+      communityPoints: 520,
+      dailyLearningPoints: 30,
+      dailyCommunityPoints: 35,
+      dailyUpvotePoints: 15,
+      lastDailyReset: todayStart,
+      createdAt: new Date('2025-10-01'),
+      updatedAt: now,
+    },
+    // user-10 (Amy Lin) - Expert mentor
+    {
+      id: 'points-user-10',
+      userId: 'user-10',
+      totalPoints: 4100,
+      learningPoints: 1800,
+      communityPoints: 2300,
+      dailyLearningPoints: 80,
+      dailyCommunityPoints: 70,
+      dailyUpvotePoints: 30,
+      lastDailyReset: todayStart,
+      createdAt: new Date('2025-06-01'),
+      updatedAt: now,
     },
   ]);
 }

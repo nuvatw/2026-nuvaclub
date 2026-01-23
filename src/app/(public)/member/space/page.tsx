@@ -1,52 +1,24 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 import { useDBContext } from '@/lib/db';
 import { cn } from '@/lib/utils';
-
-function formatDate(date: Date | undefined): string {
-  if (!date) return 'N/A';
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(new Date(date));
-}
-
-function getCompanionLimit(identity: string): number | 'unlimited' {
-  switch (identity) {
-    case 'duo-go':
-      return 1;
-    case 'duo-run':
-      return 5;
-    case 'duo-fly':
-      return 'unlimited';
-    default:
-      return 0;
-  }
-}
-
-function getStatusBadge(status: string) {
-  switch (status) {
-    case 'active':
-      return { label: 'Active', color: 'bg-green-500/10 text-green-400' };
-    case 'pending':
-      return { label: 'Pending', color: 'bg-amber-500/10 text-amber-400' };
-    case 'completed':
-      return { label: 'Completed', color: 'bg-primary-500/10 text-primary-400' };
-    default:
-      return { label: status, color: 'bg-neutral-500/10 text-neutral-400' };
-  }
-}
+import { formatDateCompact } from '@/lib/utils/date';
+import { getCompanionLimit, getStatusBadge } from '@/features/space/types';
+import { DuoCalendarView } from '@/features/duo/components/DuoCalendarView';
+import { useDuoMonthPasses } from '@/features/duo/hooks/useDuoMonthPasses';
+import { formatMonthLong } from '@/features/duo/utils/month-utils';
 
 export default function MySpacePage() {
   const { user, identity } = useAuth();
   const { db, isReady } = useDBContext();
+  const { activePasses, passesWithMeta } = useDuoMonthPasses();
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
 
-  // Check if user has space access
-  const hasSpaceAccess = ['duo-go', 'duo-run', 'duo-fly'].includes(identity);
+  // Check if user has space access (either old ticket or new monthly passes)
+  const hasSpaceAccess = ['duo-go', 'duo-run', 'duo-fly'].includes(identity) || activePasses.length > 0;
   const companionLimit = getCompanionLimit(identity);
 
   // Get mentorship relationships
@@ -70,11 +42,24 @@ export default function MySpacePage() {
     return { asNunu: asNunuWithUsers, asVava: asVavaWithUsers };
   }, [db, isReady, user]);
 
-  // Get duo ticket info
+  // Get duo ticket info (legacy)
   const duoTicket = useMemo(() => {
     if (!isReady || !db || !user) return null;
-    return db.duoTickets.findFirst({ where: { userId: user.id, status: 'active' } });
+    return db.userDuoTickets.findFirst({ where: { userId: user.id, status: 'active' } });
   }, [db, isReady, user]);
+
+  // Calculate total slots from monthly passes
+  const totalMonthlySlots = useMemo(() => {
+    return passesWithMeta.reduce((acc, p) => {
+      if (p.status === 'active') {
+        return {
+          used: acc.used + p.currentCompanions,
+          max: acc.max + (p.maxCompanions >= 999 ? 999 : p.maxCompanions),
+        };
+      }
+      return acc;
+    }, { used: 0, max: 0 });
+  }, [passesWithMeta]);
 
   if (!user) return null;
 
@@ -139,8 +124,14 @@ export default function MySpacePage() {
         </Link>
       </div>
 
-      {/* Duo Ticket Status */}
-      {duoTicket && (
+      {/* Monthly Duo Passes Calendar */}
+      <DuoCalendarView
+        onMonthSelect={setSelectedMonth}
+        selectedMonth={selectedMonth}
+      />
+
+      {/* Legacy Duo Ticket Status (for users with old tickets) */}
+      {duoTicket && activePasses.length === 0 && (
         <div className="bg-gradient-to-r from-primary-500/10 to-accent-500/10 rounded-xl border border-primary-500/20 p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -150,9 +141,9 @@ export default function MySpacePage() {
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white capitalize">Duo {duoTicket.ticketType} Ticket</h3>
+                <h3 className="text-lg font-semibold text-white capitalize">Duo {duoTicket.tier} Ticket</h3>
                 <p className="text-sm text-neutral-400">
-                  Valid until {formatDate(duoTicket.validUntil)}
+                  Valid until {formatDateCompact(duoTicket.validUntil)}
                 </p>
               </div>
             </div>
@@ -229,7 +220,7 @@ export default function MySpacePage() {
                   <div className="flex-1">
                     <p className="font-medium text-white">{mentorship.partner?.name || 'Unknown'}</p>
                     <p className="text-sm text-neutral-400">
-                      Matched on {formatDate(mentorship.startedAt)}
+                      Matched on {formatDateCompact(mentorship.startedAt)}
                     </p>
                   </div>
                   <span className={cn('px-3 py-1 rounded-full text-xs font-medium', status.color)}>
@@ -286,7 +277,7 @@ export default function MySpacePage() {
                   <div className="flex-1">
                     <p className="font-medium text-white">{mentorship.partner?.name || 'Unknown'}</p>
                     <p className="text-sm text-neutral-400">
-                      Matched on {formatDate(mentorship.startedAt)}
+                      Matched on {formatDateCompact(mentorship.startedAt)}
                     </p>
                   </div>
                   <span className={cn('px-3 py-1 rounded-full text-xs font-medium', status.color)}>

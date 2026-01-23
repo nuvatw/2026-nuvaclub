@@ -1,23 +1,18 @@
 'use client';
 
 import { motion } from 'motion/react';
-import { QUICK_START_ITEMS, PLAYBOOK_CONTENT } from '../data/playbook-content';
 import { cn } from '@/lib/utils';
+import { scrollToSection } from '../utils/scroll';
+import type { QuickStartItem, PlaybookContentType, VersionInfo } from '../types';
 
 interface QuickStartCardProps {
-  item: (typeof QUICK_START_ITEMS)[0];
+  item: QuickStartItem;
   index: number;
 }
 
 function QuickStartCard({ item, index }: QuickStartCardProps) {
   const handleClick = () => {
-    const element = document.getElementById(item.id);
-    if (element) {
-      const offset = 100;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.scrollY - offset;
-      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-    }
+    scrollToSection(item.id);
   };
 
   return (
@@ -43,7 +38,14 @@ function QuickStartCard({ item, index }: QuickStartCardProps) {
   );
 }
 
-export function PlaybookHero() {
+interface PlaybookHeroProps {
+  quickStartItems: QuickStartItem[];
+  content: PlaybookContentType;
+  versionInfo: VersionInfo;
+  isLatest: boolean;
+}
+
+export function PlaybookHero({ quickStartItems, content, versionInfo, isLatest }: PlaybookHeroProps) {
   return (
     <section className="mb-16">
       {/* Hero Header */}
@@ -57,16 +59,33 @@ export function PlaybookHero() {
           <span className="text-sm font-medium text-primary-400">
             Official Guide
           </span>
+          {!isLatest && (
+            <span className="ml-2 px-2 py-0.5 rounded text-xs font-medium bg-amber-500/20 text-amber-400 border border-amber-500/30">
+              v{versionInfo.version}
+            </span>
+          )}
         </div>
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-          {PLAYBOOK_CONTENT.hero.title}
+          {content.hero.title}
         </h1>
         <p className="text-xl text-neutral-400 max-w-2xl mx-auto mb-2">
-          {PLAYBOOK_CONTENT.hero.subtitle}
+          {content.hero.subtitle}
         </p>
         <p className="text-neutral-500 max-w-3xl mx-auto">
-          {PLAYBOOK_CONTENT.hero.description}
+          {content.hero.description}
         </p>
+
+        {/* Version Info */}
+        {!isLatest && (
+          <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
+            <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span className="text-sm text-amber-300">
+              You&apos;re viewing an older version. Released on {versionInfo.releaseDate}
+            </span>
+          </div>
+        )}
       </motion.div>
 
       {/* Quick Start Grid */}
@@ -80,7 +99,7 @@ export function PlaybookHero() {
           Jump to Section
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {QUICK_START_ITEMS.map((item, index) => (
+          {quickStartItems.map((item, index) => (
             <QuickStartCard key={item.id} item={item} index={index} />
           ))}
         </div>

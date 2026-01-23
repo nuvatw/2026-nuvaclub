@@ -112,8 +112,8 @@ export default function ExamPage() {
 
   // Timer initial seconds
   const initialSeconds = useMemo(() => {
-    if (session?.expiredAt) {
-      const remaining = Math.max(0, session.expiredAt.getTime() - Date.now());
+    if (session?.expiresAt) {
+      const remaining = Math.max(0, session.expiresAt.getTime() - Date.now());
       return Math.floor(remaining / 1000);
     }
     return getLevelDuration(level) * 60;

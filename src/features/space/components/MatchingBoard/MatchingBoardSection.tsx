@@ -19,8 +19,8 @@ export function MatchingBoardSection() {
   const { user, identity, hasPermission } = useAuth();
   const canViewVerified = hasPermission('space:view_certified_nunu');
 
-  // Filters state
-  const [selectedType, setSelectedType] = useState<MatchingPostType | 'all'>('all');
+  // Filters state - default to "Find Nunu" (vava looking for nunu)
+  const [selectedType, setSelectedType] = useState<MatchingPostType | 'all'>('vava-looking-for-nunu');
   const [selectedTimeSelection, setSelectedTimeSelection] = useState<TimeSelectionType | 'all'>(
     'all'
   );

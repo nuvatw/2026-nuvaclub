@@ -6,7 +6,7 @@
  * work while new components use the database directly.
  */
 
-import type { Course, Lesson, CourseCategory, CourseLevel } from '@/features/learn/types';
+import type { Course, Lesson, Chapter, Trailer, CourseCategory, CourseLevel } from '@/features/learn/types';
 import type { Post, Comment } from '@/features/forum/types';
 import type { Companion } from '@/features/space/types';
 import type { Season, Sprint, Project } from '@/features/sprint/types';
@@ -16,8 +16,8 @@ import type {
   LessonRecord,
   CourseCategoryRecord,
   InstructorRecord,
-  PostRecord,
-  CommentRecord,
+  ForumPostRecord,
+  ForumCommentRecord,
   CompanionRecord,
   SeasonRecord,
   SprintRecord,
@@ -30,12 +30,16 @@ import type { PostWithRelations, CommentWithAuthor } from '../repositories/PostR
 import type { CompanionWithRelations } from '../repositories/CompanionRepository';
 import type { SeasonWithSprints, SprintWithProjects, ProjectWithRelations } from '../repositories/SprintRepository';
 
+// Legacy type aliases for backward compatibility
+export type PostRecord = ForumPostRecord;
+export type CommentRecord = ForumCommentRecord;
+
 // ==========================================
 // LEARN MODULE CONVERTERS
 // ==========================================
 
 /**
- * Convert database course record to legacy Course format
+ * Convert database course record to Course format with chapters
  */
 export function dbCourseToLegacy(course: CourseWithRelations): Course {
   const categoryNames: Record<string, string> = {
@@ -46,13 +50,44 @@ export function dbCourseToLegacy(course: CourseWithRelations): Course {
     'cat-5': 'Free Courses',
   };
 
+  // Convert flat lessons to chapters (group by 5 lessons each)
+  const lessons = (course.lessons ?? []).map(dbLessonToLegacy);
+  const chapters: Chapter[] = [];
+  const lessonsPerChapter = 5;
+
+  for (let i = 0; i < lessons.length; i += lessonsPerChapter) {
+    const chapterLessons = lessons.slice(i, i + lessonsPerChapter);
+    const chapterIndex = Math.floor(i / lessonsPerChapter) + 1;
+    chapters.push({
+      id: `${course.id}-ch${chapterIndex}`,
+      title: `Chapter ${chapterIndex}`,
+      lessons: chapterLessons,
+    });
+  }
+
+  // If no lessons, create empty default chapter
+  if (chapters.length === 0) {
+    chapters.push({
+      id: `${course.id}-ch1`,
+      title: 'Chapter 1',
+      lessons: [],
+    });
+  }
+
+  // Create trailer object from trailerUrl
+  const trailer: Trailer = {
+    title: 'Course Trailer',
+    youtubeId: course.trailerUrl ?? '',
+    duration: 120,
+  };
+
   return {
     id: course.id,
     title: course.title,
     subtitle: course.subtitle,
     description: course.description,
     thumbnailUrl: course.thumbnailUrl,
-    trailer: course.trailerUrl,
+    trailer,
     previewVideoUrl: course.previewVideoUrl,
     category: course.category?.name ?? categoryNames[course.categoryId] ?? '',
     tags: course.tags ?? [],
@@ -60,8 +95,8 @@ export function dbCourseToLegacy(course: CourseWithRelations): Course {
       ? { name: course.instructor.name, avatar: course.instructor.avatar }
       : { name: 'Unknown', avatar: '' },
     level: course.level,
-    lessons: (course.lessons ?? []).map(dbLessonToLegacy),
-    totalDuration: course.totalDuration,
+    chapters,
+    totalDuration: course.totalDurationSeconds,
     lessonCount: course.lessonCount,
     isFeatured: course.isFeatured,
     createdAt: course.createdAt,
@@ -75,9 +110,9 @@ export function dbLessonToLegacy(lesson: LessonRecord): Lesson {
   return {
     id: lesson.id,
     title: lesson.title,
-    duration: lesson.duration,
+    duration: lesson.durationSeconds,
     videoUrl: lesson.videoUrl,
-    order: lesson.order,
+    order: lesson.sortOrder,
   };
 }
 
@@ -112,11 +147,11 @@ export function dbPostToLegacy(post: PostWithRelations): Post {
     },
     category: post.category,
     tags: post.tags ?? [],
-    score: post.score,
-    upvotes: post.upvotes,
-    downvotes: post.downvotes,
-    commentCount: post.commentCount,
-    viewCount: post.viewCount,
+    score: post.stats?.score ?? 0,
+    upvotes: post.stats?.upvotes ?? 0,
+    downvotes: post.stats?.downvotes ?? 0,
+    commentCount: post.stats?.commentCount ?? 0,
+    viewCount: post.stats?.viewCount ?? 0,
     isPinned: post.isPinned,
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
@@ -136,7 +171,7 @@ export function dbCommentToLegacy(comment: CommentWithAuthor): Comment {
       name: comment.author?.name ?? 'Unknown',
       avatar: comment.author?.avatar,
     },
-    score: comment.score,
+    score: comment.stats?.score ?? 0,
     parentId: comment.parentId,
     createdAt: comment.createdAt,
   };
@@ -159,8 +194,8 @@ export function dbCompanionToLegacy(companion: CompanionWithRelations): Companio
     expertise: companion.expertise ?? [],
     discordId: companion.discordId,
     isAvailable: companion.isAvailable,
-    matchCount: companion.matchCount,
-    rating: companion.avgRating,
+    matchCount: companion.stats?.matchCount ?? 0,
+    rating: companion.stats?.avgRating ?? 0,
   };
 }
 
@@ -197,7 +232,7 @@ export function dbSprintToLegacy(sprint: SprintWithProjects): Sprint {
     startDate: sprint.startDate,
     endDate: sprint.endDate,
     votingStartDate: sprint.votingStartDate,
-    projectCount: sprint.projectCount,
+    projectCount: sprint.stats?.projectCount ?? 0,
     isVotingOpen: sprint.isVotingOpen ?? false,
   };
 }
@@ -221,9 +256,9 @@ export function dbProjectToLegacy(project: ProjectWithRelations): Project {
       name: project.author?.name ?? 'Unknown',
       avatar: project.author?.avatar,
     },
-    voteCount: project.voteCount,
-    viewCount: project.viewCount ?? 0,
-    starCount: project.starCount ?? 0,
+    voteCount: project.stats?.voteCount ?? 0,
+    viewCount: project.stats?.viewCount ?? 0,
+    starCount: project.stats?.starCount ?? 0,
     rank: project.rank,
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,

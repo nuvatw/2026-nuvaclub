@@ -3,13 +3,15 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { VideoHero } from '@/features/shop/components';
 import { Button } from '@/components/atoms';
 import { cn } from '@/lib/utils';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { ShopPageSkeleton } from '@/components/skeletons';
-import { getAllShopProducts } from '@/features/shop/data/products';
-import type { ShopProduct, ProductCategory } from '@/features/shop/types';
+import { getAllShopProducts, DUO_TICKETS } from '@/features/shop/data/products';
+import type { ShopProduct, ProductCategory, DuoTicketProduct } from '@/features/shop/types';
+import { DuoProductCard } from '@/features/duo/components/DuoProductCard';
+import { PLANS } from '@/features/shop/data/plans';
+import { usePlanStatus } from '@/features/shop/hooks/usePlanStatus';
 
 // Category types
 type CategoryId = 'plan' | 'duo' | 'event' | 'merchandise';
@@ -18,10 +20,6 @@ interface CategoryConfig {
   id: CategoryId;
   productCategory: ProductCategory;
   title: string;
-  subtitle: string;
-  color: string;
-  bgColor: string;
-  borderColor: string;
   icon: React.ReactNode;
 }
 
@@ -31,12 +29,8 @@ const CATEGORIES: CategoryConfig[] = [
     id: 'plan',
     productCategory: 'plan',
     title: 'Plan',
-    subtitle: 'Subscriptions',
-    color: 'text-blue-400',
-    bgColor: 'bg-blue-500/10',
-    borderColor: 'border-blue-500',
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
@@ -45,12 +39,8 @@ const CATEGORIES: CategoryConfig[] = [
     id: 'duo',
     productCategory: 'duo',
     title: 'Duo',
-    subtitle: 'Partner Access',
-    color: 'text-purple-400',
-    bgColor: 'bg-purple-500/10',
-    borderColor: 'border-purple-500',
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
     ),
@@ -59,12 +49,8 @@ const CATEGORIES: CategoryConfig[] = [
     id: 'event',
     productCategory: 'event',
     title: 'Event',
-    subtitle: 'Workshops',
-    color: 'text-orange-400',
-    bgColor: 'bg-orange-500/10',
-    borderColor: 'border-orange-500',
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
     ),
@@ -73,12 +59,8 @@ const CATEGORIES: CategoryConfig[] = [
     id: 'merchandise',
     productCategory: 'merchant',
     title: 'Merchandise',
-    subtitle: 'Official Gear',
-    color: 'text-emerald-400',
-    bgColor: 'bg-emerald-500/10',
-    borderColor: 'border-emerald-500',
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
       </svg>
     ),
@@ -104,12 +86,13 @@ const CATEGORY_INFO: Record<CategoryId, {
   duo: {
     introduction: {
       title: 'About Duo Membership',
-      description: 'Share your learning journey with a Nunu mentor. Duo Go offers monthly flexibility with community mentors. Duo Run provides quarterly access to certified Nunus. Duo Fly is our premium tier with exclusive founder sessions.',
+      description: 'Share your learning journey with a Nunu mentor. Each Duo pass is purchased for specific months, giving you flexibility to plan your mentorship journey. Duo Go connects you with regular Nunus, Duo Run gives access to Certified Nunus, and Duo Fly offers exclusive sessions with Founders.',
     },
     faq: [
       { question: 'What is a Nunu?', answer: 'A Nunu is a learning companion/mentor in our community. They guide you through your learning journey.' },
-      { question: 'Can I select multiple periods?', answer: 'Yes! You can select multiple months (Go) or quarters (Run/Fly) during checkout.' },
-      { question: 'Can I upgrade my Duo tier?', answer: 'Yes, you can upgrade your tier at any time for upcoming periods.' },
+      { question: 'How does monthly purchasing work?', answer: 'Select specific months you want access to when adding to cart. Each month is purchased separately, so you only pay for what you need.' },
+      { question: 'Can I upgrade my Duo tier?', answer: 'Yes! If you already have a lower tier for a month, you can upgrade by paying the difference.' },
+      { question: 'What if I already own a month?', answer: 'The system will recognize owned months and either prevent duplicate purchases or offer upgrade options if applicable.' },
     ],
   },
   event: {
@@ -136,7 +119,7 @@ const CATEGORY_INFO: Record<CategoryId, {
   },
 };
 
-function CategoryButton({
+function CategoryPill({
   config,
   isSelected,
   onClick,
@@ -149,27 +132,18 @@ function CategoryButton({
     <button
       onClick={onClick}
       className={cn(
-        'flex flex-col items-center justify-center p-4 md:p-6 rounded-xl border-2 transition-all duration-200',
-        'hover:scale-105 hover:shadow-lg',
+        'flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-200',
         isSelected
-          ? `${config.bgColor} ${config.borderColor} shadow-lg`
-          : 'bg-neutral-800/50 border-neutral-700 hover:border-neutral-600'
+          ? 'bg-white text-neutral-900 border-white'
+          : 'bg-neutral-800/50 border-neutral-700 text-neutral-300 hover:border-neutral-500 hover:text-white'
       )}
     >
-      <div className={cn(
-        'w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center mb-2 md:mb-3',
-        isSelected ? config.bgColor : 'bg-neutral-700/50',
-        config.color
-      )}>
+      <span className="w-4 h-4 [&>svg]:w-4 [&>svg]:h-4">
         {config.icon}
-      </div>
-      <span className={cn(
-        'font-bold text-base md:text-lg',
-        isSelected ? config.color : 'text-white'
-      )}>
+      </span>
+      <span className="font-medium text-sm">
         {config.title}
       </span>
-      <span className="text-xs text-neutral-500 mt-0.5">{config.subtitle}</span>
     </button>
   );
 }
@@ -253,16 +227,98 @@ function ProductCard({
   );
 }
 
+function PlanCard({
+  plan,
+  currentPlan,
+  isGuest,
+}: {
+  plan: typeof PLANS[0];
+  currentPlan: 'explorer' | 'traveler' | null;
+  isGuest: boolean;
+}) {
+  const isCurrentPlan = currentPlan === plan.planType;
+  const isUpgrade = currentPlan === 'explorer' && plan.planType === 'traveler';
+  const isDowngrade = currentPlan === 'traveler' && plan.planType === 'explorer';
+
+  const formatPrice = (price: number) => {
+    if (price === 0) return 'Free';
+    return `NT$${price.toLocaleString()}/mo`;
+  };
+
+  return (
+    <div
+      className={cn(
+        'relative rounded-2xl p-6 border-2 transition-all',
+        isCurrentPlan
+          ? 'border-primary-500 bg-primary-500/10'
+          : 'border-neutral-700 bg-neutral-800/50 hover:border-neutral-600'
+      )}
+    >
+      {/* Popular badge */}
+      {plan.isPopular && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+          <span className="px-3 py-1 bg-primary-500 text-white text-xs font-medium rounded-full">
+            Popular
+          </span>
+        </div>
+      )}
+
+      {/* Plan name */}
+      <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
+      <p className="text-neutral-400 text-sm mb-4">{plan.description}</p>
+
+      {/* Price */}
+      <div className="mb-6">
+        <span className="text-3xl font-bold text-white">{formatPrice(plan.price)}</span>
+      </div>
+
+      {/* Features */}
+      <ul className="space-y-3 mb-6">
+        {plan.features.map((feature, index) => (
+          <li key={index} className="flex items-start gap-2 text-sm">
+            <svg className="w-5 h-5 text-primary-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="text-neutral-300">{feature}</span>
+          </li>
+        ))}
+      </ul>
+
+      {/* Action button */}
+      {isCurrentPlan ? (
+        <Button variant="secondary" size="lg" className="w-full" disabled>
+          Current Plan
+        </Button>
+      ) : isGuest ? (
+        <Button variant="primary" size="lg" className="w-full">
+          Sign Up
+        </Button>
+      ) : isUpgrade ? (
+        <Button variant="primary" size="lg" className="w-full">
+          Upgrade
+        </Button>
+      ) : isDowngrade ? (
+        <Button variant="ghost" size="lg" className="w-full border border-neutral-600">
+          Downgrade
+        </Button>
+      ) : (
+        <Button variant="primary" size="lg" className="w-full">
+          Get Started
+        </Button>
+      )}
+    </div>
+  );
+}
+
 function CategoryDetails({
   categoryId,
   products,
-  config,
 }: {
   categoryId: CategoryId;
   products: ShopProduct[];
-  config: CategoryConfig;
 }) {
   const router = useRouter();
+  const { currentPlan, isGuest } = usePlanStatus();
   const info = CATEGORY_INFO[categoryId];
 
   const handleAddToCart = (product: ShopProduct) => {
@@ -282,15 +338,46 @@ function CategoryDetails({
     }
   };
 
+  // For duo category, use DuoProductCard with full product data
+  const duoProducts = categoryId === 'duo' ? DUO_TICKETS : [];
+
   return (
-    <div className={cn('rounded-2xl p-6 md:p-8 border', config.bgColor, config.borderColor)}>
+    <div className="rounded-2xl p-6 md:p-8 border border-neutral-700 bg-neutral-800/30">
       {/* Products Section */}
       <div className="mb-8">
-        <h2 className={cn('text-2xl font-bold mb-6', config.color)}>
-          {config.title} ({products.length})
+        <h2 className="text-2xl font-bold mb-6 text-white">
+          {categoryId === 'plan' ? 'Choose Your Plan' : `${CATEGORIES.find(c => c.id === categoryId)?.title} (${categoryId === 'duo' ? duoProducts.length : products.length})`}
         </h2>
 
-        {products.length > 0 ? (
+        {/* Plan selection UI */}
+        {categoryId === 'plan' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            {PLANS.map((plan) => (
+              <PlanCard
+                key={plan.id}
+                plan={plan}
+                currentPlan={currentPlan}
+                isGuest={isGuest}
+              />
+            ))}
+          </div>
+        ) : categoryId === 'duo' ? (
+          duoProducts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {duoProducts.map((product) => (
+                <DuoProductCard
+                  key={product.id}
+                  product={product}
+                  onBuyNow={() => router.push('/checkout')}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-neutral-400">
+              No Duo products available.
+            </div>
+          )
+        ) : products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {products.map((product) => (
               <ProductCard
@@ -355,40 +442,33 @@ export default function ShopPage() {
     return allProducts.filter(p => p.category === config.productCategory);
   }, [allProducts, selectedCategory]);
 
-  const selectedConfig = CATEGORIES.find(c => c.id === selectedCategory)!;
-
   return (
     <PageTransition skeleton={<ShopPageSkeleton />}>
       <div className="shop-page min-h-screen bg-[var(--shop-bg)]">
-        {/* Section 1: Hero Video */}
-        <VideoHero videoId="dLRdaUda8Ho" />
-
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Page Title */}
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-white mb-2">Shop</h1>
-            <p className="text-neutral-400">
+          {/* Category Header */}
+          <div className="mb-6">
+            <p className="text-neutral-400 text-center mb-4">
               Choose a category to explore our offerings
             </p>
-          </div>
 
-          {/* Section 2: Category Buttons */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
-            {CATEGORIES.map((category) => (
-              <CategoryButton
-                key={category.id}
-                config={category}
-                isSelected={selectedCategory === category.id}
-                onClick={() => setSelectedCategory(category.id)}
-              />
-            ))}
+            {/* Category Pills */}
+            <div className="flex flex-wrap justify-center gap-2 md:gap-3">
+              {CATEGORIES.map((category) => (
+                <CategoryPill
+                  key={category.id}
+                  config={category}
+                  isSelected={selectedCategory === category.id}
+                  onClick={() => setSelectedCategory(category.id)}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Section 3: Category Details (Products + Introduction + FAQ) */}
           <CategoryDetails
             categoryId={selectedCategory}
             products={filteredProducts}
-            config={selectedConfig}
           />
         </div>
       </div>

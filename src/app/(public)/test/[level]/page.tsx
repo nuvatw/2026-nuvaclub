@@ -64,7 +64,7 @@ export default function LevelDetailPage() {
   const canTake = user ? canTakeLevel(user.id, level) : false;
 
   // If there's an active exam, show continue option
-  const hasActiveSession = activeSession && activeSession.level === level;
+  const hasActiveSession = activeSession && activeSession.levelInfo?.level === level;
 
   const handleStartExam = () => {
     router.push(`/test/${level}/exam`);

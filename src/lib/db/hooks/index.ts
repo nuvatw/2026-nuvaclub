@@ -42,3 +42,15 @@ export {
   useUserMatchingComments,
   type MatchingCommentWithRelations,
 } from './useMatchingComments';
+
+// Forum - Points & Trending hooks
+export { useTrendingPosts } from './useTrendingPosts';
+export {
+  usePostsFiltered,
+  type SortOption,
+  type TimeFilter,
+} from './usePostsFiltered';
+export { useBookmark } from './useBookmark';
+export { useTrackView } from './useTrackView';
+export { useShare } from './useShare';
+export { useUserPoints, useLeaderboard } from './useUserPoints';

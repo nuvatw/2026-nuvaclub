@@ -81,8 +81,12 @@ const CheckIcon = () => (
   </svg>
 );
 
-function getYouTubeVideoId(url: string): string | null {
-  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+function getYouTubeVideoId(urlOrId: string): string | null {
+  if (!urlOrId) return null;
+  // If it's already an 11-char video ID
+  if (/^[a-zA-Z0-9_-]{11}$/.test(urlOrId)) return urlOrId;
+  // Otherwise try to extract from URL
+  const match = urlOrId.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
   return match ? match[1] : null;
 }
 
@@ -91,10 +95,8 @@ export function LearnHoverPreview() {
   const [savedCourses, setSavedCourses] = useState<Set<string>>(new Set());
   const [savingCourse, setSavingCourse] = useState<string | null>(null);
 
-  const handleWatchTrailer = (course: Course) => {
-    if (course.trailer) {
-      router.push(`/learn/${course.id}?trailer=1`);
-    }
+  const handleStartLearning = (course: Course) => {
+    router.push(`/learn/${course.id}?play=1`);
   };
 
   const handleCourseDetails = (course: Course) => {
@@ -123,12 +125,11 @@ export function LearnHoverPreview() {
 
   const getActions = (course: Course): PreviewAction[] => [
     {
-      id: 'trailer',
-      label: 'Watch Trailer',
+      id: 'start',
+      label: 'Start Learning',
       icon: <PlayIcon />,
       variant: 'primary',
-      onClick: () => handleWatchTrailer(course),
-      disabled: !course.trailer,
+      onClick: () => handleStartLearning(course),
     },
     {
       id: 'details',
@@ -151,7 +152,7 @@ export function LearnHoverPreview() {
   ];
 
   const renderMedia = (course: Course) => {
-    const videoId = course.trailer ? getYouTubeVideoId(course.trailer) : null;
+    const videoId = course.trailer?.youtubeId ? getYouTubeVideoId(course.trailer.youtubeId) : null;
 
     return (
       <>

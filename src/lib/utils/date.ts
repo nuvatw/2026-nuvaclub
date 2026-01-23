@@ -72,3 +72,52 @@ export function formatDate(
 ): string {
   return date.toLocaleDateString(locale, options);
 }
+
+/**
+ * Format a date as "MMM d, yyyy" (e.g., "Jan 15, 2024")
+ * Returns 'N/A' for undefined dates
+ */
+export function formatDateCompact(date: Date | undefined, locale: SupportedLocale = 'en-US'): string {
+  if (!date) return 'N/A';
+  const d = date instanceof Date ? date : new Date(date);
+  return d.toLocaleDateString(locale, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+/**
+ * Format a date as "Month d, yyyy" (e.g., "January 15, 2024")
+ * Returns 'N/A' for undefined dates
+ */
+export function formatDateMedium(date: Date | undefined, locale: SupportedLocale = 'en-US'): string {
+  if (!date) return 'N/A';
+  const d = date instanceof Date ? date : new Date(date);
+  return d.toLocaleDateString(locale, {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+/**
+ * Format a date with time as "Month d, yyyy at HH:MM AM/PM"
+ */
+export function formatDateWithTime(date: Date | string, locale: SupportedLocale = 'en-US'): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return d.toLocaleDateString(locale, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+/**
+ * Format a date range as "MMM d, yyyy - MMM d, yyyy"
+ */
+export function formatDateRange(start: Date, end: Date, locale: SupportedLocale = 'en-US'): string {
+  return `${formatDateCompact(start, locale)} - ${formatDateCompact(end, locale)}`;
+}

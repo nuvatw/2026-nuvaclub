@@ -128,7 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const userRecord = db.users.findById(currentAccountId);
     if (userRecord) {
       // Get duo ticket if exists
-      const ticketRecord = db.duoTickets.findFirst({
+      const ticketRecord = db.userDuoTickets.findFirst({
         where: { userId: currentAccountId, status: 'active' },
       });
 
@@ -140,7 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         identity: userRecord.identityType as IdentityType,
         duoTicket: ticketRecord
           ? {
-              type: ticketRecord.ticketType as 'go' | 'run' | 'fly',
+              type: ticketRecord.tier as 'go' | 'run' | 'fly',
               validFrom: ticketRecord.validFrom,
               validUntil: ticketRecord.validUntil,
               isActive: ticketRecord.status === 'active',

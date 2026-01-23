@@ -1,18 +1,25 @@
 'use client';
 
 import { useCart } from './CartProvider';
+import { cn } from '@/lib/utils';
 
 export function CartIcon() {
   const { cart, toggleCart } = useCart();
+  const hasItems = cart.totalItems > 0;
 
   return (
     <button
       onClick={toggleCart}
-      className="relative p-2 text-neutral-300 hover:text-white transition-colors"
+      className={cn(
+        'relative p-2 transition-colors',
+        hasItems
+          ? 'text-white'
+          : 'text-neutral-500 hover:text-white'
+      )}
       aria-label={`Shopping cart with ${cart.totalItems} items`}
     >
       <svg
-        className="w-6 h-6"
+        className="w-5 h-5"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -24,10 +31,8 @@ export function CartIcon() {
           d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
         />
       </svg>
-      {cart.totalItems > 0 && (
-        <span className="absolute -top-1 -right-1 bg-primary-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-          {cart.totalItems > 99 ? '99+' : cart.totalItems}
-        </span>
+      {hasItems && (
+        <span className="absolute top-1 right-1 bg-red-500 rounded-full w-2 h-2" />
       )}
     </button>
   );

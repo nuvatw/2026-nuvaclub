@@ -1,11 +1,25 @@
 'use client';
 
-import type { QuestionRecord } from '@/lib/db/schema';
+import type { QuestionRecord, QuestionType } from '@/lib/db/schema';
 import { TrueFalseQuestion } from './TrueFalseQuestion';
 import { MultipleChoiceQuestion } from './MultipleChoiceQuestion';
 import { ShortAnswerQuestion } from './ShortAnswerQuestion';
 import { EssayQuestion } from './EssayQuestion';
 import { Badge } from '@/components/atoms';
+
+const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
+  'true-false': 'True/False',
+  'multiple-choice': 'Multiple Choice',
+  'short-answer': 'Short Answer',
+  'essay': 'Essay',
+};
+
+const QUESTION_TYPE_VARIANTS: Record<QuestionType, 'success' | 'primary' | 'warning' | 'error'> = {
+  'true-false': 'success',
+  'multiple-choice': 'primary',
+  'short-answer': 'warning',
+  'essay': 'error',
+};
 
 interface QuestionRendererProps {
   question: QuestionRecord;
@@ -24,43 +38,16 @@ export function QuestionRenderer({
   showResult = false,
   disabled = false,
 }: QuestionRendererProps) {
-  const getTypeLabel = () => {
-    switch (question.type) {
-      case 'true-false':
-        return 'True/False';
-      case 'multiple-choice':
-        return 'Multiple Choice';
-      case 'short-answer':
-        return 'Short Answer';
-      case 'essay':
-        return 'Essay';
-      default:
-        return question.type;
-    }
-  };
-
-  const getTypeVariant = () => {
-    switch (question.type) {
-      case 'true-false':
-        return 'success';
-      case 'multiple-choice':
-        return 'primary';
-      case 'short-answer':
-        return 'warning';
-      case 'essay':
-        return 'error';
-      default:
-        return 'default';
-    }
-  };
+  const typeLabel = QUESTION_TYPE_LABELS[question.type] ?? question.type;
+  const typeVariant = QUESTION_TYPE_VARIANTS[question.type] ?? 'default';
 
   return (
     <div className="space-y-6">
       {/* Question Title */}
       <div className="flex items-center gap-3">
         <span className="text-2xl font-bold text-neutral-100">Q{questionNumber}</span>
-        <Badge variant={getTypeVariant() as 'default' | 'primary' | 'success' | 'warning' | 'error'} size="sm">
-          {getTypeLabel()}
+        <Badge variant={typeVariant} size="sm">
+          {typeLabel}
         </Badge>
         <span className="text-sm text-neutral-500">{question.points} pts</span>
       </div>

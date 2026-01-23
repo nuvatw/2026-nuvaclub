@@ -1,7 +1,7 @@
 'use client';
 
-import { IDENTITY_CAPABILITIES } from '../data/playbook-content';
 import { cn } from '@/lib/utils';
+import type { IdentityCapability } from '../types';
 
 function CheckIcon({ checked }: { checked: boolean | string }) {
   if (typeof checked === 'string') {
@@ -38,7 +38,11 @@ function CheckIcon({ checked }: { checked: boolean | string }) {
   );
 }
 
-export function IdentityTable() {
+interface IdentityTableProps {
+  capabilities: IdentityCapability[];
+}
+
+export function IdentityTable({ capabilities }: IdentityTableProps) {
   const headers = [
     { key: 'feature', label: 'Feature', className: 'text-left' },
     { key: 'guest', label: 'Guest', className: 'text-center' },
@@ -68,7 +72,7 @@ export function IdentityTable() {
           </tr>
         </thead>
         <tbody>
-          {IDENTITY_CAPABILITIES.map((row, index) => (
+          {capabilities.map((row, index) => (
             <tr
               key={row.feature}
               className={cn(

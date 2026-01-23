@@ -13,38 +13,35 @@ import type { Course } from '@/features/learn/types';
 import { LEVEL_LABELS, LEVEL_BADGE_VARIANTS } from '@/features/learn/types';
 import { cn } from '@/lib/utils';
 
-// Extract YouTube video ID from URL or return as-is if already an ID
-function getYouTubeVideoId(urlOrId: string): string {
-  if (!urlOrId) return '';
-  // If it's already just an ID (no slashes or special chars)
-  if (/^[a-zA-Z0-9_-]{11}$/.test(urlOrId)) {
-    return urlOrId;
-  }
-  // Extract from various YouTube URL formats
-  const match = urlOrId.match(
-    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
-  );
-  return match ? match[1] : urlOrId;
-}
-
 interface CourseCardProps {
   course: Course;
   index?: number;
+  onStartLearning?: (course: Course) => void;
 }
 
-export function CourseCard({ course, index = 0 }: CourseCardProps) {
+export function CourseCard({
+  course,
+  index = 0,
+  onStartLearning,
+}: CourseCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
   const { state } = useHoverPreviewContext<Course>();
   const isExpanded = state.data?.id === course.id;
 
+  // Clicking card starts at trailer (index -1)
+  const trailerVideoId = course.trailer?.youtubeId || '';
+
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsPlayerOpen(true);
-  };
 
-  const trailerVideoId = getYouTubeVideoId(course.trailer || '');
+    if (onStartLearning) {
+      onStartLearning(course);
+    } else {
+      setIsPlayerOpen(true);
+    }
+  };
 
   return (
     <>
@@ -108,13 +105,14 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
         </motion.div>
       </HoverPreviewTrigger>
 
-      {/* Video Player */}
+      {/* Video Player - starts at trailer (index -1) */}
       {trailerVideoId && (
         <VideoPlayer
           course={course}
           videoId={trailerVideoId}
           isOpen={isPlayerOpen}
           onClose={() => setIsPlayerOpen(false)}
+          initialLessonIndex={-1}
         />
       )}
     </>

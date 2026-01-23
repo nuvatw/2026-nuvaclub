@@ -2,710 +2,241 @@ import type { MockDB } from '../core/MockDB';
 
 /**
  * Seed space module data
+ * Following 3NF normalization with proper junction tables
  */
 export async function seedSpace(db: MockDB): Promise<void> {
   const now = new Date();
 
-  // Create companions
+  // ==========================================
+  // COMPANIONS
+  // ==========================================
   db.companions.createMany([
     // Nunu (Go ticket)
-    {
-      id: 'companion-1',
-      name: 'Amy',
-      avatar: 'https://i.pravatar.cc/150?u=amy-nunu',
-      type: 'nunu',
-      bio: 'Loves helping beginners get started with AI tools, skilled at explaining complex concepts in simple ways.',
-      discordId: 'amy#1234',
-      isAvailable: true,
-      matchCount: 28,
-      avgRating: 4.8,
-      totalRatings: 25,
-      createdAt: new Date('2025-06-01'),
-      updatedAt: now,
-    },
-    {
-      id: 'companion-2',
-      name: 'Ben',
-      avatar: 'https://i.pravatar.cc/150?u=ben-nunu',
-      type: 'nunu',
-      bio: 'Focused on AI automation, can help you build workflows.',
-      discordId: 'ben#5678',
-      isAvailable: true,
-      matchCount: 15,
-      avgRating: 4.6,
-      totalRatings: 14,
-      createdAt: new Date('2025-07-01'),
-      updatedAt: now,
-    },
-    {
-      id: 'companion-3',
-      name: 'Carol',
-      avatar: 'https://i.pravatar.cc/150?u=carol-nunu',
-      type: 'nunu',
-      bio: 'Content creator, skilled at using AI to boost creative efficiency.',
-      discordId: 'carol#9012',
-      isAvailable: false,
-      matchCount: 22,
-      avgRating: 4.7,
-      totalRatings: 20,
-      createdAt: new Date('2025-08-01'),
-      updatedAt: now,
-    },
+    { id: 'companion-1', name: 'Amy', avatar: 'https://i.pravatar.cc/150?u=amy-nunu', type: 'nunu', bio: 'Loves helping beginners get started with AI tools, skilled at explaining complex concepts in simple ways.', discordId: 'amy#1234', isAvailable: true, createdAt: new Date('2025-06-01'), updatedAt: now },
+    { id: 'companion-2', name: 'Ben', avatar: 'https://i.pravatar.cc/150?u=ben-nunu', type: 'nunu', bio: 'Focused on AI automation, can help you build workflows.', discordId: 'ben#5678', isAvailable: true, createdAt: new Date('2025-07-01'), updatedAt: now },
+    { id: 'companion-3', name: 'Carol', avatar: 'https://i.pravatar.cc/150?u=carol-nunu', type: 'nunu', bio: 'Content creator, skilled at using AI to boost creative efficiency.', discordId: 'carol#9012', isAvailable: false, createdAt: new Date('2025-08-01'), updatedAt: now },
     // Certified Nunu (Run ticket)
-    {
-      id: 'companion-4',
-      name: 'David',
-      avatar: 'https://i.pravatar.cc/150?u=david-certified',
-      type: 'certified-nunu',
-      bio: 'Senior AI engineer, specializing in Prompt Engineering and AI application development.',
-      discordId: 'david#3456',
-      isAvailable: true,
-      matchCount: 45,
-      avgRating: 4.9,
-      totalRatings: 42,
-      createdAt: new Date('2025-05-01'),
-      updatedAt: now,
-    },
-    {
-      id: 'companion-5',
-      name: 'Eva',
-      avatar: 'https://i.pravatar.cc/150?u=eva-certified',
-      type: 'certified-nunu',
-      bio: 'AI Product Manager, helping you go from idea to execution.',
-      discordId: 'eva#7890',
-      isAvailable: true,
-      matchCount: 38,
-      avgRating: 4.8,
-      totalRatings: 35,
-      createdAt: new Date('2025-04-01'),
-      updatedAt: now,
-    },
+    { id: 'companion-4', name: 'David', avatar: 'https://i.pravatar.cc/150?u=david-certified', type: 'certified-nunu', bio: 'Senior AI engineer, specializing in Prompt Engineering and AI application development.', discordId: 'david#3456', isAvailable: true, createdAt: new Date('2025-05-01'), updatedAt: now },
+    { id: 'companion-5', name: 'Eva', avatar: 'https://i.pravatar.cc/150?u=eva-certified', type: 'certified-nunu', bio: 'AI Product Manager, helping you go from idea to execution.', discordId: 'eva#7890', isAvailable: true, createdAt: new Date('2025-04-01'), updatedAt: now },
     // Shangzhe (Fly ticket)
-    {
-      id: 'companion-6',
-      name: 'Shangzhe',
-      avatar: 'https://i.pravatar.cc/150?u=shangzhe',
-      type: 'shangzhe',
-      bio: 'nuvaClub founder, AI education expert, providing one-on-one in-depth consultation.',
-      discordId: 'shangzhe#0001',
-      isAvailable: true,
-      matchCount: 120,
-      avgRating: 5.0,
-      totalRatings: 100,
-      createdAt: new Date('2025-01-01'),
-      updatedAt: now,
-    },
+    { id: 'companion-6', name: 'Shangzhe', avatar: 'https://i.pravatar.cc/150?u=shangzhe', type: 'shangzhe', bio: 'nuvaClub founder, AI education expert, providing one-on-one in-depth consultation.', discordId: 'shangzhe#0001', isAvailable: true, createdAt: new Date('2025-01-01'), updatedAt: now },
   ]);
 
-  // Create companion expertise
+  // ==========================================
+  // COMPANION EXPERTISE (Junction Table - 1NF)
+  // ==========================================
   db.companionExpertise.createMany([
-    { id: 'exp-1-1', companionId: 'companion-1', expertise: 'ChatGPT' },
-    { id: 'exp-1-2', companionId: 'companion-1', expertise: 'Beginner Tutorial' },
-    { id: 'exp-1-3', companionId: 'companion-1', expertise: 'Copywriting' },
-    { id: 'exp-2-1', companionId: 'companion-2', expertise: 'Make.com' },
-    { id: 'exp-2-2', companionId: 'companion-2', expertise: 'Zapier' },
-    { id: 'exp-2-3', companionId: 'companion-2', expertise: 'Automation' },
-    { id: 'exp-3-1', companionId: 'companion-3', expertise: 'Content Creation' },
-    { id: 'exp-3-2', companionId: 'companion-3', expertise: 'SEO' },
-    { id: 'exp-3-3', companionId: 'companion-3', expertise: 'Social Media Management' },
-    { id: 'exp-4-1', companionId: 'companion-4', expertise: 'Prompt Engineering' },
-    { id: 'exp-4-2', companionId: 'companion-4', expertise: 'API Integration' },
-    { id: 'exp-4-3', companionId: 'companion-4', expertise: 'Python' },
-    { id: 'exp-5-1', companionId: 'companion-5', expertise: 'Product Planning' },
-    { id: 'exp-5-2', companionId: 'companion-5', expertise: 'Project Management' },
-    { id: 'exp-5-3', companionId: 'companion-5', expertise: 'AI Strategy' },
-    { id: 'exp-6-1', companionId: 'companion-6', expertise: 'AI Strategy' },
-    { id: 'exp-6-2', companionId: 'companion-6', expertise: 'Business Application' },
-    { id: 'exp-6-3', companionId: 'companion-6', expertise: 'Career Development' },
+    { id: 'exp-1-1', companionId: 'companion-1', expertise: 'ChatGPT', sortOrder: 1 },
+    { id: 'exp-1-2', companionId: 'companion-1', expertise: 'Beginner Tutorial', sortOrder: 2 },
+    { id: 'exp-1-3', companionId: 'companion-1', expertise: 'Copywriting', sortOrder: 3 },
+    { id: 'exp-2-1', companionId: 'companion-2', expertise: 'Make.com', sortOrder: 1 },
+    { id: 'exp-2-2', companionId: 'companion-2', expertise: 'Zapier', sortOrder: 2 },
+    { id: 'exp-2-3', companionId: 'companion-2', expertise: 'Automation', sortOrder: 3 },
+    { id: 'exp-3-1', companionId: 'companion-3', expertise: 'Content Creation', sortOrder: 1 },
+    { id: 'exp-3-2', companionId: 'companion-3', expertise: 'SEO', sortOrder: 2 },
+    { id: 'exp-3-3', companionId: 'companion-3', expertise: 'Social Media Management', sortOrder: 3 },
+    { id: 'exp-4-1', companionId: 'companion-4', expertise: 'Prompt Engineering', sortOrder: 1 },
+    { id: 'exp-4-2', companionId: 'companion-4', expertise: 'API Integration', sortOrder: 2 },
+    { id: 'exp-4-3', companionId: 'companion-4', expertise: 'Python', sortOrder: 3 },
+    { id: 'exp-5-1', companionId: 'companion-5', expertise: 'Product Planning', sortOrder: 1 },
+    { id: 'exp-5-2', companionId: 'companion-5', expertise: 'Project Management', sortOrder: 2 },
+    { id: 'exp-5-3', companionId: 'companion-5', expertise: 'AI Strategy', sortOrder: 3 },
+    { id: 'exp-6-1', companionId: 'companion-6', expertise: 'AI Strategy', sortOrder: 1 },
+    { id: 'exp-6-2', companionId: 'companion-6', expertise: 'Business Application', sortOrder: 2 },
+    { id: 'exp-6-3', companionId: 'companion-6', expertise: 'Career Development', sortOrder: 3 },
   ]);
 
-  // Create some sample matches (user-to-companion)
+  // ==========================================
+  // COMPANION STATS (Denormalized)
+  // ==========================================
+  db.companionStats.createMany([
+    { companionId: 'companion-1', matchCount: 28, completedMatchCount: 25, totalRatings: 25, sumRatings: 120, avgRating: 4.8, lastUpdatedAt: now },
+    { companionId: 'companion-2', matchCount: 15, completedMatchCount: 14, totalRatings: 14, sumRatings: 64, avgRating: 4.6, lastUpdatedAt: now },
+    { companionId: 'companion-3', matchCount: 22, completedMatchCount: 20, totalRatings: 20, sumRatings: 94, avgRating: 4.7, lastUpdatedAt: now },
+    { companionId: 'companion-4', matchCount: 45, completedMatchCount: 42, totalRatings: 42, sumRatings: 206, avgRating: 4.9, lastUpdatedAt: now },
+    { companionId: 'companion-5', matchCount: 38, completedMatchCount: 35, totalRatings: 35, sumRatings: 168, avgRating: 4.8, lastUpdatedAt: now },
+    { companionId: 'companion-6', matchCount: 120, completedMatchCount: 100, totalRatings: 100, sumRatings: 500, avgRating: 5.0, lastUpdatedAt: now },
+  ]);
+
+  // ==========================================
+  // MATCHES
+  // ==========================================
   db.matches.createMany([
-    // Duo Run matched with certified nunu
-    {
-      id: 'match-1',
-      userId: 'user-2',
-      companionId: 'companion-4', // David (certified-nunu)
-      ticketId: 'ticket-duo-run',
-      status: 'active',
-      matchedAt: new Date('2026-01-05'),
-      acceptedAt: new Date('2026-01-05'),
-      createdAt: new Date('2026-01-05'),
-    },
-    // Duo Fly matched with Shangzhe
-    {
-      id: 'match-2',
-      userId: 'user-4',
-      companionId: 'companion-6', // Shangzhe
-      ticketId: 'ticket-duo-fly',
-      status: 'active',
-      matchedAt: new Date('2026-01-02'),
-      acceptedAt: new Date('2026-01-02'),
-      createdAt: new Date('2026-01-02'),
-    },
-    // Duo Go matched with nunu Amy
-    {
-      id: 'match-3',
-      userId: 'user-6',
-      companionId: 'companion-1', // Amy (nunu)
-      ticketId: 'ticket-duo-go',
-      status: 'active',
-      matchedAt: new Date('2026-01-10'),
-      acceptedAt: new Date('2026-01-10'),
-      createdAt: new Date('2026-01-10'),
-    },
+    { id: 'match-1', userId: 'user-2', companionId: 'companion-4', ticketId: 'ticket-user-2', status: 'active', requestedAt: new Date('2026-01-05'), acceptedAt: new Date('2026-01-05'), activatedAt: new Date('2026-01-05'), createdAt: new Date('2026-01-05'), updatedAt: now },
+    { id: 'match-2', userId: 'user-4', companionId: 'companion-6', ticketId: 'ticket-user-4', status: 'active', requestedAt: new Date('2026-01-02'), acceptedAt: new Date('2026-01-02'), activatedAt: new Date('2026-01-02'), createdAt: new Date('2026-01-02'), updatedAt: now },
+    { id: 'match-3', userId: 'user-6', companionId: 'companion-1', ticketId: 'ticket-user-6', status: 'active', requestedAt: new Date('2026-01-10'), acceptedAt: new Date('2026-01-10'), activatedAt: new Date('2026-01-10'), createdAt: new Date('2026-01-10'), updatedAt: now },
   ]);
 
-  // Create match ratings
+  // ==========================================
+  // MATCH RATINGS
+  // ==========================================
   db.matchRatings.createMany([
-    {
-      id: 'rating-1',
-      matchId: 'match-3',
-      rating: 5,
-      feedback: 'Great learning experience, Amy patiently answered all my questions!',
-      createdAt: new Date('2026-01-15'),
-    },
+    { id: 'rating-1', matchId: 'match-3', raterId: 'user-6', rateeId: 'companion-1', rating: 5, feedback: 'Great learning experience, Amy patiently answered all my questions!', createdAt: new Date('2026-01-15') },
   ]);
 
   // ==========================================
-  // User-to-User Mentorships (Nunu-Vava relationships)
-  // ==========================================
-  // Concept:
-  // - Nunu = Mentor (the one who teaches/helps)
-  // - Vava = Learner (the one being helped)
-  //
-  // Relationships:
-  // - Duo Go User: has 1 nunu (user-10), is nunu to 1 vava (alice)
-  // - Duo Run User: has 1 nunu (user-10), is nunu to 5 vava (bob, carol, dave, eve, frank)
-  // - Duo Fly User: has 1 nunu (user-10), is nunu to 2 vava (grace, henry)
-  // ==========================================
-
-  db.userMentorships.createMany([
-    // ==========================================
-    // Nunu Mentor teaching duo users
-    // ==========================================
-    {
-      id: 'mentorship-nunu-to-duo-go',
-      nunuId: 'user-10',
-      vavaId: 'user-6',
-      status: 'active',
-      startedAt: new Date('2025-12-15'),
-      lastSessionAt: new Date('2026-01-20'),
-      sessionCount: 8,
-      notes: 'Duo Go Mei is progressing quickly, has mastered basic AI tools',
-      createdAt: new Date('2025-12-15'),
-      updatedAt: now,
-    },
-    {
-      id: 'mentorship-nunu-to-duo-run',
-      nunuId: 'user-10',
-      vavaId: 'user-2',
-      status: 'active',
-      startedAt: new Date('2025-11-01'),
-      lastSessionAt: new Date('2026-01-18'),
-      sessionCount: 15,
-      notes: 'Duo Run Daxiong is a serious learner, has started helping others',
-      createdAt: new Date('2025-11-01'),
-      updatedAt: now,
-    },
-    {
-      id: 'mentorship-nunu-to-duo-fly',
-      nunuId: 'user-10',
-      vavaId: 'user-4',
-      status: 'active',
-      startedAt: new Date('2025-09-15'),
-      lastSessionAt: new Date('2026-01-21'),
-      sessionCount: 25,
-      notes: 'Duo Fly Xiaofei is the most senior learner, preparing to become a certified mentor',
-      createdAt: new Date('2025-09-15'),
-      updatedAt: now,
-    },
-
-    // ==========================================
-    // Duo Go User (user-6) as Nunu - teaching 1 vava
-    // ==========================================
-    {
-      id: 'mentorship-duo-go-to-alice',
-      nunuId: 'user-6',
-      vavaId: 'user-5',
-      status: 'active',
-      startedAt: new Date('2026-01-05'),
-      lastSessionAt: new Date('2026-01-19'),
-      sessionCount: 3,
-      notes: 'Alice just started learning, needs basic beginner guidance',
-      createdAt: new Date('2026-01-05'),
-      updatedAt: now,
-    },
-
-    // ==========================================
-    // Duo Run User (user-2) as Nunu - teaching 5 vava
-    // ==========================================
-    {
-      id: 'mentorship-duo-run-to-bob',
-      nunuId: 'user-2',
-      vavaId: 'user-7',
-      status: 'active',
-      startedAt: new Date('2025-11-15'),
-      lastSessionAt: new Date('2026-01-18'),
-      sessionCount: 12,
-      notes: 'Bob is focused on learning automation',
-      createdAt: new Date('2025-11-15'),
-      updatedAt: now,
-    },
-    {
-      id: 'mentorship-duo-run-to-carol',
-      nunuId: 'user-2',
-      vavaId: 'user-8',
-      status: 'active',
-      startedAt: new Date('2025-11-20'),
-      lastSessionAt: new Date('2026-01-17'),
-      sessionCount: 10,
-      notes: 'Carol is interested in content creation',
-      createdAt: new Date('2025-11-20'),
-      updatedAt: now,
-    },
-    {
-      id: 'mentorship-duo-run-to-dave',
-      nunuId: 'user-2',
-      vavaId: 'user-1',
-      status: 'active',
-      startedAt: new Date('2025-12-01'),
-      lastSessionAt: new Date('2026-01-15'),
-      sessionCount: 8,
-      notes: 'Dave is learning prompt engineering',
-      createdAt: new Date('2025-12-01'),
-      updatedAt: now,
-    },
-    {
-      id: 'mentorship-duo-run-to-eve',
-      nunuId: 'user-2',
-      vavaId: 'user-3',
-      status: 'active',
-      startedAt: new Date('2025-12-10'),
-      lastSessionAt: new Date('2026-01-14'),
-      sessionCount: 6,
-      notes: 'Eve is focused on image generation',
-      createdAt: new Date('2025-12-10'),
-      updatedAt: now,
-    },
-    {
-      id: 'mentorship-duo-run-to-frank',
-      nunuId: 'user-2',
-      vavaId: 'user-9',
-      status: 'active',
-      startedAt: new Date('2026-01-01'),
-      lastSessionAt: new Date('2026-01-13'),
-      sessionCount: 4,
-      notes: 'Frank is a newly joined learner',
-      createdAt: new Date('2026-01-01'),
-      updatedAt: now,
-    },
-
-    // ==========================================
-    // Duo Fly User (user-4) as Nunu - teaching 2 vava
-    // ==========================================
-    {
-      id: 'mentorship-duo-fly-to-grace',
-      nunuId: 'user-4',
-      vavaId: 'user-5',
-      status: 'active',
-      startedAt: new Date('2025-10-15'),
-      lastSessionAt: new Date('2026-01-19'),
-      sessionCount: 18,
-      notes: 'Grace is already an advanced learner',
-      createdAt: new Date('2025-10-15'),
-      updatedAt: now,
-    },
-    {
-      id: 'mentorship-duo-fly-to-henry',
-      nunuId: 'user-4',
-      vavaId: 'user-7',
-      status: 'active',
-      startedAt: new Date('2025-11-01'),
-      lastSessionAt: new Date('2026-01-18'),
-      sessionCount: 14,
-      notes: 'Henry is focused on business applications',
-      createdAt: new Date('2025-11-01'),
-      updatedAt: now,
-    },
-  ]);
-
-  // ==========================================
-  // Nunu Applications
+  // NUNU APPLICATIONS
   // ==========================================
   db.nunuApplications.createMany([
-    // Approved application (Duo Run user)
-    {
-      id: 'nunu-app-1',
-      userId: 'user-2',
-      status: 'approved',
-      applicationText:
-        'I have been using AI tools for over a year, especially skilled in automation workflows and Prompt Engineering. I hope to help more people get started with AI and share my experience.',
-      expertise: ['Prompt Engineering', 'Automation', 'Make.com'],
-      discordId: 'daxiong#5678',
-      submittedAt: new Date('2025-10-01'),
-      reviewedAt: new Date('2025-10-05'),
-      reviewedBy: 'admin-1',
-      createdAt: new Date('2025-10-01'),
-      updatedAt: new Date('2025-10-05'),
-    },
-    // Approved verified application (Duo Fly user)
-    {
-      id: 'nunu-app-2',
-      userId: 'user-4',
-      status: 'approved',
-      applicationText:
-        'As a senior AI user, I have extensive experience in AI strategy planning and business applications. I hope to become a Certified Nunu and help more learners.',
-      expertise: ['AI Strategy', 'Business Application', 'Product Planning'],
-      discordId: 'xiaofei#9012',
-      submittedAt: new Date('2025-08-15'),
-      reviewedAt: new Date('2025-08-20'),
-      reviewedBy: 'admin-1',
-      createdAt: new Date('2025-08-15'),
-      updatedAt: new Date('2025-08-20'),
-    },
-    // Pending application
-    {
-      id: 'nunu-app-3',
-      userId: 'user-7',
-      status: 'pending',
-      applicationText:
-        'I have been learning automation for half a year and want to start helping other beginners. My Nunu is a Duo Run user, and he recommended that I apply.',
-      expertise: ['Automation', 'Zapier', 'Beginner Tutorial'],
-      discordId: 'bob#1111',
-      submittedAt: new Date('2026-01-15'),
-      createdAt: new Date('2026-01-15'),
-      updatedAt: new Date('2026-01-15'),
-    },
-    // Rejected application
-    {
-      id: 'nunu-app-4',
-      userId: 'user-8',
-      status: 'rejected',
-      applicationText: 'I want to be a Nunu to help others.',
-      expertise: ['ChatGPT'],
-      discordId: 'carol#2222',
-      submittedAt: new Date('2026-01-10'),
-      reviewedAt: new Date('2026-01-12'),
-      reviewedBy: 'admin-1',
-      rejectionReason: 'Application content is too brief, please provide more details about your experience and expertise. You are welcome to reapply!',
-      createdAt: new Date('2026-01-10'),
-      updatedAt: new Date('2026-01-12'),
-    },
+    { id: 'nunu-app-1', userId: 'user-2', status: 'approved', applicationText: 'I have been using AI tools for over a year, especially skilled in automation workflows and Prompt Engineering.', discordId: 'sarahlin#5678', submittedAt: new Date('2025-10-01'), reviewedAt: new Date('2025-10-05'), reviewedBy: 'admin-1', createdAt: new Date('2025-10-01'), updatedAt: new Date('2025-10-05') },
+    { id: 'nunu-app-2', userId: 'user-4', status: 'approved', applicationText: 'As a senior AI user, I have extensive experience in AI strategy planning and business applications.', discordId: 'emilyhuang#3456', submittedAt: new Date('2025-08-15'), reviewedAt: new Date('2025-08-20'), reviewedBy: 'admin-1', createdAt: new Date('2025-08-15'), updatedAt: new Date('2025-08-20') },
+    { id: 'nunu-app-3', userId: 'user-7', status: 'pending', applicationText: 'I have been learning automation for half a year and want to start helping other beginners.', discordId: 'davidzhang#6789', submittedAt: new Date('2026-01-15'), createdAt: new Date('2026-01-15'), updatedAt: new Date('2026-01-15') },
+    { id: 'nunu-app-4', userId: 'user-8', status: 'rejected', applicationText: 'I want to be a Nunu to help others.', discordId: 'lisachen#0123', submittedAt: new Date('2026-01-10'), reviewedAt: new Date('2026-01-12'), reviewedBy: 'admin-1', rejectionReason: 'Application content is too brief, please provide more details.', createdAt: new Date('2026-01-10'), updatedAt: new Date('2026-01-12') },
+    { id: 'nunu-app-mentor', userId: 'user-10', status: 'approved', applicationText: 'Expert mentor with extensive teaching experience.', discordId: 'amylin#8901', submittedAt: new Date('2025-01-01'), reviewedAt: new Date('2025-01-02'), reviewedBy: 'admin-1', createdAt: new Date('2025-01-01'), updatedAt: new Date('2025-01-02') },
   ]);
 
   // ==========================================
-  // Nunu Profiles (for approved Nunus)
+  // NUNU APPLICATION EXPERTISE (Junction Table - 1NF)
+  // ==========================================
+  db.nunuApplicationExpertise.createMany([
+    { id: 'nae-1-1', applicationId: 'nunu-app-1', expertise: 'Prompt Engineering', sortOrder: 1 },
+    { id: 'nae-1-2', applicationId: 'nunu-app-1', expertise: 'Automation', sortOrder: 2 },
+    { id: 'nae-1-3', applicationId: 'nunu-app-1', expertise: 'Make.com', sortOrder: 3 },
+    { id: 'nae-2-1', applicationId: 'nunu-app-2', expertise: 'AI Strategy', sortOrder: 1 },
+    { id: 'nae-2-2', applicationId: 'nunu-app-2', expertise: 'Business Application', sortOrder: 2 },
+    { id: 'nae-2-3', applicationId: 'nunu-app-2', expertise: 'Product Planning', sortOrder: 3 },
+    { id: 'nae-3-1', applicationId: 'nunu-app-3', expertise: 'Automation', sortOrder: 1 },
+    { id: 'nae-3-2', applicationId: 'nunu-app-3', expertise: 'Zapier', sortOrder: 2 },
+    { id: 'nae-4-1', applicationId: 'nunu-app-4', expertise: 'ChatGPT', sortOrder: 1 },
+    { id: 'nae-m-1', applicationId: 'nunu-app-mentor', expertise: 'Comprehensive Guidance', sortOrder: 1 },
+    { id: 'nae-m-2', applicationId: 'nunu-app-mentor', expertise: 'AI Strategy', sortOrder: 2 },
+  ]);
+
+  // ==========================================
+  // NUNU APPLICATION ANSWERS (Normalized from JSON)
+  // ==========================================
+  db.nunuApplicationAnswers.createMany([
+    // User-2 answers
+    { id: 'naa-1-1', applicationId: 'nunu-app-1', questionId: 'question1', question: 'How would you handle a struggling Vava?', answer: 'I would first understand their struggles and provide encouragement, then break down the learning into smaller steps.', sortOrder: 1 },
+    { id: 'naa-1-2', applicationId: 'nunu-app-1', questionId: 'question2', question: 'What if a Vava disagrees with your approach?', answer: 'I would listen to their perspective and find a middle ground that works for both of us.', sortOrder: 2 },
+    // User-4 answers
+    { id: 'naa-2-1', applicationId: 'nunu-app-2', questionId: 'question1', question: 'How would you handle a struggling Vava?', answer: 'I believe in positive reinforcement and celebrating small wins to build confidence.', sortOrder: 1 },
+  ]);
+
+  // ==========================================
+  // NUNU PROFILES
   // ==========================================
   db.nunuProfiles.createMany([
-    // Duo Run user as N4 Regular Nunu
-    {
-      id: 'nunu-profile-1',
-      userId: 'user-2',
-      applicationId: 'nunu-app-1',
-      level: 'N4',
-      type: 'regular',
-      bio: 'Skilled in automation workflow design, helping you boost work efficiency with AI.',
-      expertise: ['Prompt Engineering', 'Automation', 'Make.com'],
-      discordId: 'daxiong#5678',
-      currentVavaCount: 5,
-      totalMentorships: 8,
-      avgRating: 4.7,
-      totalRatings: 6,
-      isAvailable: true,
-      createdAt: new Date('2025-10-05'),
-      updatedAt: now,
-    },
-    // Duo Fly user as N2 Verified Nunu
-    {
-      id: 'nunu-profile-2',
-      userId: 'user-4',
-      applicationId: 'nunu-app-2',
-      level: 'N2',
-      type: 'verified',
-      bio: 'Senior AI strategy consultant, focused on helping learners apply AI to real business scenarios.',
-      expertise: ['AI Strategy', 'Business Application', 'Product Planning'],
-      discordId: 'xiaofei#9012',
-      currentVavaCount: 2,
-      totalMentorships: 15,
-      avgRating: 4.9,
-      totalRatings: 12,
-      isAvailable: true,
-      createdAt: new Date('2025-08-20'),
-      updatedAt: now,
-    },
-    // The dedicated nunu mentor as N1 Verified
-    {
-      id: 'nunu-profile-3',
-      userId: 'user-10',
-      applicationId: 'nunu-app-mentor', // implied application
-      level: 'N1',
-      type: 'verified',
-      bio: 'Senior mentor with extensive teaching experience, has helped over a hundred learners.',
-      expertise: ['Comprehensive Guidance', 'AI Strategy', 'Prompt Engineering', 'Business Application'],
-      discordId: 'mentor#0001',
-      currentVavaCount: 3,
-      totalMentorships: 120,
-      avgRating: 5.0,
-      totalRatings: 100,
-      isAvailable: true,
-      createdAt: new Date('2025-01-01'),
-      updatedAt: now,
-    },
+    { id: 'nunu-profile-1', userId: 'user-2', applicationId: 'nunu-app-1', level: 'N4', type: 'regular', bio: 'Skilled in automation workflow design, helping you boost work efficiency with AI.', discordId: 'sarahlin#5678', isAvailable: true, maxVavas: 5, approvedAt: new Date('2025-10-05'), createdAt: new Date('2025-10-05'), updatedAt: now },
+    { id: 'nunu-profile-2', userId: 'user-4', applicationId: 'nunu-app-2', level: 'N2', type: 'verified', bio: 'Senior AI strategy consultant, focused on helping learners apply AI to real business scenarios.', discordId: 'emilyhuang#3456', isAvailable: true, maxVavas: 30, approvedAt: new Date('2025-08-20'), createdAt: new Date('2025-08-20'), updatedAt: now },
+    { id: 'nunu-profile-3', userId: 'user-10', applicationId: 'nunu-app-mentor', level: 'N1', type: 'verified', bio: 'Senior mentor with extensive teaching experience, has helped over a hundred learners.', discordId: 'amylin#8901', isAvailable: true, maxVavas: 50, approvedAt: new Date('2025-01-02'), createdAt: new Date('2025-01-02'), updatedAt: now },
   ]);
 
   // ==========================================
-  // Matching Board Posts
+  // NUNU PROFILE EXPERTISE (Junction Table - 1NF)
+  // ==========================================
+  db.nunuProfileExpertise.createMany([
+    { id: 'npe-1-1', profileId: 'nunu-profile-1', expertise: 'Prompt Engineering', sortOrder: 1 },
+    { id: 'npe-1-2', profileId: 'nunu-profile-1', expertise: 'Automation', sortOrder: 2 },
+    { id: 'npe-1-3', profileId: 'nunu-profile-1', expertise: 'Make.com', sortOrder: 3 },
+    { id: 'npe-2-1', profileId: 'nunu-profile-2', expertise: 'AI Strategy', sortOrder: 1 },
+    { id: 'npe-2-2', profileId: 'nunu-profile-2', expertise: 'Business Application', sortOrder: 2 },
+    { id: 'npe-2-3', profileId: 'nunu-profile-2', expertise: 'Product Planning', sortOrder: 3 },
+    { id: 'npe-3-1', profileId: 'nunu-profile-3', expertise: 'Comprehensive Guidance', sortOrder: 1 },
+    { id: 'npe-3-2', profileId: 'nunu-profile-3', expertise: 'AI Strategy', sortOrder: 2 },
+    { id: 'npe-3-3', profileId: 'nunu-profile-3', expertise: 'Prompt Engineering', sortOrder: 3 },
+    { id: 'npe-3-4', profileId: 'nunu-profile-3', expertise: 'Business Application', sortOrder: 4 },
+  ]);
+
+  // ==========================================
+  // NUNU STATS (Denormalized)
+  // ==========================================
+  db.nunuStats.createMany([
+    { profileId: 'nunu-profile-1', currentVavaCount: 5, totalMentorships: 8, completedMentorships: 3, totalRatings: 6, sumRatings: 28, avgRating: 4.7, lastUpdatedAt: now },
+    { profileId: 'nunu-profile-2', currentVavaCount: 2, totalMentorships: 15, completedMentorships: 13, totalRatings: 12, sumRatings: 59, avgRating: 4.9, lastUpdatedAt: now },
+    { profileId: 'nunu-profile-3', currentVavaCount: 3, totalMentorships: 120, completedMentorships: 117, totalRatings: 100, sumRatings: 500, avgRating: 5.0, lastUpdatedAt: now },
+  ]);
+
+  // ==========================================
+  // USER MENTORSHIPS
+  // ==========================================
+  db.userMentorships.createMany([
+    // Nunu Mentor (user-10) teaching duo users
+    { id: 'mentorship-1', nunuId: 'user-10', vavaId: 'user-6', nunuProfileId: 'nunu-profile-3', status: 'active', sessionCount: 8, startedAt: new Date('2025-12-15'), lastSessionAt: new Date('2026-01-20'), notes: 'Duo Go user progressing quickly', createdAt: new Date('2025-12-15'), updatedAt: now },
+    { id: 'mentorship-2', nunuId: 'user-10', vavaId: 'user-2', nunuProfileId: 'nunu-profile-3', status: 'active', sessionCount: 15, startedAt: new Date('2025-11-01'), lastSessionAt: new Date('2026-01-18'), notes: 'Duo Run user, started helping others', createdAt: new Date('2025-11-01'), updatedAt: now },
+    { id: 'mentorship-3', nunuId: 'user-10', vavaId: 'user-4', nunuProfileId: 'nunu-profile-3', status: 'active', sessionCount: 25, startedAt: new Date('2025-09-15'), lastSessionAt: new Date('2026-01-21'), notes: 'Duo Fly user, preparing to become certified', createdAt: new Date('2025-09-15'), updatedAt: now },
+
+    // Duo Go User (user-6) as Nunu
+    { id: 'mentorship-4', nunuId: 'user-6', vavaId: 'user-5', nunuProfileId: 'nunu-profile-1', status: 'active', sessionCount: 3, startedAt: new Date('2026-01-05'), lastSessionAt: new Date('2026-01-19'), notes: 'New learner, needs basic guidance', createdAt: new Date('2026-01-05'), updatedAt: now },
+
+    // Duo Run User (user-2) as Nunu
+    { id: 'mentorship-5', nunuId: 'user-2', vavaId: 'user-7', nunuProfileId: 'nunu-profile-1', status: 'active', sessionCount: 12, startedAt: new Date('2025-11-15'), lastSessionAt: new Date('2026-01-18'), notes: 'Learning automation', createdAt: new Date('2025-11-15'), updatedAt: now },
+    { id: 'mentorship-6', nunuId: 'user-2', vavaId: 'user-8', nunuProfileId: 'nunu-profile-1', status: 'active', sessionCount: 10, startedAt: new Date('2025-11-20'), lastSessionAt: new Date('2026-01-17'), notes: 'Interested in content creation', createdAt: new Date('2025-11-20'), updatedAt: now },
+    { id: 'mentorship-7', nunuId: 'user-2', vavaId: 'user-1', nunuProfileId: 'nunu-profile-1', status: 'active', sessionCount: 8, startedAt: new Date('2025-12-01'), lastSessionAt: new Date('2026-01-15'), notes: 'Learning prompt engineering', createdAt: new Date('2025-12-01'), updatedAt: now },
+
+    // Duo Fly User (user-4) as Nunu
+    { id: 'mentorship-8', nunuId: 'user-4', vavaId: 'user-5', nunuProfileId: 'nunu-profile-2', status: 'active', sessionCount: 18, startedAt: new Date('2025-10-15'), lastSessionAt: new Date('2026-01-19'), notes: 'Advanced learner', createdAt: new Date('2025-10-15'), updatedAt: now },
+    { id: 'mentorship-9', nunuId: 'user-4', vavaId: 'user-7', nunuProfileId: 'nunu-profile-2', status: 'active', sessionCount: 14, startedAt: new Date('2025-11-01'), lastSessionAt: new Date('2026-01-18'), notes: 'Business applications focus', createdAt: new Date('2025-11-01'), updatedAt: now },
+  ]);
+
+  // ==========================================
+  // MENTORSHIP SESSIONS
+  // ==========================================
+  db.mentorshipSessions.createMany([
+    { id: 'session-1-1', mentorshipId: 'mentorship-1', sessionNumber: 1, occurredAt: new Date('2025-12-16'), durationMinutes: 60, notes: 'Initial assessment', topics: 'ChatGPT basics', createdAt: new Date('2025-12-16') },
+    { id: 'session-1-2', mentorshipId: 'mentorship-1', sessionNumber: 2, occurredAt: new Date('2025-12-23'), durationMinutes: 45, notes: 'Good progress', topics: 'Prompt techniques', createdAt: new Date('2025-12-23') },
+    { id: 'session-2-1', mentorshipId: 'mentorship-2', sessionNumber: 1, occurredAt: new Date('2025-11-02'), durationMinutes: 60, notes: 'Advanced learner', topics: 'Automation workflows', createdAt: new Date('2025-11-02') },
+  ]);
+
+  // ==========================================
+  // MATCHING POSTS
   // ==========================================
   db.matchingPosts.createMany([
-    // Offering Nunu post (Regular)
-    {
-      id: 'matching-post-1',
-      authorId: 'user-2',
-      type: 'nunu-looking-for-vava',
-      title: 'Automation Expert Looking for Vava! Learn Make.com and Zapier Together',
-      content:
-        'I am a Nunu focused on automation, skilled in Make.com, Zapier, and other tools. If you want to learn how to automate workflows, feel free to match with me!\n\nMy teaching style is hands-on oriented, I will guide you step by step to build your own automation workflows.',
-      timeSelection: 'monthly',
-      timePeriod: '2026-02',
-      isVerifiedNunuOnly: false,
-      viewCount: 45,
-      isActive: true,
-      createdAt: new Date('2026-01-10'),
-      updatedAt: now,
-    },
-    // Offering Nunu post (Verified)
-    {
-      id: 'matching-post-2',
-      authorId: 'user-4',
-      type: 'nunu-looking-for-vava',
-      title: '[Certified Nunu] AI Strategy and Business Application Guidance',
-      content:
-        'As a Certified Nunu, I focus on helping learners apply AI to real business scenarios.\n\nSuitable for:\n- Professionals who want to integrate AI into their work\n- People interested in AI product planning\n- Learners who want to develop AI strategic thinking\n\nWeekly online consultation, seasonal matching.',
-      timeSelection: 'seasonal',
-      timePeriod: '2026-Q1',
-      isVerifiedNunuOnly: true,
-      viewCount: 78,
-      isActive: true,
-      createdAt: new Date('2026-01-05'),
-      updatedAt: now,
-    },
-    // Looking for Nunu post
-    {
-      id: 'matching-post-3',
-      authorId: 'user-5',
-      type: 'vava-looking-for-nunu',
-      title: 'Beginner Looking for Nunu! Want to Learn AI Copywriting',
-      content:
-        'I am a beginner with AI tools, hoping to find a patient Nunu to guide me.\n\nI especially want to learn:\n- Basic ChatGPT operations\n- AI-assisted copywriting\n- Prompt writing techniques\n\nMy schedule is flexible, hoping to have a session once a week!',
-      timeSelection: 'monthly',
-      timePeriod: '2026-02',
-      isVerifiedNunuOnly: false,
-      viewCount: 23,
-      isActive: true,
-      createdAt: new Date('2026-01-18'),
-      updatedAt: now,
-    },
-    // Looking for Vava post
-    {
-      id: 'matching-post-4',
-      authorId: 'user-10',
-      type: 'nunu-looking-for-vava',
-      title: 'Master-Level Nunu Recruiting Vava! Comprehensive AI Guidance',
-      content:
-        'I am an N1 level Certified Nunu with extensive teaching experience.\n\nCurrently opening 2 Vava slots, suitable for:\n- Learners who are serious about learning AI\n- People willing to invest time in practice\n- Friends with long-term AI learning plans\n\nAfter matching, I will create a learning plan based on your needs.',
-      timeSelection: 'seasonal',
-      timePeriod: '2026-Q1',
-      isVerifiedNunuOnly: true,
-      viewCount: 156,
-      isActive: true,
-      createdAt: new Date('2026-01-02'),
-      updatedAt: now,
-    },
-    // Another looking for nunu (for verified)
-    {
-      id: 'matching-post-5',
-      authorId: 'user-5',
-      type: 'vava-looking-for-nunu',
-      title: 'Advanced Learner Looking for Certified Nunu! Want to Dive Deep into AI Product Planning',
-      content:
-        'I already have a solid AI foundation and now want to dive deeper into AI product planning.\n\nLooking for a Nunu who:\n- Has AI product experience\n- Can guide on business applications\n- Certified Nunu preferred\n\nI am currently working on my own AI side project and hope to get guidance.',
-      timeSelection: 'seasonal',
-      timePeriod: '2026-Q1',
-      isVerifiedNunuOnly: true,
-      viewCount: 34,
-      isActive: true,
-      createdAt: new Date('2026-01-15'),
-      updatedAt: now,
-    },
-    // Inactive post (closed)
-    {
-      id: 'matching-post-6',
-      authorId: 'user-6',
-      type: 'nunu-looking-for-vava',
-      title: '[Matched] Beginner Nunu Looking for Vava',
-      content: 'I am a beginner Nunu, looking for a Vava to grow and learn together.',
-      timeSelection: 'monthly',
-      timePeriod: '2026-01',
-      isVerifiedNunuOnly: false,
-      viewCount: 12,
-      isActive: false,
-      createdAt: new Date('2025-12-20'),
-      updatedAt: new Date('2026-01-05'),
-    },
+    { id: 'matching-post-1', authorId: 'user-2', type: 'nunu-looking-for-vava', title: 'Automation Expert Looking for Vava!', content: 'I am a Nunu focused on automation, skilled in Make.com, Zapier, and other tools.', timeSelection: 'monthly', timePeriod: '2026-02', isVerifiedNunuOnly: false, isActive: true, createdAt: new Date('2026-01-10'), updatedAt: now },
+    { id: 'matching-post-2', authorId: 'user-4', type: 'nunu-looking-for-vava', title: '[Certified Nunu] AI Strategy and Business Application Guidance', content: 'As a Certified Nunu, I focus on helping learners apply AI to real business scenarios.', timeSelection: 'seasonal', timePeriod: '2026-Q1', isVerifiedNunuOnly: true, isActive: true, createdAt: new Date('2026-01-05'), updatedAt: now },
+    { id: 'matching-post-3', authorId: 'user-5', type: 'vava-looking-for-nunu', title: 'Beginner Looking for Nunu!', content: 'I am a beginner with AI tools, hoping to find a patient Nunu to guide me.', timeSelection: 'monthly', timePeriod: '2026-02', isVerifiedNunuOnly: false, isActive: true, createdAt: new Date('2026-01-18'), updatedAt: now },
+    { id: 'matching-post-4', authorId: 'user-10', type: 'nunu-looking-for-vava', title: 'Master-Level Nunu Recruiting Vava!', content: 'I am an N1 level Certified Nunu with extensive teaching experience.', timeSelection: 'seasonal', timePeriod: '2026-Q1', isVerifiedNunuOnly: true, isActive: true, createdAt: new Date('2026-01-02'), updatedAt: now },
+    { id: 'matching-post-5', authorId: 'user-5', type: 'vava-looking-for-nunu', title: 'Advanced Learner Looking for Certified Nunu!', content: 'I already have a solid AI foundation and now want to dive deeper.', timeSelection: 'seasonal', timePeriod: '2026-Q1', isVerifiedNunuOnly: true, isActive: true, createdAt: new Date('2026-01-15'), updatedAt: now },
+    { id: 'matching-post-6', authorId: 'user-6', type: 'nunu-looking-for-vava', title: '[Matched] Beginner Nunu Looking for Vava', content: 'I am a beginner Nunu, looking for a Vava to grow and learn together.', timeSelection: 'monthly', timePeriod: '2026-01', isVerifiedNunuOnly: false, isActive: false, createdAt: new Date('2025-12-20'), updatedAt: new Date('2026-01-05') },
   ]);
 
   // ==========================================
-  // Matching Post Tags
+  // MATCHING POST STATS (Denormalized)
+  // ==========================================
+  db.matchingPostStats.createMany([
+    { postId: 'matching-post-1', viewCount: 45, commentCount: 3, lastUpdatedAt: now },
+    { postId: 'matching-post-2', viewCount: 78, commentCount: 2, lastUpdatedAt: now },
+    { postId: 'matching-post-3', viewCount: 23, commentCount: 1, lastUpdatedAt: now },
+    { postId: 'matching-post-4', viewCount: 156, commentCount: 4, lastUpdatedAt: now },
+    { postId: 'matching-post-5', viewCount: 34, commentCount: 2, lastUpdatedAt: now },
+    { postId: 'matching-post-6', viewCount: 12, commentCount: 0, lastUpdatedAt: now },
+  ]);
+
+  // ==========================================
+  // MATCHING POST TAGS (Junction Table)
   // ==========================================
   db.matchingPostTags.createMany([
-    // Post 1 tags
     { id: 'mpt-1-1', postId: 'matching-post-1', tag: 'Automation' },
     { id: 'mpt-1-2', postId: 'matching-post-1', tag: 'Make.com' },
     { id: 'mpt-1-3', postId: 'matching-post-1', tag: 'Zapier' },
-    // Post 2 tags
     { id: 'mpt-2-1', postId: 'matching-post-2', tag: 'AI Strategy' },
     { id: 'mpt-2-2', postId: 'matching-post-2', tag: 'Business Application' },
-    { id: 'mpt-2-3', postId: 'matching-post-2', tag: 'Product Planning' },
-    // Post 3 tags
     { id: 'mpt-3-1', postId: 'matching-post-3', tag: 'ChatGPT' },
     { id: 'mpt-3-2', postId: 'matching-post-3', tag: 'Copywriting' },
     { id: 'mpt-3-3', postId: 'matching-post-3', tag: 'Beginner' },
-    // Post 4 tags
     { id: 'mpt-4-1', postId: 'matching-post-4', tag: 'Comprehensive Guidance' },
     { id: 'mpt-4-2', postId: 'matching-post-4', tag: 'AI Strategy' },
     { id: 'mpt-4-3', postId: 'matching-post-4', tag: 'N1 Level' },
-    // Post 5 tags
     { id: 'mpt-5-1', postId: 'matching-post-5', tag: 'Product Planning' },
     { id: 'mpt-5-2', postId: 'matching-post-5', tag: 'Advanced Learning' },
-    { id: 'mpt-5-3', postId: 'matching-post-5', tag: 'AI Strategy' },
-    // Post 6 tags
     { id: 'mpt-6-1', postId: 'matching-post-6', tag: 'Beginner Tutorial' },
   ]);
 
   // ==========================================
-  // Matching Comments
+  // MATCHING COMMENTS
   // ==========================================
   db.matchingComments.createMany([
-    // Comments on post 1 (Offering Nunu - automation)
-    {
-      id: 'mc-1',
-      postId: 'matching-post-1',
-      authorId: 'user-1',
-      content: 'What is your teaching style like? How much time is needed per week?',
-      isPrivate: false,
-      createdAt: new Date('2026-01-11'),
-      updatedAt: new Date('2026-01-11'),
-    },
-    {
-      id: 'mc-2',
-      postId: 'matching-post-1',
-      authorId: 'user-2',
-      content: 'About 1-2 hours of online communication per week, plus some homework for hands-on practice!',
-      isPrivate: false,
-      parentId: 'mc-1',
-      createdAt: new Date('2026-01-11'),
-      updatedAt: new Date('2026-01-11'),
-    },
-    {
-      id: 'mc-3',
-      postId: 'matching-post-1',
-      authorId: 'user-3',
-      content: 'I am very interested in Make.com! Are there still slots available?',
-      isPrivate: false,
-      createdAt: new Date('2026-01-12'),
-      updatedAt: new Date('2026-01-12'),
-    },
-    // Comments on post 2 (Verified Nunu - AI Strategy)
-    {
-      id: 'mc-4',
-      postId: 'matching-post-2',
-      authorId: 'user-5',
-      content: 'How would you guide someone who wants to do an AI side project?',
-      isPrivate: false,
-      createdAt: new Date('2026-01-08'),
-      updatedAt: new Date('2026-01-08'),
-    },
-    {
-      id: 'mc-5',
-      postId: 'matching-post-2',
-      authorId: 'user-4',
-      content:
-        'I would first understand your project goals, then plan the technical roadmap and business model together. Feel free to DM me for a detailed chat!',
-      isPrivate: false,
-      parentId: 'mc-4',
-      createdAt: new Date('2026-01-08'),
-      updatedAt: new Date('2026-01-08'),
-    },
-    // Private comment on post 3
-    {
-      id: 'mc-6',
-      postId: 'matching-post-3',
-      authorId: 'user-2',
-      content: 'Hi! I think I can help you get started. Want to chat privately? Here is my Discord: daxiong#5678',
-      isPrivate: true,
-      createdAt: new Date('2026-01-19'),
-      updatedAt: new Date('2026-01-19'),
-    },
-    // Comments on post 4
-    {
-      id: 'mc-7',
-      postId: 'matching-post-4',
-      authorId: 'user-7',
-      content: 'N1 level is amazing! What are your requirements for learners?',
-      isPrivate: false,
-      createdAt: new Date('2026-01-05'),
-      updatedAt: new Date('2026-01-05'),
-    },
-    {
-      id: 'mc-8',
-      postId: 'matching-post-4',
-      authorId: 'user-10',
-      content:
-        'Mainly hoping learners have clear learning goals and are willing to invest at least 3-5 hours per week in learning and practice. Attitude matters more than ability!',
-      isPrivate: false,
-      parentId: 'mc-7',
-      createdAt: new Date('2026-01-05'),
-      updatedAt: new Date('2026-01-05'),
-    },
-    {
-      id: 'mc-9',
-      postId: 'matching-post-4',
-      authorId: 'user-5',
-      content: 'I really want to be mentored! But I am a complete beginner, not sure if I am suitable?',
-      isPrivate: false,
-      createdAt: new Date('2026-01-06'),
-      updatedAt: new Date('2026-01-06'),
-    },
-    {
-      id: 'mc-10',
-      postId: 'matching-post-4',
-      authorId: 'user-10',
-      content: 'Beginners are welcome! The key is passion and determination to learn. If interested, feel free to DM me to discuss your background and goals.',
-      isPrivate: false,
-      parentId: 'mc-9',
-      createdAt: new Date('2026-01-06'),
-      updatedAt: new Date('2026-01-06'),
-    },
-    // Comments on post 5
-    {
-      id: 'mc-11',
-      postId: 'matching-post-5',
-      authorId: 'user-4',
-      content: 'Your background sounds like a great fit for my mentoring direction! Would you mind sharing the project you are currently working on?',
-      isPrivate: false,
-      createdAt: new Date('2026-01-16'),
-      updatedAt: new Date('2026-01-16'),
-    },
-    {
-      id: 'mc-12',
-      postId: 'matching-post-5',
-      authorId: 'user-5',
-      content: 'It is a project using AI for content recommendation! I can DM you for more details~',
-      isPrivate: false,
-      parentId: 'mc-11',
-      createdAt: new Date('2026-01-16'),
-      updatedAt: new Date('2026-01-16'),
-    },
+    { id: 'mc-1', postId: 'matching-post-1', authorId: 'user-1', content: 'What is your teaching style like?', isPrivate: false, isDeleted: false, createdAt: new Date('2026-01-11'), updatedAt: new Date('2026-01-11') },
+    { id: 'mc-2', postId: 'matching-post-1', authorId: 'user-2', parentId: 'mc-1', content: 'About 1-2 hours of online communication per week!', isPrivate: false, isDeleted: false, createdAt: new Date('2026-01-11'), updatedAt: new Date('2026-01-11') },
+    { id: 'mc-3', postId: 'matching-post-1', authorId: 'user-3', content: 'I am very interested in Make.com!', isPrivate: false, isDeleted: false, createdAt: new Date('2026-01-12'), updatedAt: new Date('2026-01-12') },
+    { id: 'mc-4', postId: 'matching-post-2', authorId: 'user-5', content: 'How would you guide an AI side project?', isPrivate: false, isDeleted: false, createdAt: new Date('2026-01-08'), updatedAt: new Date('2026-01-08') },
+    { id: 'mc-5', postId: 'matching-post-2', authorId: 'user-4', parentId: 'mc-4', content: 'I would understand your goals first, then plan together!', isPrivate: false, isDeleted: false, createdAt: new Date('2026-01-08'), updatedAt: new Date('2026-01-08') },
+    { id: 'mc-6', postId: 'matching-post-3', authorId: 'user-2', content: 'Hi! I think I can help you get started.', isPrivate: true, isDeleted: false, createdAt: new Date('2026-01-19'), updatedAt: new Date('2026-01-19') },
+    { id: 'mc-7', postId: 'matching-post-4', authorId: 'user-7', content: 'N1 level is amazing! What are your requirements?', isPrivate: false, isDeleted: false, createdAt: new Date('2026-01-05'), updatedAt: new Date('2026-01-05') },
+    { id: 'mc-8', postId: 'matching-post-4', authorId: 'user-10', parentId: 'mc-7', content: 'Hoping learners have clear goals and invest 3-5 hours weekly.', isPrivate: false, isDeleted: false, createdAt: new Date('2026-01-05'), updatedAt: new Date('2026-01-05') },
+    { id: 'mc-9', postId: 'matching-post-4', authorId: 'user-5', content: 'I really want to be mentored! Am I suitable?', isPrivate: false, isDeleted: false, createdAt: new Date('2026-01-06'), updatedAt: new Date('2026-01-06') },
+    { id: 'mc-10', postId: 'matching-post-4', authorId: 'user-10', parentId: 'mc-9', content: 'Beginners are welcome! The key is passion and determination.', isPrivate: false, isDeleted: false, createdAt: new Date('2026-01-06'), updatedAt: new Date('2026-01-06') },
+    { id: 'mc-11', postId: 'matching-post-5', authorId: 'user-4', content: 'Your background sounds like a great fit!', isPrivate: false, isDeleted: false, createdAt: new Date('2026-01-16'), updatedAt: new Date('2026-01-16') },
+    { id: 'mc-12', postId: 'matching-post-5', authorId: 'user-5', parentId: 'mc-11', content: 'It is a content recommendation project! Can DM for details~', isPrivate: false, isDeleted: false, createdAt: new Date('2026-01-16'), updatedAt: new Date('2026-01-16') },
   ]);
 }

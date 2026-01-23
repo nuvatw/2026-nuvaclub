@@ -64,8 +64,8 @@ export default function ResultsPage() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="text-center md:text-left">
               <div className="flex items-center gap-3 mb-2">
-                <span className={cn('text-3xl font-bold', getLevelColor(session.level))}>
-                  Level {session.level}
+                <span className={cn('text-3xl font-bold', getLevelColor(session.levelInfo?.level ?? 1))}>
+                  Level {session.levelInfo?.level ?? 1}
                 </span>
                 <Badge variant={session.passed ? 'success' : 'error'}>
                   {session.passed ? 'Passed' : 'Failed'}
@@ -175,7 +175,7 @@ export default function ResultsPage() {
           </Button>
           <Button
             variant="primary"
-            onClick={() => router.push(`/test/${session.level}`)}
+            onClick={() => router.push(`/test/${session.levelInfo?.level ?? 1}`)}
           >
             Try Again
           </Button>

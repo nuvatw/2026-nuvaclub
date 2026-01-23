@@ -5,8 +5,28 @@ import Link from 'next/link';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 import { useDBContext } from '@/lib/db';
 import { cn } from '@/lib/utils';
+import { formatDateCompact } from '@/lib/utils/date';
 
 type FilterType = 'all' | 'in-progress' | 'completed';
+
+interface CourseProgressItem {
+  id: string;
+  courseId: string;
+  progressPercent: number;
+  completedAt?: Date;
+  lastAccessedAt: Date;
+  course: {
+    id: string;
+    title: string;
+    subtitle: string;
+    thumbnailUrl: string;
+    totalDurationSeconds: number;
+    instructorId: string;
+    categoryId: string;
+  } | null;
+  instructor: { name: string; avatar: string } | null;
+  category: { name: string } | null;
+}
 
 function formatDuration(seconds: number): string {
   const hours = Math.floor(seconds / 3600);
@@ -17,25 +37,16 @@ function formatDuration(seconds: number): string {
   return `${minutes}m`;
 }
 
-function formatDate(date: Date | undefined): string {
-  if (!date) return 'N/A';
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(new Date(date));
-}
-
 export default function MyCoursesPage() {
   const { user } = useAuth();
   const { db, isReady } = useDBContext();
   const [filter, setFilter] = useState<FilterType>('all');
 
   // Get course progress with course details
-  const coursesWithProgress = useMemo(() => {
+  const coursesWithProgress = useMemo((): CourseProgressItem[] => {
     if (!isReady || !db || !user) return [];
 
-    const progress = db.userCourseProgress.findMany({ where: { userId: user.id } });
+    const progress = db.userCourseEnrollments.findMany({ where: { userId: user.id } });
 
     return progress.map((p) => {
       const course = db.courses.findById(p.courseId);
@@ -47,17 +58,17 @@ export default function MyCoursesPage() {
         course,
         instructor,
         category,
-      };
-    }).filter(p => p.course);
+      } as CourseProgressItem;
+    }).filter((p): p is CourseProgressItem => p.course !== null);
   }, [db, isReady, user]);
 
   // Filter courses
   const filteredCourses = useMemo(() => {
     switch (filter) {
       case 'in-progress':
-        return coursesWithProgress.filter(p => !p.completedAt && p.progressPercent > 0);
+        return coursesWithProgress.filter((p) => !p.completedAt && p.progressPercent > 0);
       case 'completed':
-        return coursesWithProgress.filter(p => p.completedAt);
+        return coursesWithProgress.filter((p) => p.completedAt);
       default:
         return coursesWithProgress;
     }
@@ -65,11 +76,11 @@ export default function MyCoursesPage() {
 
   // Stats
   const stats = useMemo(() => {
-    const completed = coursesWithProgress.filter(p => p.completedAt).length;
-    const inProgress = coursesWithProgress.filter(p => !p.completedAt && p.progressPercent > 0).length;
+    const completed = coursesWithProgress.filter((p) => p.completedAt).length;
+    const inProgress = coursesWithProgress.filter((p) => !p.completedAt && p.progressPercent > 0).length;
     const totalWatchTime = coursesWithProgress.reduce((sum, p) => {
       if (p.course) {
-        return sum + (p.course.totalDuration * p.progressPercent / 100);
+        return sum + (p.course.totalDurationSeconds * p.progressPercent / 100);
       }
       return sum;
     }, 0);
@@ -223,11 +234,11 @@ export default function MyCoursesPage() {
                       />
                     </div>
                     <div className="flex items-center justify-between mt-2 text-xs text-neutral-500">
-                      <span>{formatDuration(item.course!.totalDuration)}</span>
+                      <span>{formatDuration(item.course!.totalDurationSeconds)}</span>
                       <span>
                         {item.completedAt
-                          ? `Completed on ${formatDate(item.completedAt)}`
-                          : `Last accessed ${formatDate(item.lastAccessedAt)}`}
+                          ? `Completed on ${formatDateCompact(item.completedAt)}`
+                          : `Last accessed ${formatDateCompact(item.lastAccessedAt)}`}
                       </span>
                     </div>
                   </div>

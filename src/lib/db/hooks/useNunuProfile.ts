@@ -7,9 +7,15 @@ import type {
   NunuProfileRecord,
   NunuApplicationStatus,
   NunuLevel,
-  NunuApplicationSituationalAnswers,
 } from '../schema';
-import { NUNU_LEVEL_MAX_VAVAS } from '../schema';
+import { NUNU_LEVEL_CONFIG } from '../schema';
+
+// Situational answers type for form submission
+export interface NunuApplicationSituationalAnswers {
+  question1: string;
+  question2: string;
+  question3: string;
+}
 
 export interface SubmitApplicationData {
   applicationText: string;
@@ -29,6 +35,10 @@ export interface NunuProfileWithUser extends NunuProfileRecord {
   userName?: string;
   userAvatar?: string;
   maxVavas: number;
+  currentVavaCount: number;
+  totalMentorships: number;
+  avgRating: number;
+  totalRatings: number;
 }
 
 /**
@@ -67,13 +77,19 @@ export function useNunuProfile(userId?: string) {
 
     const profileData = profiles[0];
 
-    // Enrich with user data and max vavas
+    // Enrich with user data, max vavas, and stats
     const user = db.users.findById(userId);
+    const stats = db.nunuStats.findFirst({ where: { profileId: profileData.id } });
+
     return {
       ...profileData,
       userName: user?.name,
       userAvatar: user?.avatar,
-      maxVavas: NUNU_LEVEL_MAX_VAVAS[profileData.level],
+      maxVavas: NUNU_LEVEL_CONFIG[profileData.level].maxVavas,
+      currentVavaCount: stats?.currentVavaCount ?? 0,
+      totalMentorships: stats?.totalMentorships ?? 0,
+      avgRating: stats?.avgRating ?? 0,
+      totalRatings: stats?.totalRatings ?? 0,
     };
   }, [db, userId]);
 
@@ -115,26 +131,56 @@ export function useNunuProfile(userId?: string) {
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       const now = new Date();
+      const applicationId = `app_${Date.now()}`;
+
+      // Create the main application record
       const newApplication: NunuApplicationRecord = {
-        id: `app_${Date.now()}`,
+        id: applicationId,
         userId,
         status: 'pending',
         applicationText: data.applicationText,
-        expertise: data.expertise,
         discordId: data.discordId,
         introVideoUrl: data.introVideoUrl,
         introVideoFileName: data.introVideoFileName,
-        situationalAnswers: data.situationalAnswers,
         submittedAt: now,
         createdAt: now,
         updatedAt: now,
       };
 
-      // In production, this would call the actual API
-      // For now, we'll just return the mock application
-      // The database would be updated via the mock DB
       db.nunuApplications.create(newApplication);
 
+      // Create expertise records in junction table
+      data.expertise.forEach((exp, index) => {
+        db.nunuApplicationExpertise.create({
+          id: `exp_${applicationId}_${index}`,
+          applicationId,
+          expertise: exp,
+          sortOrder: index,
+        });
+      });
+
+      // Create situational answer records in junction table
+      const questions = [
+        { id: 'question1', question: 'How would you handle a Vava who is struggling and feeling discouraged about their progress?' },
+        { id: 'question2', question: 'What would you do if a Vava disagrees with your teaching approach or feedback?' },
+        { id: 'question3', question: 'How would you manage your time if multiple Vavas need help at the same time?' },
+      ];
+
+      questions.forEach((q, index) => {
+        const answer = data.situationalAnswers[q.id as keyof NunuApplicationSituationalAnswers];
+        if (answer) {
+          db.nunuApplicationAnswers.create({
+            id: `ans_${applicationId}_${q.id}`,
+            applicationId,
+            questionId: q.id,
+            question: q.question,
+            answer,
+            sortOrder: index,
+          });
+        }
+      });
+
+      db.persist();
       return newApplication;
     },
     [db, userId]
@@ -166,11 +212,16 @@ export function useNunuProfiles() {
 
     return allProfiles.map((profile) => {
       const user = db.users.findById(profile.userId);
+      const stats = db.nunuStats.findFirst({ where: { profileId: profile.id } });
       return {
         ...profile,
         userName: user?.name,
         userAvatar: user?.avatar,
-        maxVavas: NUNU_LEVEL_MAX_VAVAS[profile.level],
+        maxVavas: NUNU_LEVEL_CONFIG[profile.level].maxVavas,
+        currentVavaCount: stats?.currentVavaCount ?? 0,
+        totalMentorships: stats?.totalMentorships ?? 0,
+        avgRating: stats?.avgRating ?? 0,
+        totalRatings: stats?.totalRatings ?? 0,
       };
     });
   }, [db]);

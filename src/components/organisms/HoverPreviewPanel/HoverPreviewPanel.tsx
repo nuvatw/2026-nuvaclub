@@ -112,25 +112,34 @@ export function HoverPreviewPanel<T = unknown>({
   const [mounted, setMounted] = useState(false);
 
   // Lock the initial position to prevent any updates during scroll
-  const initialPositionRef = useRef<PinnedPosition | null>(null);
+  const lockedPositionRef = useRef<PinnedPosition | null>(null);
+  // Track which item the position was set for
+  const lockedItemIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
     return () => setMounted(false);
   }, []);
 
-  // Store the initial position when panel first opens, reset when closed
-  useEffect(() => {
-    if (state.isOpen && state.pinnedPosition && !initialPositionRef.current) {
-      initialPositionRef.current = { ...state.pinnedPosition };
-    }
-    if (!state.isOpen) {
-      initialPositionRef.current = null;
-    }
-  }, [state.isOpen, state.pinnedPosition]);
+  // Compute locked position synchronously during render (not in effect)
+  // This ensures position updates immediately when switching items
+  const currentItemId = state.data?.id ?? null;
 
-  // Use the locked position for rendering - this ensures position never changes during scroll
-  const lockedPosition = initialPositionRef.current || state.pinnedPosition;
+  // Reset position if item changed or panel closed
+  if (!state.isOpen) {
+    lockedPositionRef.current = null;
+    lockedItemIdRef.current = null;
+  } else if (currentItemId !== lockedItemIdRef.current) {
+    // Different item - reset and use new position
+    lockedPositionRef.current = state.pinnedPosition ? { ...state.pinnedPosition } : null;
+    lockedItemIdRef.current = currentItemId;
+  } else if (state.isOpen && state.pinnedPosition && !lockedPositionRef.current) {
+    // Same item, first time locking position
+    lockedPositionRef.current = { ...state.pinnedPosition };
+  }
+
+  // Use locked position (stable during scroll) or fall back to current position
+  const lockedPosition = lockedPositionRef.current || state.pinnedPosition;
 
   const handleMouseEnter = useCallback(() => {
     isMouseInPreview.current = true;
@@ -163,11 +172,14 @@ export function HoverPreviewPanel<T = unknown>({
   const item = state.data?.item;
   const actionItems = item ? (actions?.(item) ?? []) : [];
 
+  // Use item ID as key to trigger exit/enter animations when switching items
+  const itemId = state.data?.id;
+
   return createPortal(
     <AnimatePresence mode="wait">
       {isVisible && item && lockedPosition && (
         <motion.div
-          key="hover-preview-panel"
+          key={`hover-preview-${itemId}`}
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}

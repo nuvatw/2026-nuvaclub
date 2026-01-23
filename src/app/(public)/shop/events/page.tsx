@@ -5,14 +5,7 @@ import Image from 'next/image';
 import { Button, Badge, Card, CardContent } from '@/components/atoms';
 import { Gate } from '@/features/auth/components/Gate';
 import { EVENTS } from '@/features/shop/data/products';
-
-function formatDate(date: Date): string {
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
-}
+import { formatDateMedium } from '@/lib/utils/date';
 
 export default function EventsPage() {
     return (
@@ -59,7 +52,7 @@ export default function EventsPage() {
                                         {event.description}
                                     </p>
                                     <div className="flex items-center justify-between text-sm text-neutral-400 mb-4">
-                                        <span>{formatDate(event.date)}</span>
+                                        <span>{formatDateMedium(event.date)}</span>
                                         <span>{event.location}</span>
                                     </div>
                                     <div className="flex items-center justify-between mt-auto">

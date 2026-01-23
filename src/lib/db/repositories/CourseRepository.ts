@@ -100,7 +100,7 @@ export class CourseRepository extends BaseRepository<CourseRecord> {
   getLessons(courseId: string): LessonRecord[] {
     return this.db.lessons.findMany({
       where: { courseId },
-      orderBy: { field: 'order', direction: 'asc' },
+      orderBy: { field: 'sortOrder', direction: 'asc' },
     });
   }
 
@@ -110,7 +110,7 @@ export class CourseRepository extends BaseRepository<CourseRecord> {
   private enrichCourse(course: CourseRecord): CourseWithRelations {
     const lessons = this.db.lessons.findMany({
       where: { courseId: course.id },
-      orderBy: { field: 'order', direction: 'asc' },
+      orderBy: { field: 'sortOrder', direction: 'asc' },
     });
 
     const category = this.db.courseCategories.findById(course.categoryId);

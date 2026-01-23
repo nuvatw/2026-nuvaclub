@@ -10,15 +10,9 @@ import {
   getSprintById,
   getSeasonById,
 } from '@/features/sprint/data/sprints';
+import { getRankLabel, getRankStyle } from '@/features/sprint/types';
 import { PageTransition } from '@/components/molecules/PageTransition';
-
-function formatDate(date: Date): string {
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
+import { formatDateMedium } from '@/lib/utils/date';
 
 export default function ProjectDetailPage({
   params,
@@ -43,32 +37,6 @@ export default function ProjectDetailPage({
 
   const sprint = getSprintById(project.sprintId);
   const season = sprint ? getSeasonById(sprint.seasonId) : undefined;
-
-  const getRankLabel = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return '1st Place';
-      case 2:
-        return '2nd Place';
-      case 3:
-        return '3rd Place';
-      default:
-        return '';
-    }
-  };
-
-  const getRankStyle = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-      case 2:
-        return 'bg-neutral-400/20 text-neutral-300 border-neutral-400/30';
-      case 3:
-        return 'bg-amber-700/20 text-amber-500 border-amber-700/30';
-      default:
-        return '';
-    }
-  };
 
   return (
     <PageTransition skeleton={<div className="min-h-screen bg-neutral-900 animate-pulse" />}>
@@ -153,7 +121,7 @@ export default function ProjectDetailPage({
               <div>
                 <p className="text-white font-medium text-lg">{project.author.name}</p>
                 <p className="text-neutral-500">
-                  Submitted on {formatDate(project.createdAt)}
+                  Submitted on {formatDateMedium(project.createdAt)}
                 </p>
               </div>
             </div>

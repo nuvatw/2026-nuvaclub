@@ -74,7 +74,7 @@ export default function TestPage() {
   const selectedQuestions = selectedLevel ? getQuestionsForLevel(selectedLevel) : [];
   const selectedStats = useLevelStats(user?.id ?? null, selectedLevel ?? 1);
   const activeSession = useActiveTestSession(user?.id ?? null);
-  const hasActiveSession = activeSession && activeSession.level === selectedLevel;
+  const hasActiveSession = activeSession && activeSession.levelInfo?.level === selectedLevel;
 
   const handleStartExam = () => {
     if (selectedLevel) {

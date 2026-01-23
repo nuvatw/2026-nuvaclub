@@ -9,6 +9,18 @@ export interface Lesson {
   order: number;
 }
 
+export interface Chapter {
+  id: string;
+  title: string;
+  lessons: Lesson[];
+}
+
+export interface Trailer {
+  title: string;
+  youtubeId: string;
+  duration: number;
+}
+
 export interface Course {
   id: string;
   title: string;
@@ -16,7 +28,7 @@ export interface Course {
   description: string;
   thumbnailUrl: string;
   previewVideoUrl?: string;
-  trailer?: string;
+  trailer: Trailer;
   category: string;
   tags: string[];
   level: CourseLevel;
@@ -24,11 +36,40 @@ export interface Course {
     name: string;
     avatar: string;
   };
-  lessons: Lesson[];
+  chapters: Chapter[];
   totalDuration: number;
   lessonCount: number;
   isFeatured: boolean;
   createdAt: Date;
+}
+
+// Helper to get all lessons from a course (flattens chapters)
+export function getAllLessons(course: Course): Lesson[] {
+  return course.chapters.flatMap((chapter) => chapter.lessons);
+}
+
+// Helper to get lesson by flat index
+export function getLessonByIndex(course: Course, index: number): Lesson | undefined {
+  const lessons = getAllLessons(course);
+  return lessons[index];
+}
+
+// Helper to get chapter and lesson index from flat index
+export function getChapterAndLessonIndex(
+  course: Course,
+  flatIndex: number
+): { chapterIndex: number; lessonIndex: number } | undefined {
+  let count = 0;
+  for (let chapterIndex = 0; chapterIndex < course.chapters.length; chapterIndex++) {
+    const chapter = course.chapters[chapterIndex];
+    for (let lessonIndex = 0; lessonIndex < chapter.lessons.length; lessonIndex++) {
+      if (count === flatIndex) {
+        return { chapterIndex, lessonIndex };
+      }
+      count++;
+    }
+  }
+  return undefined;
 }
 
 export interface CourseCategory {

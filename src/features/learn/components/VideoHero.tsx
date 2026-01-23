@@ -10,12 +10,16 @@ import { LEVEL_LABELS, LEVEL_BADGE_VARIANTS } from '@/features/learn/types';
 
 interface VideoHeroProps {
   course: Course;
-  videoId?: string; // YouTube video ID
+  videoId?: string; // YouTube video ID for background
 }
 
-export function VideoHero({ course, videoId = '0kARDVL2nZg' }: VideoHeroProps) {
+export function VideoHero({ course, videoId }: VideoHeroProps) {
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
 
+  // Get trailer video ID for background
+  const backgroundVideoId = videoId || course.trailer?.youtubeId || '0kARDVL2nZg';
+
+  // Start Learning always plays the trailer first (index -1 represents trailer)
   const handleStartLearning = () => {
     setIsPlayerOpen(true);
   };
@@ -27,7 +31,7 @@ export function VideoHero({ course, videoId = '0kARDVL2nZg' }: VideoHeroProps) {
         <div className="absolute inset-0">
           <iframe
             className="absolute w-[300%] h-[300%] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&playsinline=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1&start=0`}
+            src={`https://www.youtube.com/embed/${backgroundVideoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${backgroundVideoId}&playsinline=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1&start=0`}
             title="Background Video"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             loading="eager"
@@ -129,12 +133,13 @@ export function VideoHero({ course, videoId = '0kARDVL2nZg' }: VideoHeroProps) {
         </div>
       </div>
 
-      {/* Fullscreen Video Player */}
+      {/* Fullscreen Video Player - starts at trailer (index -1) */}
       <VideoPlayer
         course={course}
-        videoId={videoId}
+        videoId={course.trailer?.youtubeId || backgroundVideoId}
         isOpen={isPlayerOpen}
         onClose={() => setIsPlayerOpen(false)}
+        initialLessonIndex={-1}
       />
     </>
   );

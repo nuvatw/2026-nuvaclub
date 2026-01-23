@@ -33,21 +33,36 @@ export function useCreatePost(): UseCreatePostResult {
         const repo = new PostRepository(db);
         const now = new Date();
 
-        // Create post record
+        // Create post record (stats are in separate forumPostStats table)
         const post = repo.create({
           title: input.title,
           content: input.content,
           category: input.category,
           authorId: input.authorId,
+          isPinned: false,
+          isLocked: false,
+          isDeleted: false,
+          createdAt: now,
+          updatedAt: now,
+        });
+
+        // Create stats record for the post
+        db.forumPostStats.create({
+          id: `stats-${post.id}`,
+          postId: post.id,
           upvotes: 0,
           downvotes: 0,
           score: 0,
           viewCount: 0,
           commentCount: 0,
-          isPinned: false,
-          isLocked: false,
-          createdAt: now,
-          updatedAt: now,
+          bookmarkCount: 0,
+          shareCount: 0,
+          reportCount: 0,
+          uniqueViewCount24h: 0,
+          postPoints: 0,
+          trendingScore: 0,
+          trendingUpdatedAt: now,
+          lastUpdatedAt: now,
         });
 
         // Create tag records
@@ -56,7 +71,7 @@ export function useCreatePost(): UseCreatePostResult {
             postId: post.id,
             tag,
           }));
-          db.postTags.createMany(tagRecords);
+          db.forumPostTags.createMany(tagRecords);
           db.persist();
         }
 

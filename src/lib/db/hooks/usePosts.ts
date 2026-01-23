@@ -3,7 +3,7 @@
 import { useMemo, useCallback } from 'react';
 import { useDB, useDBContext } from '../provider/DBProvider';
 import { PostRepository, type PostWithRelations } from '../repositories';
-import type { PostCategory } from '../schema';
+import type { ForumPostCategory } from '../schema';
 
 /**
  * Hook to access forum post data from the database
@@ -47,7 +47,7 @@ export function usePosts() {
     popularPosts,
     isReady: !!db,
     getPostById: (id: string) => repo?.findByIdWithRelations(id),
-    getPostsByCategory: (category: PostCategory) => repo?.findByCategory(category) ?? [],
+    getPostsByCategory: (category: ForumPostCategory) => repo?.findByCategory(category) ?? [],
     getRecentPosts: (limit?: number) => repo?.findRecent(limit) ?? [],
     vote,
     getUserVote: (postId: string, userId: string) => repo?.getUserVote(postId, userId) ?? null,

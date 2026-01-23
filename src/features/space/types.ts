@@ -1,4 +1,43 @@
 // ==========================================
+// Duo Ticket Companion Limits
+// ==========================================
+export type DuoTicketType = 'duo-go' | 'duo-run' | 'duo-fly';
+
+export const DUO_COMPANION_LIMITS: Record<DuoTicketType, number | 'unlimited'> = {
+  'duo-go': 1,
+  'duo-run': 5,
+  'duo-fly': 'unlimited',
+};
+
+export function getCompanionLimit(identity: string): number | 'unlimited' {
+  return DUO_COMPANION_LIMITS[identity as DuoTicketType] ?? 0;
+}
+
+// ==========================================
+// Status Badge Types
+// ==========================================
+export type StatusType = 'active' | 'pending' | 'completed';
+
+export interface StatusBadge {
+  label: string;
+  color: string;
+}
+
+const STATUS_BADGES: Record<StatusType, StatusBadge> = {
+  active: { label: 'Active', color: 'bg-green-500/10 text-green-400' },
+  pending: { label: 'Pending', color: 'bg-amber-500/10 text-amber-400' },
+  completed: { label: 'Completed', color: 'bg-primary-500/10 text-primary-400' },
+};
+
+const DEFAULT_STATUS_BADGE: StatusBadge = { label: '', color: 'bg-neutral-500/10 text-neutral-400' };
+
+export function getStatusBadge(status: string): StatusBadge {
+  const badge = STATUS_BADGES[status as StatusType];
+  if (badge) return badge;
+  return { ...DEFAULT_STATUS_BADGE, label: status };
+}
+
+// ==========================================
 // Companion Types (existing)
 // ==========================================
 export type CompanionType = 'nunu' | 'certified-nunu' | 'shangzhe';

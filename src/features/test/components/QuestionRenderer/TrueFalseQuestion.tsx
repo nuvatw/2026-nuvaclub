@@ -1,10 +1,10 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import type { QuestionRecord } from '@/lib/db/schema';
+import type { QuestionWithOptions } from '@/lib/db/repositories/TestRepository';
 
 interface TrueFalseQuestionProps {
-  question: QuestionRecord;
+  question: QuestionWithOptions;
   selectedAnswer?: string;
   onSelect: (answer: string) => void;
   showResult?: boolean;
@@ -18,23 +18,24 @@ export function TrueFalseQuestion({
   showResult = false,
   disabled = false,
 }: TrueFalseQuestionProps) {
-  const options = question.options ?? ['True', 'False'];
+  const options = question.options?.map(o => o.optionText) ?? ['True', 'False'];
 
   return (
     <div className="space-y-4">
       <p className="text-lg text-neutral-100">{question.content}</p>
 
       <div className="flex gap-4">
-        {options.map((option) => {
-          const isSelected = selectedAnswer === option;
-          const isCorrect = question.correctAnswer === option;
+        {options.map((optionText, index) => {
+          const optionRecord = question.options?.[index];
+          const isSelected = selectedAnswer === optionText;
+          const isCorrect = optionRecord?.isCorrect ?? question.correctAnswer === optionText;
           const showCorrect = showResult && isCorrect;
           const showWrong = showResult && isSelected && !isCorrect;
 
           return (
             <button
-              key={option}
-              onClick={() => !disabled && onSelect(option)}
+              key={optionText}
+              onClick={() => !disabled && onSelect(optionText)}
               disabled={disabled}
               className={cn(
                 'flex-1 py-4 px-6 rounded-xl text-lg font-medium transition-all border-2',
@@ -45,7 +46,7 @@ export function TrueFalseQuestion({
                 disabled && 'cursor-not-allowed opacity-70'
               )}
             >
-              {option}
+              {optionText}
             </button>
           );
         })}

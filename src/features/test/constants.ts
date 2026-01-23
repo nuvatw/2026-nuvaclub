@@ -190,7 +190,23 @@ export const LEVEL_CONFIGS = {
   },
 };
 
-export function getLevelTier(level: number): 'basic' | 'intermediate' | 'advanced' | 'expert' {
+export type LevelTier = 'basic' | 'intermediate' | 'advanced' | 'expert';
+
+const TIER_COLORS: Record<LevelTier, string> = {
+  basic: 'text-green-500',
+  intermediate: 'text-blue-500',
+  advanced: 'text-purple-500',
+  expert: 'text-amber-500',
+};
+
+const TIER_BG_COLORS: Record<LevelTier, string> = {
+  basic: 'bg-green-500/10 border-green-500/30',
+  intermediate: 'bg-blue-500/10 border-blue-500/30',
+  advanced: 'bg-purple-500/10 border-purple-500/30',
+  expert: 'bg-amber-500/10 border-amber-500/30',
+};
+
+export function getLevelTier(level: number): LevelTier {
   if (level <= 3) return 'basic';
   if (level <= 6) return 'intermediate';
   if (level <= 9) return 'advanced';
@@ -198,31 +214,11 @@ export function getLevelTier(level: number): 'basic' | 'intermediate' | 'advance
 }
 
 export function getLevelColor(level: number): string {
-  const tier = getLevelTier(level);
-  switch (tier) {
-    case 'basic':
-      return 'text-green-500';
-    case 'intermediate':
-      return 'text-blue-500';
-    case 'advanced':
-      return 'text-purple-500';
-    case 'expert':
-      return 'text-amber-500';
-  }
+  return TIER_COLORS[getLevelTier(level)];
 }
 
 export function getLevelBgColor(level: number): string {
-  const tier = getLevelTier(level);
-  switch (tier) {
-    case 'basic':
-      return 'bg-green-500/10 border-green-500/30';
-    case 'intermediate':
-      return 'bg-blue-500/10 border-blue-500/30';
-    case 'advanced':
-      return 'bg-purple-500/10 border-purple-500/30';
-    case 'expert':
-      return 'bg-amber-500/10 border-amber-500/30';
-  }
+  return TIER_BG_COLORS[getLevelTier(level)];
 }
 
 export function formatTime(seconds: number): string {

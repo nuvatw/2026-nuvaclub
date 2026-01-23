@@ -4,6 +4,8 @@ import type {
   SeasonRecord,
   SprintRecord,
   ProjectRecord,
+  SprintStatsRecord,
+  ProjectStatsRecord,
 } from '../schema';
 
 export interface SeasonWithSprints extends SeasonRecord {
@@ -15,15 +17,26 @@ export interface SprintWithProjects extends SprintRecord {
   projects?: ProjectWithRelations[];
   season?: SeasonRecord;
   isVotingOpen?: boolean;
-  status?: 'upcoming' | 'active' | 'voting' | 'ended';
+  stats?: {
+    projectCount: number;
+    participantCount: number;
+    totalVotes: number;
+  };
 }
 
 export interface ProjectWithRelations extends ProjectRecord {
   techStack?: string[];
+  screenshots?: { imageUrl: string; caption?: string }[];
   author?: {
     id: string;
     name: string;
     avatar?: string;
+  };
+  stats?: {
+    voteCount: number;
+    viewCount: number;
+    starCount: number;
+    commentCount: number;
   };
 }
 
@@ -50,9 +63,8 @@ export class SprintRepository extends BaseRepository<SprintRecord> {
    * Find active seasons
    */
   findActiveSeasons(): SeasonWithSprints[] {
-    const now = new Date();
     const seasons = this.db.seasons.findMany({
-      where: (s) => s.startDate <= now && s.endDate >= now,
+      where: { status: 'active' },
     });
     return seasons.map((s) => this.enrichSeason(s));
   }
@@ -94,9 +106,8 @@ export class SprintRepository extends BaseRepository<SprintRecord> {
    * Find sprints with voting open
    */
   findVotingOpen(): SprintWithProjects[] {
-    const now = new Date();
     const sprints = this.findMany({
-      where: (s) => s.votingStartDate <= now && (!s.votingEndDate || s.votingEndDate >= now),
+      where: { status: 'voting' },
     });
     return sprints.map((s) => this.enrichSprint(s));
   }
@@ -111,9 +122,13 @@ export class SprintRepository extends BaseRepository<SprintRecord> {
   findProjectsBySprintId(sprintId: string): ProjectWithRelations[] {
     const projects = this.db.projects.findMany({
       where: { sprintId },
-      orderBy: { field: 'voteCount', direction: 'desc' },
     });
-    return projects.map((p) => this.enrichProject(p));
+
+    // Sort by vote count from stats
+    const enrichedProjects = projects.map((p) => this.enrichProject(p));
+    enrichedProjects.sort((a, b) => (b.stats?.voteCount ?? 0) - (a.stats?.voteCount ?? 0));
+
+    return enrichedProjects;
   }
 
   /**
@@ -134,13 +149,17 @@ export class SprintRepository extends BaseRepository<SprintRecord> {
       where: { projectId, userId },
     });
 
+    const projectStats = this.db.projectStats.findFirst({
+      where: { projectId },
+    });
+
     if (existingVote) {
       // Remove vote
       this.db.projectVotes.delete(existingVote.id);
-      const project = this.db.projects.findById(projectId);
-      if (project) {
-        this.db.projects.update(projectId, {
-          voteCount: project.voteCount - 1,
+      if (projectStats) {
+        this.db.projectStats.update(projectId, {
+          voteCount: projectStats.voteCount - 1,
+          lastUpdatedAt: new Date(),
         });
       }
       this.persist();
@@ -150,12 +169,13 @@ export class SprintRepository extends BaseRepository<SprintRecord> {
       this.db.projectVotes.create({
         projectId,
         userId,
+        weight: 1,
         createdAt: new Date(),
       });
-      const project = this.db.projects.findById(projectId);
-      if (project) {
-        this.db.projects.update(projectId, {
-          voteCount: project.voteCount + 1,
+      if (projectStats) {
+        this.db.projectStats.update(projectId, {
+          voteCount: projectStats.voteCount + 1,
+          lastUpdatedAt: new Date(),
         });
       }
       this.persist();
@@ -179,8 +199,7 @@ export class SprintRepository extends BaseRepository<SprintRecord> {
   // ==========================================
 
   private enrichSeason(season: SeasonRecord): SeasonWithSprints {
-    const now = new Date();
-    const isActive = season.startDate <= now && season.endDate >= now;
+    const isActive = season.status === 'active';
 
     const sprints = this.db.sprints.findMany({
       where: { seasonId: season.id },
@@ -195,50 +214,77 @@ export class SprintRepository extends BaseRepository<SprintRecord> {
   }
 
   private enrichSprint(sprint: SprintRecord): SprintWithProjects {
-    const now = new Date();
     const season = this.db.seasons.findById(sprint.seasonId);
 
-    // Determine status
-    let status: 'upcoming' | 'active' | 'voting' | 'ended' = 'upcoming';
-    if (sprint.endDate < now) {
-      status = 'ended';
-    } else if (sprint.votingStartDate <= now) {
-      status = 'voting';
-    } else if (sprint.startDate <= now) {
-      status = 'active';
-    }
+    // Get status directly from sprint record
+    const isVotingOpen = sprint.status === 'voting';
 
-    const isVotingOpen = status === 'voting';
+    // Get stats from separate table
+    const sprintStats = this.db.sprintStats.findFirst({
+      where: { sprintId: sprint.id },
+    });
 
     const projects = this.db.projects.findMany({
       where: { sprintId: sprint.id },
-      orderBy: { field: 'voteCount', direction: 'desc' },
     });
+
+    const enrichedProjects = projects.map((p) => this.enrichProject(p));
+    enrichedProjects.sort((a, b) => (b.stats?.voteCount ?? 0) - (a.stats?.voteCount ?? 0));
 
     return {
       ...sprint,
       season,
-      projects: projects.map((p) => this.enrichProject(p)),
+      projects: enrichedProjects,
       isVotingOpen,
-      status,
+      stats: sprintStats
+        ? {
+            projectCount: sprintStats.projectCount,
+            participantCount: sprintStats.participantCount,
+            totalVotes: sprintStats.totalVotes,
+          }
+        : undefined,
     };
   }
 
   private enrichProject(project: ProjectRecord): ProjectWithRelations {
     const techStackRecords = this.db.projectTechStack.findMany({
       where: { projectId: project.id },
+      orderBy: { field: 'sortOrder', direction: 'asc' },
     });
     const techStack = techStackRecords.map((t) => t.technology);
+
+    const screenshotRecords = this.db.projectScreenshots.findMany({
+      where: { projectId: project.id },
+      orderBy: { field: 'sortOrder', direction: 'asc' },
+    });
+    const screenshots = screenshotRecords.map((s) => ({
+      imageUrl: s.imageUrl,
+      caption: s.caption,
+    }));
 
     const user = this.db.users.findById(project.authorId);
     const author = user
       ? { id: user.id, name: user.name, avatar: user.avatar }
       : undefined;
 
+    // Get stats from separate table
+    const projectStats = this.db.projectStats.findFirst({
+      where: { projectId: project.id },
+    });
+
     return {
       ...project,
       techStack,
+      screenshots,
       author,
+      stats: projectStats
+        ? {
+            voteCount: projectStats.voteCount,
+            viewCount: projectStats.viewCount,
+            starCount: projectStats.starCount,
+            commentCount: projectStats.commentCount,
+          }
+        : undefined,
     };
   }
 }

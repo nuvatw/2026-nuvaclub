@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/features/auth/components/AuthProvider';
+import { getMembershipDisplay } from '@/features/auth/types';
 import { cn } from '@/lib/utils';
 
 const SIDEBAR_ITEMS = [
@@ -54,27 +55,10 @@ const SIDEBAR_ITEMS = [
   },
 ];
 
-function getMembershipInfo(identity: string) {
-  switch (identity) {
-    case 'explorer':
-      return { label: 'Explorer', color: 'bg-primary-600', description: 'Free membership' };
-    case 'solo-traveler':
-      return { label: 'Solo Traveler', color: 'bg-accent-500', description: 'Premium membership' };
-    case 'duo-go':
-      return { label: 'Duo Go', color: 'bg-green-500', description: '1 Companion slot' };
-    case 'duo-run':
-      return { label: 'Duo Run', color: 'bg-purple-500', description: '5 Companion slots' };
-    case 'duo-fly':
-      return { label: 'Duo Fly', color: 'bg-amber-500', description: 'Unlimited companions' };
-    default:
-      return { label: 'Guest', color: 'bg-neutral-600', description: 'Not logged in' };
-  }
-}
-
 export default function MemberLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, identity } = useAuth();
-  const membership = getMembershipInfo(identity);
+  const membership = getMembershipDisplay(identity);
 
   if (!user) {
     return (

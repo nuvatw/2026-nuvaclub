@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { TABLE_OF_CONTENTS } from '../data/playbook-content';
 import { ChevronDownIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
+import { scrollToSection } from '../utils/scroll';
 import type { TOCItem } from '../types';
 
 interface TOCItemComponentProps {
@@ -86,9 +86,10 @@ function TOCItemComponent({
 
 interface PlaybookSidebarProps {
   activeId: string;
+  tableOfContents: TOCItem[];
 }
 
-export function PlaybookSidebar({ activeId }: PlaybookSidebarProps) {
+export function PlaybookSidebar({ activeId, tableOfContents }: PlaybookSidebarProps) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set()
   );
@@ -96,12 +97,12 @@ export function PlaybookSidebar({ activeId }: PlaybookSidebarProps) {
 
   // Auto-expand parent of active section
   useEffect(() => {
-    TABLE_OF_CONTENTS.forEach((item) => {
+    tableOfContents.forEach((item) => {
       if (item.children?.some((child) => child.id === activeId)) {
         setExpandedSections((prev) => new Set(prev).add(item.id));
       }
     });
-  }, [activeId]);
+  }, [activeId, tableOfContents]);
 
   const toggleSection = (id: string) => {
     setExpandedSections((prev) => {
@@ -116,13 +117,7 @@ export function PlaybookSidebar({ activeId }: PlaybookSidebarProps) {
   };
 
   const handleItemClick = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      const offset = 100;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.scrollY - offset;
-      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-    }
+    scrollToSection(id);
     setIsMobileOpen(false);
   };
 
@@ -131,7 +126,7 @@ export function PlaybookSidebar({ activeId }: PlaybookSidebarProps) {
       <div className="px-3 py-2 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
         Contents
       </div>
-      {TABLE_OF_CONTENTS.map((item) => (
+      {tableOfContents.map((item) => (
         <TOCItemComponent
           key={item.id}
           item={item}

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 import { useDBContext } from '@/lib/db';
 import { cn } from '@/lib/utils';
+import { formatDateCompact } from '@/lib/utils/date';
 import type { FavoriteItemType } from '@/lib/db/schema/user.schema';
 
 type TabType = 'all' | 'course' | 'post' | 'product';
@@ -48,15 +49,6 @@ const TABS: { key: TabType; label: string; icon: React.ReactNode }[] = [
   },
 ];
 
-function formatDate(date: Date | undefined): string {
-  if (!date) return 'N/A';
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(new Date(date));
-}
-
 interface FavoriteItem {
   id: string;
   type: FavoriteItemType;
@@ -92,7 +84,7 @@ export default function FavoritesPage() {
               id: fav.id,
               type: 'course',
               itemId: fav.itemId,
-              addedAt: fav.addedAt,
+              addedAt: fav.createdAt,
               title: course.title,
               subtitle: course.subtitle,
               thumbnail: course.thumbnailUrl,
@@ -103,14 +95,14 @@ export default function FavoritesPage() {
           break;
         }
         case 'post': {
-          const post = db.posts.findById(fav.itemId);
+          const post = db.forumPosts.findById(fav.itemId);
           if (post) {
             const author = db.users.findById(post.authorId);
             item = {
               id: fav.id,
               type: 'post',
               itemId: fav.itemId,
-              addedAt: fav.addedAt,
+              addedAt: fav.createdAt,
               title: post.title,
               subtitle: post.content.substring(0, 100) + '...',
               href: `/forum/${post.id}`,
@@ -126,7 +118,7 @@ export default function FavoritesPage() {
               id: fav.id,
               type: 'product',
               itemId: fav.itemId,
-              addedAt: fav.addedAt,
+              addedAt: fav.createdAt,
               title: product.name,
               subtitle: product.description.substring(0, 100) + '...',
               thumbnail: product.imageUrl,
@@ -258,7 +250,7 @@ export default function FavoritesPage() {
                       )}>
                         {item.type}
                       </span>
-                      <span className="text-xs text-neutral-500">Saved {formatDate(item.addedAt)}</span>
+                      <span className="text-xs text-neutral-500">Saved {formatDateCompact(item.addedAt)}</span>
                     </div>
                     <h3 className="font-semibold text-white group-hover:text-primary-400 transition-colors truncate">
                       {item.title}

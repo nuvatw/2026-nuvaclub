@@ -7,7 +7,6 @@ import { Badge } from '@/components/atoms';
 import {
   SprintWorkCard,
   SprintFilters,
-  SeasonCountdown,
 } from '@/features/sprint/components';
 import type { SprintFilter } from '@/features/sprint/components';
 import {
@@ -20,18 +19,7 @@ import {
 import type { SortOption, SeasonFilter } from '@/features/sprint/types';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { SprintPageSkeleton } from '@/components/skeletons';
-
-function formatDate(date: Date): string {
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-}
-
-function formatDateRange(start: Date, end: Date): string {
-  return `${formatDate(start)} - ${formatDate(end)}`;
-}
+import { formatDateCompact, formatDateRange } from '@/lib/utils/date';
 
 export default function SprintPage() {
   const [selectedSeason, setSelectedSeason] = useState<SeasonFilter>('all');
@@ -113,20 +101,6 @@ export default function SprintPage() {
               </p>
             </motion.div>
 
-            {/* Current Season Countdown */}
-            {currentSeason && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="max-w-xl mx-auto"
-              >
-                <SeasonCountdown
-                  endDate={currentSeason.endDate}
-                  seasonName={currentSeason.name}
-                />
-              </motion.div>
-            )}
           </div>
         </div>
 
@@ -142,7 +116,7 @@ export default function SprintPage() {
                 {/* Current Season Header */}
                 <div className="flex flex-wrap items-baseline gap-3 mb-8">
                   <h2 className="text-2xl sm:text-3xl font-bold text-white">
-                    {currentSeason.name} Sprints
+                    Current Sprint
                   </h2>
                   <span className="text-sm text-neutral-400">
                     {formatDateRange(currentSeason.startDate, currentSeason.endDate)}
@@ -168,11 +142,14 @@ export default function SprintPage() {
                               style={{ backgroundImage: `url(${sprint.thumbnailUrl})` }}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/50 to-transparent" />
-                            {sprint.isVotingOpen && (
-                              <div className="absolute top-3 right-3">
+                            <div className="absolute top-3 right-3 flex gap-2">
+                              {index === 0 && (
+                                <Badge variant="primary">Official</Badge>
+                              )}
+                              {sprint.isVotingOpen && (
                                 <Badge variant="warning">Voting Open</Badge>
-                              </div>
-                            )}
+                              )}
+                            </div>
                           </div>
 
                           {/* Sprint Card Content */}

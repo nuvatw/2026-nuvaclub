@@ -8,11 +8,14 @@ import type {
   MatchingPostType,
   TimeSelectionType,
   NunuProfileRecord,
+  NunuStatsRecord,
+  MatchingPostStatsRecord,
 } from '../schema';
 
 export interface MatchingPostWithRelations extends MatchingPostRecord {
   tags: string[];
   commentCount: number;
+  viewCount: number;
   author?: {
     id: string;
     name: string;
@@ -47,6 +50,7 @@ export function useMatchingPosts(filters?: MatchingPostFilters, sortBy: Matching
     const posts = db.matchingPosts.findAll();
     const tags = db.matchingPostTags.findAll();
     const comments = db.matchingComments.findAll();
+    const postStats = db.matchingPostStats.findAll();
 
     // Pre-index tags by postId for O(1) lookup instead of O(n) filter per post
     const tagsByPostId = new Map<string, string[]>();
@@ -65,10 +69,17 @@ export function useMatchingPosts(filters?: MatchingPostFilters, sortBy: Matching
       commentCountByPostId.set(comment.postId, (commentCountByPostId.get(comment.postId) || 0) + 1);
     }
 
+    // Pre-index post stats by postId for O(1) lookup
+    const statsByPostId = new Map<string, MatchingPostStatsRecord>();
+    for (const stat of postStats) {
+      statsByPostId.set(stat.postId, stat);
+    }
+
     // Collect unique author IDs and batch fetch users/profiles
     const authorIds = new Set(posts.map((p) => p.authorId));
     const usersMap = new Map<string, { id: string; name: string; avatar?: string }>();
     const profilesMap = new Map<string, NunuProfileRecord>();
+    const nunuStatsMap = new Map<string, NunuStatsRecord>();
 
     for (const authorId of authorIds) {
       const user = db.users.findById(authorId);
@@ -78,6 +89,11 @@ export function useMatchingPosts(filters?: MatchingPostFilters, sortBy: Matching
       const profile = db.nunuProfiles.findFirst({ where: { userId: authorId } });
       if (profile) {
         profilesMap.set(authorId, profile);
+        // Fetch nunu stats for rating
+        const stats = db.nunuStats.findFirst({ where: { profileId: profile.id } });
+        if (stats) {
+          nunuStatsMap.set(authorId, stats);
+        }
       }
     }
 
@@ -85,11 +101,14 @@ export function useMatchingPosts(filters?: MatchingPostFilters, sortBy: Matching
     return posts.map((post) => {
       const author = usersMap.get(post.authorId);
       const nunuProfile = profilesMap.get(post.authorId);
+      const nunuStats = nunuStatsMap.get(post.authorId);
+      const stats = statsByPostId.get(post.id);
 
       return {
         ...post,
         tags: tagsByPostId.get(post.id) || [],
-        commentCount: commentCountByPostId.get(post.id) || 0,
+        commentCount: stats?.commentCount ?? commentCountByPostId.get(post.id) ?? 0,
+        viewCount: stats?.viewCount ?? 0,
         author: author
           ? {
               id: author.id,
@@ -97,7 +116,7 @@ export function useMatchingPosts(filters?: MatchingPostFilters, sortBy: Matching
               avatar: author.avatar,
               nunuLevel: nunuProfile?.level,
               nunuType: nunuProfile?.type,
-              rating: nunuProfile?.avgRating,
+              rating: nunuStats?.avgRating,
             }
           : undefined,
       };
@@ -227,11 +246,16 @@ export function useMatchingPost(postId: string): MatchingPostWithRelations | nul
     const comments = db.matchingComments.findMany({ where: { postId } });
     const author = db.users.findById(post.authorId);
     const nunuProfile = db.nunuProfiles.findFirst({ where: { userId: post.authorId } });
+    const nunuStats = nunuProfile
+      ? db.nunuStats.findFirst({ where: { profileId: nunuProfile.id } })
+      : null;
+    const postStats = db.matchingPostStats.findFirst({ where: { postId } });
 
     return {
       ...post,
       tags,
-      commentCount: comments.length,
+      commentCount: postStats?.commentCount ?? comments.length,
+      viewCount: postStats?.viewCount ?? 0,
       author: author
         ? {
             id: author.id,
@@ -239,7 +263,7 @@ export function useMatchingPost(postId: string): MatchingPostWithRelations | nul
             avatar: author.avatar,
             nunuLevel: nunuProfile?.level,
             nunuType: nunuProfile?.type,
-            rating: nunuProfile?.avgRating,
+            rating: nunuStats?.avgRating,
           }
         : undefined,
     };
