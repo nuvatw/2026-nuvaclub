@@ -4,17 +4,25 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/atoms';
+import {
+  CheckCircleIcon,
+  CalendarIcon,
+  ShoppingBagIcon,
+  StarSolidIcon,
+  CheckIcon,
+  InformationCircleIcon,
+  QuestionMarkCircleIcon,
+} from '@/components/icons';
 import { cn } from '@/lib/utils';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { ShopPageSkeleton } from '@/components/skeletons';
-import { getAllShopProducts, DUO_TICKETS } from '@/features/shop/data/products';
-import type { ShopProduct, ProductCategory, DuoTicketProduct } from '@/features/shop/types';
-import { DuoProductCard } from '@/features/duo/components/DuoProductCard';
-import { PLANS } from '@/features/shop/data/plans';
+import { getAllShopProducts } from '@/mocks';
+import type { ShopProduct, ProductCategory } from '@/features/shop/types';
+import { MOCK_PLANS as PLANS } from '@/mocks';
 import { usePlanStatus } from '@/features/shop/hooks/usePlanStatus';
 
 // Category types
-type CategoryId = 'plan' | 'duo' | 'event' | 'merchandise';
+type CategoryId = 'plan' | 'event' | 'merchandise';
 
 interface CategoryConfig {
   id: CategoryId;
@@ -29,41 +37,19 @@ const CATEGORIES: CategoryConfig[] = [
     id: 'plan',
     productCategory: 'plan',
     title: 'Plan',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-  },
-  {
-    id: 'duo',
-    productCategory: 'duo',
-    title: 'Duo',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ),
+    icon: <CheckCircleIcon size="md" />,
   },
   {
     id: 'event',
     productCategory: 'event',
     title: 'Event',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    ),
+    icon: <CalendarIcon size="md" />,
   },
   {
     id: 'merchandise',
     productCategory: 'merchant',
     title: 'Merchandise',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-      </svg>
-    ),
+    icon: <ShoppingBagIcon size="md" />,
   },
 ];
 
@@ -81,18 +67,6 @@ const CATEGORY_INFO: Record<CategoryId, {
       { question: 'Can I switch plans?', answer: 'Yes! You can upgrade from Explorer to Traveler at any time. Your learning progress will be preserved.' },
       { question: 'Is there a refund policy?', answer: 'We offer a 14-day money-back guarantee for Traveler subscriptions.' },
       { question: 'What payment methods are accepted?', answer: 'We accept credit/debit cards and ATM bank transfer. All prices are in NT$.' },
-    ],
-  },
-  duo: {
-    introduction: {
-      title: 'About Duo Membership',
-      description: 'Share your learning journey with a Nunu mentor. Each Duo pass is purchased for specific months, giving you flexibility to plan your mentorship journey. Duo Go connects you with regular Nunus, Duo Run gives access to Certified Nunus, and Duo Fly offers exclusive sessions with Founders.',
-    },
-    faq: [
-      { question: 'What is a Nunu?', answer: 'A Nunu is a learning companion/mentor in our community. They guide you through your learning journey.' },
-      { question: 'How does monthly purchasing work?', answer: 'Select specific months you want access to when adding to cart. Each month is purchased separately, so you only pay for what you need.' },
-      { question: 'Can I upgrade my Duo tier?', answer: 'Yes! If you already have a lower tier for a month, you can upgrade by paying the difference.' },
-      { question: 'What if I already own a month?', answer: 'The system will recognize owned months and either prevent duplicate purchases or offer upgrade options if applicable.' },
     ],
   },
   event: {
@@ -202,9 +176,7 @@ function ProductCard({
         {/* Rating */}
         {product.rating > 0 && (
           <div className="flex items-center gap-1 mb-3">
-            <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-            </svg>
+            <StarSolidIcon size="sm" className="text-amber-400" />
             <span className="text-sm text-neutral-300">{product.rating}</span>
             <span className="text-xs text-neutral-500">({product.reviewCount})</span>
           </div>
@@ -276,9 +248,7 @@ function PlanCard({
       <ul className="space-y-3 mb-6">
         {plan.features.map((feature, index) => (
           <li key={index} className="flex items-start gap-2 text-sm">
-            <svg className="w-5 h-5 text-primary-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+            <CheckIcon size="md" className="text-primary-400 flex-shrink-0 mt-0.5" />
             <span className="text-neutral-300">{feature}</span>
           </li>
         ))}
@@ -331,22 +301,17 @@ function CategoryDetails({
       router.push(`/shop/events/${product.id}`);
     } else if (categoryId === 'plan') {
       router.push('/shop/plan');
-    } else if (categoryId === 'duo') {
-      router.push('/shop/duo');
     } else {
       router.push(`/shop/${categoryId}`);
     }
   };
-
-  // For duo category, use DuoProductCard with full product data
-  const duoProducts = categoryId === 'duo' ? DUO_TICKETS : [];
 
   return (
     <div className="rounded-2xl p-6 md:p-8 border border-neutral-700 bg-neutral-800/30">
       {/* Products Section */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold mb-6 text-white">
-          {categoryId === 'plan' ? 'Choose Your Plan' : `${CATEGORIES.find(c => c.id === categoryId)?.title} (${categoryId === 'duo' ? duoProducts.length : products.length})`}
+          {categoryId === 'plan' ? 'Choose Your Plan' : `${CATEGORIES.find(c => c.id === categoryId)?.title} (${products.length})`}
         </h2>
 
         {/* Plan selection UI */}
@@ -361,22 +326,6 @@ function CategoryDetails({
               />
             ))}
           </div>
-        ) : categoryId === 'duo' ? (
-          duoProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {duoProducts.map((product) => (
-                <DuoProductCard
-                  key={product.id}
-                  product={product}
-                  onBuyNow={() => router.push('/checkout')}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 text-neutral-400">
-              No Duo products available.
-            </div>
-          )
         ) : products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {products.map((product) => (
@@ -398,9 +347,7 @@ function CategoryDetails({
       {/* Introduction Section */}
       <div className="mb-8 bg-neutral-800/50 rounded-xl p-6">
         <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-          <svg className="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+          <InformationCircleIcon size="md" className="text-neutral-400" />
           {info.introduction.title}
         </h3>
         <p className="text-neutral-400 leading-relaxed">
@@ -411,9 +358,7 @@ function CategoryDetails({
       {/* FAQ Section */}
       <div>
         <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-          <svg className="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+          <QuestionMarkCircleIcon size="md" className="text-neutral-400" />
           Frequently Asked Questions
         </h3>
         <div className="space-y-3">

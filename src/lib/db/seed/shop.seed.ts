@@ -13,10 +13,6 @@ export async function seedShop(db: MockDB): Promise<void> {
     // Plans
     { id: 'plan-explorer', type: 'plan', name: 'Explorer', description: 'Start your journey with free access to basic features and community content.', shortDescription: 'Free basic access', price: 0, currency: 'TWD', imageUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800', isActive: true, isFeatured: false, slug: 'plan-explorer', createdAt: now, updatedAt: now },
     { id: 'plan-traveler', type: 'plan', name: 'Traveler', description: 'Unlock full access to courses, forum posting, and Sprint participation.', shortDescription: 'Full platform access', price: 990, currency: 'TWD', imageUrl: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800', isActive: true, isFeatured: true, slug: 'plan-traveler', createdAt: now, updatedAt: now },
-    // Duo Tickets
-    { id: 'ticket-go', type: 'duo-ticket', name: 'Duo Go', description: 'Monthly ticket with a general Nunu mentor for one-on-one companionship.', shortDescription: 'Monthly companionship', price: 990, currency: 'TWD', imageUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800', isActive: true, isFeatured: false, slug: 'duo-go', createdAt: now, updatedAt: now },
-    { id: 'ticket-run', type: 'duo-ticket', name: 'Duo Run', description: 'Quarterly ticket with a certified Nunu mentor for professional guidance.', shortDescription: 'Quarterly professional guidance', price: 2490, currency: 'TWD', imageUrl: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800', isActive: true, isFeatured: true, slug: 'duo-run', createdAt: now, updatedAt: now },
-    { id: 'ticket-fly', type: 'duo-ticket', name: 'Duo Fly', description: 'Premium quarterly ticket with one-on-one sessions with our founder.', shortDescription: 'Premium founder sessions', price: 4990, currency: 'TWD', imageUrl: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800', isActive: true, isFeatured: true, slug: 'duo-fly', createdAt: now, updatedAt: now },
     // Events
     { id: 'event-1', type: 'event', name: 'AI Workshop', description: 'A full-day hands-on workshop covering Prompt engineering to automation.', shortDescription: 'Full-day AI workshop', price: 1990, currency: 'TWD', imageUrl: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800', isActive: true, isFeatured: true, slug: 'ai-workshop-feb-2026', createdAt: now, updatedAt: now },
     { id: 'event-2', type: 'event', name: 'nuvaClub Meetup', description: 'Connect with community members, share experiences, and build lasting relationships.', shortDescription: 'Community meetup', price: 500, currency: 'TWD', imageUrl: 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800', isActive: true, isFeatured: false, slug: 'nuvaclub-meetup-mar-2026', createdAt: now, updatedAt: now },
@@ -40,9 +36,6 @@ export async function seedShop(db: MockDB): Promise<void> {
   db.productStats.createMany([
     { productId: 'plan-explorer', totalRatings: 234, sumRatings: 1053, avgRating: 4.5, totalSold: 5000, totalRevenue: 0, viewCount: 15000, lastUpdatedAt: now },
     { productId: 'plan-traveler', totalRatings: 156, sumRatings: 749, avgRating: 4.8, totalSold: 1200, totalRevenue: 1188000, viewCount: 8500, lastUpdatedAt: now },
-    { productId: 'ticket-go', totalRatings: 89, sumRatings: 409, avgRating: 4.6, totalSold: 450, totalRevenue: 445500, viewCount: 3200, lastUpdatedAt: now },
-    { productId: 'ticket-run', totalRatings: 67, sumRatings: 322, avgRating: 4.8, totalSold: 230, totalRevenue: 572700, viewCount: 2100, lastUpdatedAt: now },
-    { productId: 'ticket-fly', totalRatings: 28, sumRatings: 140, avgRating: 5.0, totalSold: 45, totalRevenue: 224550, viewCount: 1500, lastUpdatedAt: now },
     { productId: 'event-1', totalRatings: 45, sumRatings: 212, avgRating: 4.7, totalSold: 180, totalRevenue: 358200, viewCount: 2800, lastUpdatedAt: now },
     { productId: 'event-2', totalRatings: 78, sumRatings: 382, avgRating: 4.9, totalSold: 350, totalRevenue: 175000, viewCount: 4200, lastUpdatedAt: now },
     { productId: 'event-3', totalRatings: 52, sumRatings: 250, avgRating: 4.8, totalSold: 150, totalRevenue: 225000, viewCount: 1900, lastUpdatedAt: now },
@@ -81,39 +74,6 @@ export async function seedShop(db: MockDB): Promise<void> {
     { id: 'ppf-2-3', planProductId: 'plan-prod-2', feature: 'Submit Sprint projects', isHighlighted: false, sortOrder: 3 },
     { id: 'ppf-2-4', planProductId: 'plan-prod-2', feature: 'Vote on Sprint submissions', isHighlighted: false, sortOrder: 4 },
     { id: 'ppf-2-5', planProductId: 'plan-prod-2', feature: 'Priority support', isHighlighted: false, sortOrder: 5 },
-  ]);
-
-  // ==========================================
-  // DUO TICKET PRODUCTS
-  // ==========================================
-  db.duoTicketProducts.createMany([
-    { id: 'duo-prod-1', productId: 'ticket-go', ticketType: 'go', duration: 'month', companionSlots: 1 },
-    { id: 'duo-prod-2', productId: 'ticket-run', ticketType: 'run', duration: 'quarter', companionSlots: 1 },
-    { id: 'duo-prod-3', productId: 'ticket-fly', ticketType: 'fly', duration: 'quarter', companionSlots: 1 },
-  ]);
-
-  // ==========================================
-  // DUO TICKET PRODUCT BENEFITS (junction table)
-  // ==========================================
-  db.duoTicketProductBenefits.createMany([
-    // Go benefits
-    { id: 'dtpb-1-1', duoTicketProductId: 'duo-prod-1', benefit: 'Enter Space', sortOrder: 1 },
-    { id: 'dtpb-1-2', duoTicketProductId: 'duo-prod-1', benefit: 'Match with general Nunu', sortOrder: 2 },
-    { id: 'dtpb-1-3', duoTicketProductId: 'duo-prod-1', benefit: 'Add Discord friend', sortOrder: 3 },
-    { id: 'dtpb-1-4', duoTicketProductId: 'duo-prod-1', benefit: 'One-on-one learning support', sortOrder: 4 },
-    // Run benefits
-    { id: 'dtpb-2-1', duoTicketProductId: 'duo-prod-2', benefit: 'Enter Space', sortOrder: 1 },
-    { id: 'dtpb-2-2', duoTicketProductId: 'duo-prod-2', benefit: 'Match with certified Nunu', sortOrder: 2 },
-    { id: 'dtpb-2-3', duoTicketProductId: 'duo-prod-2', benefit: 'Add Discord friend', sortOrder: 3 },
-    { id: 'dtpb-2-4', duoTicketProductId: 'duo-prod-2', benefit: 'Professional learning guidance', sortOrder: 4 },
-    { id: 'dtpb-2-5', duoTicketProductId: 'duo-prod-2', benefit: 'Priority matching', sortOrder: 5 },
-    // Fly benefits
-    { id: 'dtpb-3-1', duoTicketProductId: 'duo-prod-3', benefit: 'Enter Space', sortOrder: 1 },
-    { id: 'dtpb-3-2', duoTicketProductId: 'duo-prod-3', benefit: 'One-on-one with founder', sortOrder: 2 },
-    { id: 'dtpb-3-3', duoTicketProductId: 'duo-prod-3', benefit: 'Add Discord friend', sortOrder: 3 },
-    { id: 'dtpb-3-4', duoTicketProductId: 'duo-prod-3', benefit: 'Deep consultation service', sortOrder: 4 },
-    { id: 'dtpb-3-5', duoTicketProductId: 'duo-prod-3', benefit: 'Career development advice', sortOrder: 5 },
-    { id: 'dtpb-3-6', duoTicketProductId: 'duo-prod-3', benefit: 'AI strategy planning', sortOrder: 6 },
   ]);
 
   // ==========================================

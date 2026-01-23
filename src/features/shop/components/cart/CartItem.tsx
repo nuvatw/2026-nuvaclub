@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import type { CartItem as CartItemType } from '@/features/shop/types';
 import { useCart } from './CartProvider';
+import { MinusIcon, PlusIcon, TrashIcon, CubeIcon } from '@/components/icons';
 
 interface CartItemProps {
   item: CartItemType;
@@ -12,9 +13,9 @@ export function CartItem({ item }: CartItemProps) {
   const { updateQuantity, removeFromCart } = useCart();
 
   return (
-    <div className="flex gap-4 py-4 border-b border-[var(--shop-border)]">
+    <div className="flex gap-4 py-4 border-b border-neutral-800">
       {/* Product Image */}
-      <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-[var(--shop-border)]">
+      <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-neutral-800">
         {item.imageUrl ? (
           <Image
             src={item.imageUrl}
@@ -23,25 +24,23 @@ export function CartItem({ item }: CartItemProps) {
             className="object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-[var(--shop-text-muted)]">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
+          <div className="w-full h-full flex items-center justify-center text-neutral-500">
+            <CubeIcon size="lg" />
           </div>
         )}
       </div>
 
       {/* Product Info */}
       <div className="flex-1 min-w-0">
-        <h4 className="font-medium text-[var(--shop-text)] truncate">{item.name}</h4>
+        <h4 className="font-medium text-white truncate">{item.name}</h4>
         {(item.selectedVariant || item.selectedPeriod) && (
-          <p className="text-sm text-[var(--shop-text-muted)] mt-0.5">
+          <p className="text-sm text-neutral-400 mt-0.5">
             {item.selectedVariant && <span>{item.selectedVariant}</span>}
             {item.selectedVariant && item.selectedPeriod && <span> / </span>}
             {item.selectedPeriod && <span>{item.selectedPeriod}</span>}
           </p>
         )}
-        <p className="text-sm font-semibold text-[var(--shop-text)] mt-1">
+        <p className="text-sm font-semibold text-white mt-1">
           ${item.price.toLocaleString()}
         </p>
 
@@ -49,33 +48,27 @@ export function CartItem({ item }: CartItemProps) {
         <div className="flex items-center gap-2 mt-2">
           <button
             onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-            className="w-7 h-7 flex items-center justify-center rounded-full border border-[var(--shop-border)] text-[var(--shop-text-muted)] hover:bg-[var(--shop-border)] transition-colors"
+            className="w-9 h-9 flex items-center justify-center rounded-full border border-neutral-700 text-neutral-400 hover:bg-neutral-800 hover:border-neutral-600 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:outline-none transition-all"
             aria-label="Decrease quantity"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-            </svg>
+            <MinusIcon size="sm" />
           </button>
-          <span className="text-sm font-medium text-[var(--shop-text)] min-w-[2ch] text-center">
+          <span className="text-sm font-medium text-white min-w-[2ch] text-center">
             {item.quantity}
           </span>
           <button
             onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-            className="w-7 h-7 flex items-center justify-center rounded-full border border-[var(--shop-border)] text-[var(--shop-text-muted)] hover:bg-[var(--shop-border)] transition-colors"
+            className="w-9 h-9 flex items-center justify-center rounded-full border border-neutral-700 text-neutral-400 hover:bg-neutral-800 hover:border-neutral-600 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:outline-none transition-all"
             aria-label="Increase quantity"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
+            <PlusIcon size="sm" />
           </button>
           <button
             onClick={() => removeFromCart(item.productId)}
-            className="ml-auto text-[var(--shop-text-muted)] hover:text-red-500 transition-colors"
+            className="ml-auto text-neutral-400 hover:text-red-400 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:outline-none rounded-lg transition-all p-2"
             aria-label="Remove item"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
+            <TrashIcon size="md" />
           </button>
         </div>
       </div>

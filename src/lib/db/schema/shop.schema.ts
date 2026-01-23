@@ -7,11 +7,9 @@
 // ==========================================
 // ENUMS & TYPES
 // ==========================================
-export type ProductType = 'plan' | 'duo-ticket' | 'event' | 'merchandise';
+export type ProductType = 'plan' | 'event' | 'merchandise';
 export type PlanProductType = 'explorer' | 'traveler';
 export type PlanBillingCycle = 'monthly' | 'yearly';
-export type DuoTicketProductType = 'go' | 'run' | 'fly';
-export type DuoTicketDuration = 'month' | 'quarter';
 export type EventType = 'in-person' | 'online';
 export type OrderStatus = 'pending' | 'paid' | 'processing' | 'completed' | 'cancelled' | 'refunded';
 export type PaymentMethod = 'credit-card' | 'bank-transfer' | 'line-pay' | 'apple-pay';
@@ -126,44 +124,6 @@ export interface PlanProductFeatureRecord {
 }
 
 // Index: planProductId, sortOrder
-
-// ==========================================
-// DUO TICKET PRODUCTS TABLE
-// Duo ticket details
-// ==========================================
-export interface DuoTicketProductRecord {
-  // Primary Key
-  id: string;
-
-  // Foreign Keys
-  productId: string; // FK -> products.id
-
-  // Ticket Details
-  ticketType: DuoTicketProductType;
-  duration: DuoTicketDuration;
-  companionSlots: number; // Number of companions included
-}
-
-// Unique Index: (ticketType, duration)
-// Index: productId
-
-// ==========================================
-// DUO TICKET PRODUCT BENEFITS TABLE (Junction)
-// Benefits included in ticket - 1NF compliance
-// ==========================================
-export interface DuoTicketProductBenefitRecord {
-  // Primary Key
-  id: string;
-
-  // Foreign Keys
-  duoTicketProductId: string; // FK -> duo_ticket_products.id
-
-  // Data
-  benefit: string;
-  sortOrder: number;
-}
-
-// Index: duoTicketProductId, sortOrder
 
 // ==========================================
 // EVENT PRODUCTS TABLE

@@ -1,6 +1,6 @@
 // Product type discriminators
-export type ProductType = 'plan' | 'duo-ticket' | 'event' | 'merchandise';
-export type ProductCategory = 'plan' | 'duo' | 'event' | 'merchant';
+export type ProductType = 'plan' | 'event' | 'merchandise';
+export type ProductCategory = 'plan' | 'event' | 'merchant';
 
 // Plan product (Explorer, Traveler)
 export interface PlanProduct {
@@ -16,22 +16,6 @@ export interface PlanProduct {
   rating: number;
   reviewCount: number;
   isPopular?: boolean;
-}
-
-// Duo ticket product (Go, Run, Fly)
-export interface DuoTicketProduct {
-  id: string;
-  type: 'duo-ticket';
-  ticketType: 'go' | 'run' | 'fly';
-  name: string;
-  description: string;
-  price: number;
-  duration: 'month' | 'quarter';
-  availablePeriods: string[];
-  benefits: string[];
-  imageUrl: string;
-  rating: number;
-  reviewCount: number;
 }
 
 // Agenda item for events
@@ -86,7 +70,7 @@ export interface MerchandiseProduct {
 }
 
 // Union type for all products
-export type Product = PlanProduct | DuoTicketProduct | EventProduct | MerchandiseProduct;
+export type Product = PlanProduct | EventProduct | MerchandiseProduct;
 
 // Unified shop product interface for display purposes
 export interface ShopProduct {
@@ -115,8 +99,6 @@ export interface CartItem {
   quantity: number;
   selectedVariant?: string;
   selectedPeriod?: string;
-  // For Duo tickets - array of YYYY-MM month strings
-  selectedMonths?: string[];
 }
 
 export interface Cart {
@@ -139,13 +121,4 @@ export interface PlanFeature {
   traveler: boolean;
 }
 
-export interface DuoFeature {
-  feature: string;
-  solo: boolean;
-  go: boolean;
-  run: boolean;
-  fly: boolean;
-}
-
 export type PlanType = 'explorer' | 'traveler';
-export type DuoType = 'solo' | 'go' | 'run' | 'fly';

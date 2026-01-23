@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import type { Cart, CartItem, ProductType } from '@/features/shop/types';
-import { getProductById } from '@/features/shop/data/products';
+import { getProductById } from '@/mocks';
 
 const CART_STORAGE_KEY = 'nuvaclub_cart';
 
@@ -19,7 +19,7 @@ interface CartContextType {
   addToCart: (
     productId: string,
     productType: ProductType,
-    options?: { variant?: string; period?: string; quantity?: number; months?: string[] }
+    options?: { variant?: string; period?: string; quantity?: number }
   ) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
@@ -82,57 +82,39 @@ export function CartProvider({ children }: { children: ReactNode }) {
     (
       productId: string,
       productType: ProductType,
-      options?: { variant?: string; period?: string; quantity?: number; months?: string[] }
+      options?: { variant?: string; period?: string; quantity?: number }
     ) => {
       const product = getProductById(productId);
       if (!product) return;
 
       setCart((prev) => {
-        // For duo tickets with months, check if same product with same months exists
         const existingIndex = prev.items.findIndex((item) => {
           if (item.productId !== productId) return false;
           if (item.selectedVariant !== options?.variant) return false;
           if (item.selectedPeriod !== options?.period) return false;
-
-          // For duo tickets, compare months arrays
-          if (options?.months && item.selectedMonths) {
-            const sortedNew = [...options.months].sort();
-            const sortedExisting = [...item.selectedMonths].sort();
-            return JSON.stringify(sortedNew) === JSON.stringify(sortedExisting);
-          }
-          return !options?.months && !item.selectedMonths;
+          return true;
         });
 
         let newItems: CartItem[];
 
-        if (existingIndex >= 0 && !options?.months) {
-          // Update quantity of existing item (not for month-based items)
+        if (existingIndex >= 0) {
+          // Update quantity of existing item
           newItems = prev.items.map((item, index) =>
             index === existingIndex
               ? { ...item, quantity: item.quantity + (options?.quantity ?? 1) }
               : item
           );
         } else {
-          // For duo tickets with months, calculate price based on number of months
-          let itemPrice = product.price;
-          let itemQuantity = options?.quantity ?? 1;
-
-          if (options?.months && options.months.length > 0) {
-            // Price is per month for duo tickets
-            itemQuantity = options.months.length;
-          }
-
           // Add new item
           const newItem: CartItem = {
             productId,
             productType,
             name: product.name,
-            price: itemPrice,
+            price: product.price,
             imageUrl: 'imageUrl' in product ? product.imageUrl : '',
-            quantity: itemQuantity,
+            quantity: options?.quantity ?? 1,
             selectedVariant: options?.variant,
             selectedPeriod: options?.period,
-            selectedMonths: options?.months,
           };
           newItems = [...prev.items, newItem];
         }

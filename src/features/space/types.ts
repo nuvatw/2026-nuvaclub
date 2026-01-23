@@ -1,19 +1,4 @@
 // ==========================================
-// Duo Ticket Companion Limits
-// ==========================================
-export type DuoTicketType = 'duo-go' | 'duo-run' | 'duo-fly';
-
-export const DUO_COMPANION_LIMITS: Record<DuoTicketType, number | 'unlimited'> = {
-  'duo-go': 1,
-  'duo-run': 5,
-  'duo-fly': 'unlimited',
-};
-
-export function getCompanionLimit(identity: string): number | 'unlimited' {
-  return DUO_COMPANION_LIMITS[identity as DuoTicketType] ?? 0;
-}
-
-// ==========================================
 // Status Badge Types
 // ==========================================
 export type StatusType = 'active' | 'pending' | 'completed';
@@ -191,10 +176,10 @@ export interface NunuProfile {
 }
 
 // ==========================================
-// Matching Board Types
+// Matching Board Types (Marketplace Model)
 // ==========================================
 export type MatchingPostType = 'nunu-looking-for-vava' | 'vava-looking-for-nunu';
-export type TimeSelectionType = 'monthly' | 'seasonal';
+export type PriceType = 'fixed' | 'range' | 'negotiable';
 
 export const MATCHING_POST_TYPE_LABELS: Record<MatchingPostType, string> = {
   'nunu-looking-for-vava': 'Nunu Looking for Vava',
@@ -211,10 +196,48 @@ export const MATCHING_POST_TYPE_ICONS: Record<MatchingPostType, string> = {
   'vava-looking-for-nunu': '🔍',
 };
 
-export const TIME_SELECTION_LABELS: Record<TimeSelectionType, string> = {
-  monthly: 'Monthly Matching',
-  seasonal: 'Seasonal Matching',
+export const PRICE_TYPE_LABELS: Record<PriceType, string> = {
+  fixed: 'Fixed Price',
+  range: 'Budget Range',
+  negotiable: 'Negotiable',
 };
+
+/**
+ * Format price for display
+ */
+export function formatPrice(
+  priceType: PriceType,
+  priceAmount?: number,
+  priceMin?: number,
+  priceMax?: number,
+  currency: string = 'TWD'
+): string {
+  const currencySymbol = currency === 'TWD' ? 'NT$' : '$';
+
+  switch (priceType) {
+    case 'fixed':
+      return priceAmount ? `${currencySymbol}${priceAmount.toLocaleString()}/mo` : 'Price TBD';
+    case 'range':
+      if (priceMin && priceMax) {
+        return `${currencySymbol}${priceMin.toLocaleString()} - ${currencySymbol}${priceMax.toLocaleString()}/mo`;
+      }
+      return 'Budget TBD';
+    case 'negotiable':
+      return 'Negotiable';
+    default:
+      return 'Price TBD';
+  }
+}
+
+/**
+ * Format available months for display
+ */
+export function formatAvailableMonths(months: string[]): string {
+  if (!months || months.length === 0) return 'No months available';
+  if (months.length === 1) return months[0];
+  if (months.length === 2) return `${months[0]} & ${months[1]}`;
+  return `${months[0]} - ${months[months.length - 1]}`;
+}
 
 export interface MatchingPost {
   id: string;
@@ -222,8 +245,17 @@ export interface MatchingPost {
   type: MatchingPostType;
   title: string;
   content: string;
-  timeSelection: TimeSelectionType;
-  timePeriod: string;
+  // Pricing (marketplace model)
+  priceType: PriceType;
+  priceAmount?: number;
+  priceMin?: number;
+  priceMax?: number;
+  priceCurrency: string;
+  // Available months (YYYY-MM format)
+  availableMonths: string[];
+  // Capacity (for Nunu posts)
+  maxSlots?: number;
+  currentSlots?: number;
   isVerifiedNunuOnly: boolean;
   tags: string[];
   viewCount: number;

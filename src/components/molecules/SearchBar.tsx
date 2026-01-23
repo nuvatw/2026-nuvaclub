@@ -2,19 +2,39 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/atoms';
+import { SearchIcon, XIcon, SpinnerIcon } from '@/components/icons';
+import { cn } from '@/lib/utils';
+
+/**
+ * SearchBar Component
+ *
+ * Design System Standards:
+ * - Border radius: rounded-lg (consistent with inputs)
+ * - Uses neutral tokens (no CSS variables)
+ * - Includes loading state
+ */
 
 interface SearchBarProps {
   value: string;
   onChange: (value: string) => void;
   onSearch?: () => void;
   placeholder?: string;
+  isLoading?: boolean;
+  size?: 'md' | 'lg';
+  /** Whether to show the search button */
+  showButton?: boolean;
+  className?: string;
 }
 
 export function SearchBar({
   value,
   onChange,
   onSearch,
-  placeholder = 'Search products...',
+  placeholder = 'Search...',
+  isLoading = false,
+  size = 'md',
+  showButton = true,
+  className,
 }: SearchBarProps) {
   const [localValue, setLocalValue] = useState(value);
 
@@ -35,35 +55,74 @@ export function SearchBar({
     onChange(e.target.value);
   };
 
+  const handleClear = () => {
+    setLocalValue('');
+    onChange('');
+  };
+
+  const sizeStyles = {
+    md: 'h-10 px-4 pl-10 text-sm',
+    lg: 'h-12 px-5 pl-12 text-base',
+  };
+
+  const iconSizes = {
+    md: 'sm' as const,
+    lg: 'md' as const,
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="flex items-center gap-2">
+    <form onSubmit={handleSubmit} className={cn('flex items-center gap-2', className)}>
       <div className="relative flex-1">
+        {/* Search Icon */}
+        <div className={cn(
+          'absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none',
+          size === 'lg' && 'left-4'
+        )}>
+          {isLoading ? (
+            <SpinnerIcon size={iconSizes[size]} />
+          ) : (
+            <SearchIcon size={iconSizes[size]} />
+          )}
+        </div>
+
         <input
           type="text"
           value={localValue}
           onChange={handleChange}
           placeholder={placeholder}
-          className="w-full px-4 py-2.5 pr-10 rounded-full bg-[var(--shop-card)] border border-[var(--shop-border)] text-[var(--shop-text)] placeholder-[var(--shop-text-muted)] focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all"
+          className={cn(
+            'w-full rounded-lg',
+            'bg-neutral-800 border border-neutral-700',
+            'text-white placeholder-neutral-500',
+            'focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500',
+            'transition-all duration-200',
+            sizeStyles[size],
+            localValue && 'pr-10'
+          )}
         />
-        {localValue && (
+
+        {/* Clear Button */}
+        {localValue && !isLoading && (
           <button
             type="button"
-            onClick={() => {
-              setLocalValue('');
-              onChange('');
-            }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--shop-text-muted)] hover:text-[var(--shop-text)] transition-colors"
+            onClick={handleClear}
+            className={cn(
+              'absolute right-3 top-1/2 -translate-y-1/2',
+              'text-neutral-500 hover:text-white transition-colors',
+              'p-0.5 rounded hover:bg-neutral-700'
+            )}
             aria-label="Clear search"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <XIcon size="sm" />
           </button>
         )}
       </div>
-      <Button type="submit" className="rounded-full px-6">
-        Search
-      </Button>
+
+      {showButton && (
+        <Button type="submit" size={size} isLoading={isLoading}>
+          Search
+        </Button>
+      )}
     </form>
   );
 }

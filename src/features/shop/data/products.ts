@@ -1,5 +1,4 @@
 import type {
-  DuoTicketProduct,
   EventProduct,
   MerchandiseProduct,
   Product,
@@ -7,69 +6,6 @@ import type {
   ProductCategory,
 } from '@/features/shop/types';
 import { PLANS } from './plans';
-
-export const DUO_TICKETS: DuoTicketProduct[] = [
-  {
-    id: 'ticket-go',
-    type: 'duo-ticket',
-    ticketType: 'go',
-    name: 'Duo Go',
-    description: 'Monthly ticket with a general Nunu mentor for one-on-one companionship.',
-    price: 990,
-    duration: 'month',
-    availablePeriods: ['2026/02', '2026/03', '2026/04'],
-    benefits: [
-      'Enter Space',
-      'Match with general Nunu',
-      'Add Discord friend',
-      'One-on-one learning support',
-    ],
-    imageUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800',
-    rating: 4.6,
-    reviewCount: 89,
-  },
-  {
-    id: 'ticket-run',
-    type: 'duo-ticket',
-    ticketType: 'run',
-    name: 'Duo Run',
-    description: 'Quarterly ticket with a certified Nunu mentor for professional guidance.',
-    price: 2490,
-    duration: 'quarter',
-    availablePeriods: ['2026Q1', '2026Q2'],
-    benefits: [
-      'Enter Space',
-      'Match with certified Nunu',
-      'Add Discord friend',
-      'Professional learning guidance',
-      'Priority matching',
-    ],
-    imageUrl: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800',
-    rating: 4.8,
-    reviewCount: 67,
-  },
-  {
-    id: 'ticket-fly',
-    type: 'duo-ticket',
-    ticketType: 'fly',
-    name: 'Duo Fly',
-    description: 'Premium quarterly ticket with one-on-one sessions with our founder.',
-    price: 4990,
-    duration: 'quarter',
-    availablePeriods: ['2026Q1', '2026Q2'],
-    benefits: [
-      'Enter Space',
-      'One-on-one with founder',
-      'Add Discord friend',
-      'Deep consultation service',
-      'Career development advice',
-      'AI strategy planning',
-    ],
-    imageUrl: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800',
-    rating: 5.0,
-    reviewCount: 28,
-  },
-];
 
 export const EVENTS: EventProduct[] = [
   {
@@ -376,7 +312,7 @@ export const MERCHANDISE: MerchandiseProduct[] = [
 
 // Helper function to get all products
 export function getAllProducts(): Product[] {
-  return [...PLANS, ...DUO_TICKETS, ...EVENTS, ...MERCHANDISE];
+  return [...PLANS, ...EVENTS, ...MERCHANDISE];
 }
 
 // IDs for products with special filter flags
@@ -387,7 +323,6 @@ const DISCOUNT_IDS = ['event-6']; // Free webinar
 export function toShopProduct(product: Product): ShopProduct {
   const categoryMap: Record<string, ProductCategory> = {
     'plan': 'plan',
-    'duo-ticket': 'duo',
     'event': 'event',
     'merchandise': 'merchant',
   };
@@ -421,7 +356,6 @@ export function getProductsByCategory(category: ProductCategory): Product[] {
   const all = getAllProducts();
   const categoryMap: Record<ProductCategory, string> = {
     'plan': 'plan',
-    'duo': 'duo-ticket',
     'event': 'event',
     'merchant': 'merchandise',
   };

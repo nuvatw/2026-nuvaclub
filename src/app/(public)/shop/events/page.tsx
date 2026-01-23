@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import Image from 'next/image';
 import { Button, Badge, Card, CardContent } from '@/components/atoms';
 import { Gate } from '@/features/auth/components/Gate';
-import { EVENTS } from '@/features/shop/data/products';
+import { EVENTS } from '@/mocks';
 import { formatDateMedium } from '@/lib/utils/date';
 
 export default function EventsPage() {

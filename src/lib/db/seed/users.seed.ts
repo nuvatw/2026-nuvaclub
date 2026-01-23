@@ -4,16 +4,20 @@ import type { MockDB } from '../core/MockDB';
  * Seed users data
  *
  * 10 Canonical Users (used consistently across all platform data):
+ * Note: In the new marketplace model, duo identities have been removed.
+ * Users can access Space marketplace with Explorer+ identity and
+ * purchase mentorship directly from Nunus.
+ *
  * 1. user-1 (Alex Chen) - solo-traveler - Active community member
- * 2. user-2 (Sarah Lin) - duo-run - Power user, mentor
+ * 2. user-2 (Sarah Lin) - solo-traveler - Power user, Nunu mentor (N4)
  * 3. user-3 (Mike Wang) - solo-traveler - Experienced learner
- * 4. user-4 (Emily Huang) - duo-fly - Premium user, content creator
+ * 4. user-4 (Emily Huang) - solo-traveler - Premium user, Nunu mentor (N3)
  * 5. user-5 (Kevin Lee) - explorer - New user, asking questions
- * 6. user-6 (Jessica Wu) - duo-go - Engaged learner
+ * 6. user-6 (Jessica Wu) - explorer - Engaged learner
  * 7. user-7 (David Zhang) - explorer - Casual user
- * 8. user-8 (Lisa Chen) - duo-go - Active participant
+ * 8. user-8 (Lisa Chen) - explorer - Active participant
  * 9. user-9 (Tom Huang) - solo-traveler - Regular contributor
- * 10. user-10 (Amy Lin) - duo-fly - Expert mentor
+ * 10. user-10 (Amy Lin) - solo-traveler - Nunu mentor (N2)
  */
 export async function seedUsers(db: MockDB): Promise<void> {
   const now = new Date();
@@ -37,7 +41,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       updatedAt: now,
       lastLoginAt: new Date('2026-01-22'),
     },
-    // 2. Sarah Lin - duo-run - Power user, mentor
+    // 2. Sarah Lin - solo-traveler - Power user, Nunu mentor (N4)
     {
       id: 'user-2',
       email: 'sarah@nuvaclub.test',
@@ -46,7 +50,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       bio: 'Senior developer and mentor. Love helping others grow!',
       discordId: 'sarahlin#5678',
       githubUsername: 'OliverTai688',
-      identityType: 'duo-run',
+      identityType: 'solo-traveler',
       emailVerified: true,
       createdAt: new Date('2025-08-01'),
       updatedAt: now,
@@ -67,7 +71,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       updatedAt: now,
       lastLoginAt: new Date('2026-01-21'),
     },
-    // 4. Emily Huang - duo-fly - Premium user, content creator
+    // 4. Emily Huang - solo-traveler - Premium user, Nunu mentor (N3)
     {
       id: 'user-4',
       email: 'emily@nuvaclub.test',
@@ -76,7 +80,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       bio: 'Content creator and tech educator. Building cool stuff!',
       discordId: 'emilyhuang#3456',
       githubUsername: 'OliverTai688',
-      identityType: 'duo-fly',
+      identityType: 'solo-traveler',
       emailVerified: true,
       createdAt: new Date('2025-07-01'),
       updatedAt: now,
@@ -97,7 +101,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       updatedAt: now,
       lastLoginAt: new Date('2026-01-21'),
     },
-    // 6. Jessica Wu - duo-go - Engaged learner
+    // 6. Jessica Wu - explorer - Engaged learner
     {
       id: 'user-6',
       email: 'jessica@nuvaclub.test',
@@ -106,7 +110,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       bio: 'UI/UX enthusiast learning frontend development.',
       discordId: 'jessicawu#2345',
       githubUsername: 'OliverTai688',
-      identityType: 'duo-go',
+      identityType: 'explorer',
       emailVerified: true,
       createdAt: new Date('2025-11-15'),
       updatedAt: now,
@@ -127,7 +131,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       updatedAt: now,
       lastLoginAt: new Date('2026-01-19'),
     },
-    // 8. Lisa Chen - duo-go - Active participant
+    // 8. Lisa Chen - explorer - Active participant
     {
       id: 'user-8',
       email: 'lisa@nuvaclub.test',
@@ -136,7 +140,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       bio: 'Active community member and aspiring developer.',
       discordId: 'lisachen#0123',
       githubUsername: 'OliverTai688',
-      identityType: 'duo-go',
+      identityType: 'explorer',
       emailVerified: true,
       createdAt: new Date('2025-12-01'),
       updatedAt: now,
@@ -157,7 +161,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       updatedAt: now,
       lastLoginAt: new Date('2026-01-21'),
     },
-    // 10. Amy Lin - duo-fly - Expert mentor
+    // 10. Amy Lin - solo-traveler - Nunu mentor (N2)
     {
       id: 'user-10',
       email: 'amy@nuvaclub.test',
@@ -166,7 +170,7 @@ export async function seedUsers(db: MockDB): Promise<void> {
       bio: 'Expert mentor with 10+ years of experience in tech.',
       discordId: 'amylin#8901',
       githubUsername: 'OliverTai688',
-      identityType: 'duo-fly',
+      identityType: 'solo-traveler',
       emailVerified: true,
       createdAt: new Date('2025-06-01'),
       updatedAt: now,

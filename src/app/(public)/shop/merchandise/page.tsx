@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import Image from 'next/image';
 import { Button, Card, CardContent } from '@/components/atoms';
 import { Gate } from '@/features/auth/components/Gate';
-import { MERCHANDISE } from '@/features/shop/data/products';
+import { MERCHANDISE } from '@/mocks';
 
 export default function MerchandisePage() {
     return (

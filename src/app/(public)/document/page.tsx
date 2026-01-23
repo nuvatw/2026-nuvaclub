@@ -16,6 +16,7 @@ import {
   isLatestVersion,
 } from '@/features/document/data/playbook-content';
 import { Card, CardContent, Badge } from '@/components/atoms';
+import { ChevronDownIcon, CheckIcon, ArrowLeftIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
 import type { IdentityInfo, VersionUpdate } from '@/features/document/types';
 
@@ -157,22 +158,13 @@ function FAQItem({
         className="w-full flex items-center justify-between py-4 text-left"
       >
         <span className="font-medium text-white">{question}</span>
-        <svg
+        <ChevronDownIcon
+          size="md"
           className={cn(
-            'w-5 h-5 text-neutral-400 transition-transform',
+            'text-neutral-400 transition-transform',
             isOpen && 'rotate-180'
           )}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 9l-7 7-7-7"
-          />
-        </svg>
+        />
       </button>
       {isOpen && (
         <p className="pb-4 text-neutral-400 text-sm">{answer}</p>
@@ -220,14 +212,10 @@ function VersionSelector({
         className="flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700 hover:bg-neutral-700 transition-colors"
       >
         <span className="text-sm text-neutral-300">v{selectedVersion}</span>
-        <svg
-          className={cn('w-4 h-4 text-neutral-400 transition-transform', isOpen && 'rotate-180')}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
+        <ChevronDownIcon
+          size="sm"
+          className={cn('text-neutral-400 transition-transform', isOpen && 'rotate-180')}
+        />
         {isLatestVersion(selectedVersion) && (
           <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-green-500/20 text-green-400">
             Latest
@@ -272,9 +260,7 @@ function VersionSelector({
                     <p className="text-xs text-neutral-500 mt-0.5">{version.releaseDate}</p>
                   </div>
                   {selectedVersion === version.version && (
-                    <svg className="w-4 h-4 text-primary-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
+                    <CheckIcon size="sm" className="text-primary-400" />
                   )}
                 </button>
               ))}
@@ -360,19 +346,7 @@ export default function DocumentPage() {
             href="/"
             className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors"
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 19l-7-7m0 0l7-7m-7 7h18"
-              />
-            </svg>
+            <ArrowLeftIcon size="sm" />
             Back to Home
           </Link>
           <VersionSelector

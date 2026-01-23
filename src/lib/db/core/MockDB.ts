@@ -63,6 +63,7 @@ import type {
   MatchingPostStatsRecord,
   MatchingPostTagRecord,
   MatchingCommentRecord,
+  MentorshipAgreementRecord,
 } from '../schema/space.schema';
 
 import type {
@@ -88,8 +89,6 @@ import type {
   ProductStatsRecord,
   PlanProductRecord,
   PlanProductFeatureRecord,
-  DuoTicketProductRecord,
-  DuoTicketProductBenefitRecord,
   EventProductRecord,
   EventLearningOutcomeRecord,
   EventTargetAudienceRecord,
@@ -187,6 +186,7 @@ interface DatabaseSchema {
   matchingPostStats: Collection<MatchingPostStatsRecord>;
   matchingPostTags: Collection<MatchingPostTagRecord>;
   matchingComments: Collection<MatchingCommentRecord>;
+  mentorshipAgreements: Collection<MentorshipAgreementRecord>;
 
   // ==========================================
   // SPRINT MODULE COLLECTIONS
@@ -212,8 +212,6 @@ interface DatabaseSchema {
   productStats: Collection<ProductStatsRecord>;
   planProducts: Collection<PlanProductRecord>;
   planProductFeatures: Collection<PlanProductFeatureRecord>;
-  duoTicketProducts: Collection<DuoTicketProductRecord>;
-  duoTicketProductBenefits: Collection<DuoTicketProductBenefitRecord>;
   eventProducts: Collection<EventProductRecord>;
   eventLearningOutcomes: Collection<EventLearningOutcomeRecord>;
   eventTargetAudiences: Collection<EventTargetAudienceRecord>;
@@ -344,6 +342,7 @@ class MockDB {
       matchingPostStats: new Collection<MatchingPostStatsRecord>('matchingPostStats'),
       matchingPostTags: new Collection<MatchingPostTagRecord>('matchingPostTags'),
       matchingComments: new Collection<MatchingCommentRecord>('matchingComments'),
+      mentorshipAgreements: new Collection<MentorshipAgreementRecord>('mentorshipAgreements'),
 
       // ==========================================
       // SPRINT MODULE COLLECTIONS
@@ -369,8 +368,6 @@ class MockDB {
       productStats: new Collection<ProductStatsRecord>('productStats'),
       planProducts: new Collection<PlanProductRecord>('planProducts'),
       planProductFeatures: new Collection<PlanProductFeatureRecord>('planProductFeatures'),
-      duoTicketProducts: new Collection<DuoTicketProductRecord>('duoTicketProducts'),
-      duoTicketProductBenefits: new Collection<DuoTicketProductBenefitRecord>('duoTicketProductBenefits'),
       eventProducts: new Collection<EventProductRecord>('eventProducts'),
       eventLearningOutcomes: new Collection<EventLearningOutcomeRecord>('eventLearningOutcomes'),
       eventTargetAudiences: new Collection<EventTargetAudienceRecord>('eventTargetAudiences'),
@@ -576,6 +573,7 @@ class MockDB {
   get matchingPostStats() { return this.schema.matchingPostStats; }
   get matchingPostTags() { return this.schema.matchingPostTags; }
   get matchingComments() { return this.schema.matchingComments; }
+  get mentorshipAgreements() { return this.schema.mentorshipAgreements; }
 
   // ==========================================
   // SPRINT MODULE ACCESSORS
@@ -601,8 +599,6 @@ class MockDB {
   get productStats() { return this.schema.productStats; }
   get planProducts() { return this.schema.planProducts; }
   get planProductFeatures() { return this.schema.planProductFeatures; }
-  get duoTicketProducts() { return this.schema.duoTicketProducts; }
-  get duoTicketProductBenefits() { return this.schema.duoTicketProductBenefits; }
   get eventProducts() { return this.schema.eventProducts; }
   get eventLearningOutcomes() { return this.schema.eventLearningOutcomes; }
   get eventTargetAudiences() { return this.schema.eventTargetAudiences; }

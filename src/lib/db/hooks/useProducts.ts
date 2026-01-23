@@ -26,11 +26,6 @@ export function useProducts() {
     return repo.findPlans();
   }, [repo]);
 
-  const duoTickets = useMemo(() => {
-    if (!repo) return [];
-    return repo.findDuoTickets();
-  }, [repo]);
-
   const events = useMemo(() => {
     if (!repo) return [];
     return repo.findEvents();
@@ -49,7 +44,6 @@ export function useProducts() {
   return {
     products,
     plans,
-    duoTickets,
     events,
     upcomingEvents,
     merchandise,
@@ -58,8 +52,6 @@ export function useProducts() {
     getProductsByType: (type: ProductType) => repo?.findByType(type) ?? [],
     searchProducts: (query: string) => repo?.search(query) ?? [],
     getPlanByType: (planType: 'explorer' | 'traveler') => repo?.findPlanByType(planType),
-    getDuoTicketByType: (ticketType: 'go' | 'run' | 'fly') =>
-      repo?.findDuoTicketByType(ticketType),
   };
 }
 

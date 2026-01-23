@@ -5,6 +5,7 @@ import { useAuth } from '@/features/auth/components/AuthProvider';
 import { getMembershipDetails } from '@/features/auth/types';
 import { useDBContext } from '@/lib/db';
 import { Modal, Button } from '@/components/atoms';
+import { EditIcon, CheckIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
 import { formatDateMedium } from '@/lib/utils/date';
 
@@ -159,9 +160,7 @@ export default function ProfilePage() {
           ) : (
             <div className="text-center py-8">
               <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-neutral-800 flex items-center justify-center">
-                <svg className="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
+                <EditIcon size="lg" className="text-neutral-500" />
               </div>
               <p className="text-neutral-500 mb-3">No introduction yet</p>
               <button
@@ -223,9 +222,7 @@ export default function ProfilePage() {
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
             {membership.features.map((feature, index) => (
               <div key={index} className="flex items-center gap-2">
-                <svg className={cn('w-5 h-5', membership.textColor)} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+                <CheckIcon size="md" className={membership.textColor} />
                 <span className="text-sm text-neutral-300">{feature}</span>
               </div>
             ))}

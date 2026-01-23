@@ -4,6 +4,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'motion/react';
 import { Button, Card, CardContent, Badge } from '@/components/atoms';
+import {
+  ArrowRightIcon,
+  ChevronRightIcon,
+  StarSolidIcon,
+  CheckIcon,
+  CheckCircleIcon,
+} from '@/components/icons';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { HomePageSkeleton } from '@/components/skeletons';
 
@@ -262,19 +269,7 @@ function HeroSection() {
             <Link href="/learn">
               <Button size="lg" className="text-lg px-8 py-4 h-auto">
                 Start My AI Journey
-                <svg
-                  className="w-5 h-5 ml-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
+                <ArrowRightIcon size="md" className="ml-2" />
               </Button>
             </Link>
             <p className="text-neutral-400 text-sm">
@@ -458,19 +453,7 @@ function SolutionSection() {
 
                       {/* Arrow */}
                       <div className="hidden md:flex items-center px-6">
-                        <svg
-                          className="w-6 h-6 text-neutral-600 group-hover:text-white group-hover:translate-x-2 transition-all"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
+                        <ChevronRightIcon size="lg" className="text-neutral-600 group-hover:text-white group-hover:translate-x-2 transition-all" />
                       </div>
                     </div>
                   </CardContent>
@@ -507,19 +490,7 @@ function CoursePreviewSection() {
             className="text-primary-400 hover:text-primary-300 font-medium mt-4 md:mt-0 flex items-center gap-2"
           >
             View all courses
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
+            <ChevronRightIcon size="sm" />
           </Link>
         </motion.div>
 
@@ -556,13 +527,7 @@ function CoursePreviewSection() {
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
-                        <svg
-                          className="w-4 h-4 text-yellow-500"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
+                        <StarSolidIcon size="sm" className="text-yellow-500" />
                         <span className="text-white font-medium">
                           {course.rating}
                         </span>
@@ -645,19 +610,7 @@ function MentorshipSection() {
             <Link href="/space">
               <Button variant="secondary" size="lg">
                 Explore Space
-                <svg
-                  className="w-5 h-5 ml-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
+                <ArrowRightIcon size="md" className="ml-2" />
               </Button>
             </Link>
           </motion.div>
@@ -705,19 +658,7 @@ function MentorshipSection() {
                 transition={{ delay: 0.3 }}
                 className="absolute -bottom-4 -right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                <CheckIcon size="md" />
                 Matched!
               </motion.div>
             </div>
@@ -760,14 +701,7 @@ function TestimonialsSection() {
                   {/* Stars */}
                   <div className="flex gap-1 mb-4">
                     {[...Array(5)].map((_, i) => (
-                      <svg
-                        key={i}
-                        className="w-5 h-5 text-yellow-500"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
+                      <StarSolidIcon key={i} size="md" className="text-yellow-500" />
                     ))}
                   </div>
 
@@ -862,17 +796,7 @@ function PricingSection() {
                         key={feature}
                         className="flex items-start gap-2 text-neutral-300"
                       >
-                        <svg
-                          className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
+                        <CheckCircleIcon size="md" className="text-green-500 mt-0.5 flex-shrink-0" />
                         {feature}
                       </li>
                     ))}
@@ -924,19 +848,7 @@ function FinalCTASection() {
             <Link href="/learn">
               <Button size="lg" className="text-lg px-10 py-5 h-auto">
                 Start Learning Now
-                <svg
-                  className="w-5 h-5 ml-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
+                <ArrowRightIcon size="md" className="ml-2" />
               </Button>
             </Link>
           </motion.div>

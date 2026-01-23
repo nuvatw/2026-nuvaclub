@@ -1,3 +1,4 @@
+export { AnimatedSearchIcon } from './AnimatedSearchIcon';
 export { CourseCard } from './CourseCard';
 export { CourseRow } from './CourseRow';
 export { LearnHoverPreview } from './LearnHoverPreview';

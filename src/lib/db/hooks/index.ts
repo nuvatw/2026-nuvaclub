@@ -42,6 +42,13 @@ export {
   useUserMatchingComments,
   type MatchingCommentWithRelations,
 } from './useMatchingComments';
+export {
+  useMentorshipAgreements,
+  useNunuEarnings,
+  useVavaSpending,
+  type MentorshipAgreementWithRelations,
+  type AgreementFilters,
+} from './useMentorshipAgreements';
 
 // Forum - Points & Trending hooks
 export { useTrendingPosts } from './useTrendingPosts';

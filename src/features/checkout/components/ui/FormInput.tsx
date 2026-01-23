@@ -2,51 +2,102 @@
 
 import { forwardRef, type InputHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
+import { CheckCircleIcon } from '@/components/icons';
+
+/**
+ * FormInput Component
+ *
+ * Design System Standards:
+ * - Supports both light and dark themes via variant prop
+ * - Default to dark theme for consistency with app
+ * - Includes success state for validated fields
+ */
+
+type FormVariant = 'light' | 'dark';
 
 interface FormInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   required?: boolean;
   error?: string;
   helperText?: string;
+  /** Theme variant - defaults to dark */
+  variant?: FormVariant;
+  /** Show success state (green check) */
+  success?: boolean;
 }
 
+const VARIANT_STYLES: Record<FormVariant, {
+  label: string;
+  input: string;
+  inputError: string;
+  inputSuccess: string;
+  helper: string;
+  error: string;
+}> = {
+  light: {
+    label: 'text-gray-700',
+    input: 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 hover:border-gray-400',
+    inputError: 'border-red-300 focus:ring-red-500 focus:border-red-500',
+    inputSuccess: 'border-green-500 focus:ring-green-500 focus:border-green-500',
+    helper: 'text-gray-500',
+    error: 'text-red-600',
+  },
+  dark: {
+    label: 'text-neutral-200',
+    input: 'bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500 hover:border-neutral-600',
+    inputError: 'border-red-500 focus:ring-red-500 focus:border-red-500',
+    inputSuccess: 'border-green-500 focus:ring-green-500 focus:border-green-500',
+    helper: 'text-neutral-400',
+    error: 'text-red-400',
+  },
+};
+
 export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
-  ({ label, required, error, helperText, className, id, ...props }, ref) => {
+  ({ label, required, error, helperText, variant = 'dark', success, className, id, ...props }, ref) => {
     const inputId = id || label.toLowerCase().replace(/\s+/g, '-');
+    const styles = VARIANT_STYLES[variant];
 
     return (
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor={inputId}
-          className="text-sm font-medium text-gray-700"
+          className={cn('text-sm font-medium', styles.label)}
         >
           {label}
           {required && <span className="text-red-500 ml-0.5">*</span>}
         </label>
-        <input
-          ref={ref}
-          id={inputId}
-          className={cn(
-            'w-full px-3 py-2.5 rounded-lg border bg-white',
-            'text-gray-900 placeholder:text-gray-400',
-            'transition-colors duration-200',
-            'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
-            error
-              ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-              : 'border-gray-300 hover:border-gray-400',
-            className
+        <div className="relative">
+          <input
+            ref={ref}
+            id={inputId}
+            className={cn(
+              'w-full h-10 px-3 rounded-lg border',
+              'transition-colors duration-200',
+              'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+              styles.input,
+              error && styles.inputError,
+              success && !error && styles.inputSuccess,
+              success && 'pr-10',
+              className
+            )}
+            aria-invalid={!!error}
+            aria-describedby={error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined}
+            {...props}
+          />
+          {success && !error && (
+            <CheckCircleIcon
+              size="sm"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500"
+            />
           )}
-          aria-invalid={!!error}
-          aria-describedby={error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined}
-          {...props}
-        />
+        </div>
         {error && (
-          <p id={`${inputId}-error`} className="text-sm text-red-600">
+          <p id={`${inputId}-error`} className={cn('text-sm', styles.error)}>
             {error}
           </p>
         )}
         {helperText && !error && (
-          <p id={`${inputId}-helper`} className="text-sm text-gray-500">
+          <p id={`${inputId}-helper`} className={cn('text-sm', styles.helper)}>
             {helperText}
           </p>
         )}
@@ -70,6 +121,7 @@ interface RadioCardGroupProps {
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  variant?: FormVariant;
 }
 
 export function RadioCardGroup({
@@ -78,17 +130,22 @@ export function RadioCardGroup({
   value,
   onChange,
   className,
+  variant = 'dark',
 }: RadioCardGroupProps) {
+  const isDark = variant === 'dark';
+
   return (
     <div className={cn('flex flex-col gap-3', className)}>
       {options.map((option) => (
         <label
           key={option.value}
           className={cn(
-            'relative flex items-start p-4 rounded-lg border-2 cursor-pointer transition-all',
+            'relative flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all',
             value === option.value
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-gray-200 bg-white hover:border-gray-300'
+              ? 'border-primary-500 bg-primary-500/10'
+              : isDark
+                ? 'border-neutral-700 bg-neutral-800 hover:border-neutral-600'
+                : 'border-gray-200 bg-white hover:border-gray-300'
           )}
         >
           <input
@@ -103,20 +160,20 @@ export function RadioCardGroup({
             className={cn(
               'w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0',
               value === option.value
-                ? 'border-blue-500'
-                : 'border-gray-300'
+                ? 'border-primary-500'
+                : isDark ? 'border-neutral-600' : 'border-gray-300'
             )}
           >
             {value === option.value && (
-              <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+              <div className="w-2.5 h-2.5 rounded-full bg-primary-500" />
             )}
           </div>
           <div className="flex-1">
-            <span className="block font-medium text-gray-900">
+            <span className={cn('block font-medium', isDark ? 'text-white' : 'text-gray-900')}>
               {option.title}
             </span>
             {option.subtitle && (
-              <span className="block text-sm text-gray-500 mt-0.5">
+              <span className={cn('block text-sm mt-0.5', isDark ? 'text-neutral-400' : 'text-gray-500')}>
                 {option.subtitle}
               </span>
             )}
@@ -134,9 +191,12 @@ interface CheckboxProps {
   onChange: (checked: boolean) => void;
   label: React.ReactNode;
   className?: string;
+  variant?: FormVariant;
 }
 
-export function Checkbox({ id, checked, onChange, label, className }: CheckboxProps) {
+export function Checkbox({ id, checked, onChange, label, className, variant = 'dark' }: CheckboxProps) {
+  const isDark = variant === 'dark';
+
   return (
     <label
       htmlFor={id}
@@ -154,8 +214,10 @@ export function Checkbox({ id, checked, onChange, label, className }: CheckboxPr
           className={cn(
             'w-5 h-5 rounded border-2 flex items-center justify-center transition-colors',
             checked
-              ? 'bg-blue-500 border-blue-500'
-              : 'bg-white border-gray-300 hover:border-gray-400'
+              ? 'bg-primary-500 border-primary-500'
+              : isDark
+                ? 'bg-neutral-800 border-neutral-600 hover:border-neutral-500'
+                : 'bg-white border-gray-300 hover:border-gray-400'
           )}
         >
           {checked && (
@@ -175,7 +237,7 @@ export function Checkbox({ id, checked, onChange, label, className }: CheckboxPr
           )}
         </div>
       </div>
-      <span className="text-sm text-gray-700">{label}</span>
+      <span className={cn('text-sm', isDark ? 'text-neutral-300' : 'text-gray-700')}>{label}</span>
     </label>
   );
 }
@@ -188,6 +250,7 @@ interface QuantitySelectorProps {
   max?: number;
   label?: string;
   helperText?: string;
+  variant?: FormVariant;
 }
 
 export function QuantitySelector({
@@ -197,7 +260,10 @@ export function QuantitySelector({
   max = 99,
   label,
   helperText,
+  variant = 'dark',
 }: QuantitySelectorProps) {
+  const isDark = variant === 'dark';
+
   const decrement = () => {
     if (value > min) {
       onChange(value - 1);
@@ -213,10 +279,12 @@ export function QuantitySelector({
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <label className="text-sm font-medium text-gray-700">{label}</label>
+        <label className={cn('text-sm font-medium', isDark ? 'text-neutral-200' : 'text-gray-700')}>
+          {label}
+        </label>
       )}
       {helperText && (
-        <p className="text-sm text-gray-500">{helperText}</p>
+        <p className={cn('text-sm', isDark ? 'text-neutral-400' : 'text-gray-500')}>{helperText}</p>
       )}
       <div className="flex items-center gap-2 mt-1">
         <button
@@ -226,8 +294,12 @@ export function QuantitySelector({
           className={cn(
             'w-10 h-10 rounded-lg border flex items-center justify-center transition-colors',
             value <= min
-              ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
-              : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
+              ? isDark
+                ? 'bg-neutral-900 border-neutral-700 text-neutral-600 cursor-not-allowed'
+                : 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+              : isDark
+                ? 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:bg-neutral-700 hover:border-neutral-600'
+                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
           )}
           aria-label="Decrease quantity"
         >
@@ -235,7 +307,7 @@ export function QuantitySelector({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
           </svg>
         </button>
-        <span className="w-12 text-center text-lg font-medium text-gray-900">
+        <span className={cn('w-12 text-center text-lg font-medium', isDark ? 'text-white' : 'text-gray-900')}>
           {value}
         </span>
         <button
@@ -245,8 +317,12 @@ export function QuantitySelector({
           className={cn(
             'w-10 h-10 rounded-lg border flex items-center justify-center transition-colors',
             value >= max
-              ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
-              : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
+              ? isDark
+                ? 'bg-neutral-900 border-neutral-700 text-neutral-600 cursor-not-allowed'
+                : 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+              : isDark
+                ? 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:bg-neutral-700 hover:border-neutral-600'
+                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
           )}
           aria-label="Increase quantity"
         >

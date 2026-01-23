@@ -1,15 +1,15 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import type { MatchingPostType, TimeSelectionType } from '@/features/space/types';
-import { TIME_SELECTION_LABELS } from '@/features/space/types';
+import type { MatchingPostType, PriceType } from '@/features/space/types';
+import { PRICE_TYPE_LABELS } from '@/features/space/types';
 import type { MatchingPostSortBy } from '@/lib/db/hooks/useMatchingPosts';
 
 interface MatchingFiltersProps {
   selectedType: MatchingPostType | 'all';
   onTypeChange: (type: MatchingPostType | 'all') => void;
-  selectedTimeSelection: TimeSelectionType | 'all';
-  onTimeSelectionChange: (timeSelection: TimeSelectionType | 'all') => void;
+  selectedPriceType: PriceType | 'all';
+  onPriceTypeChange: (priceType: PriceType | 'all') => void;
   sortBy: MatchingPostSortBy;
   onSortChange: (sort: MatchingPostSortBy) => void;
   showVerifiedOnly: boolean;
@@ -19,8 +19,8 @@ interface MatchingFiltersProps {
 export function MatchingFilters({
   selectedType,
   onTypeChange,
-  selectedTimeSelection,
-  onTimeSelectionChange,
+  selectedPriceType,
+  onPriceTypeChange,
   sortBy,
   onSortChange,
   showVerifiedOnly,
@@ -75,12 +75,12 @@ export function MatchingFilters({
 
       {/* Secondary Filters Row */}
       <div className="flex flex-col sm:flex-row gap-4">
-        {/* Time Selection Filter */}
+        {/* Price Type Filter */}
         <div className="flex-1">
-          <label className="text-xs text-neutral-500 mb-1.5 block">Matching Period</label>
+          <label className="text-xs text-neutral-500 mb-1.5 block">Price Type</label>
           <select
-            value={selectedTimeSelection}
-            onChange={(e) => onTimeSelectionChange(e.target.value as TimeSelectionType | 'all')}
+            value={selectedPriceType}
+            onChange={(e) => onPriceTypeChange(e.target.value as PriceType | 'all')}
             className={cn(
               'w-full px-3 py-2 rounded-lg',
               'bg-neutral-800 border border-neutral-700',
@@ -88,10 +88,10 @@ export function MatchingFilters({
               'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent'
             )}
           >
-            <option value="all">All Periods</option>
-            {(Object.keys(TIME_SELECTION_LABELS) as TimeSelectionType[]).map((time) => (
-              <option key={time} value={time}>
-                {TIME_SELECTION_LABELS[time]}
+            <option value="all">All Prices</option>
+            {(Object.keys(PRICE_TYPE_LABELS) as PriceType[]).map((type) => (
+              <option key={type} value={type}>
+                {PRICE_TYPE_LABELS[type]}
               </option>
             ))}
           </select>

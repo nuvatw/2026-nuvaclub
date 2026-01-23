@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { CourseCard } from './CourseCard';
 import type { Course } from '@/features/learn/types';
+import { ChevronRightIcon, ChevronLeftIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
 
 interface CourseRowProps {
@@ -57,19 +58,7 @@ export function CourseRow({ title, courses, href }: CourseRowProps) {
             className="text-sm text-neutral-400 hover:text-white transition-colors flex items-center gap-1"
           >
             View All
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
+            <ChevronRightIcon size="sm" />
           </Link>
         )}
       </div>
@@ -88,19 +77,7 @@ export function CourseRow({ title, courses, href }: CourseRowProps) {
           )}
         >
           <div className="p-2 rounded-full bg-neutral-800/80 hover:bg-neutral-700 transition-colors">
-            <svg
-              className="w-5 h-5 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
+            <ChevronLeftIcon size="md" className="text-white" />
           </div>
         </button>
 
@@ -131,19 +108,7 @@ export function CourseRow({ title, courses, href }: CourseRowProps) {
           )}
         >
           <div className="p-2 rounded-full bg-neutral-800/80 hover:bg-neutral-700 transition-colors">
-            <svg
-              className="w-5 h-5 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
+            <ChevronRightIcon size="md" className="text-white" />
           </div>
         </button>
       </div>

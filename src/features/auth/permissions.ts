@@ -9,9 +9,10 @@ export type Permission =
   | 'forum:read'
   | 'forum:like_comment'
   | 'forum:post'
-  // Space
+  // Space (Marketplace)
   | 'space:enter'
   | 'space:match'
+  | 'space:create_post'
   | 'space:view_nunu'
   | 'space:view_certified_nunu'
   | 'space:view_shangzhe'
@@ -23,18 +24,31 @@ export type Permission =
   | 'shop:browse'
   | 'shop:purchase';
 
-const SOLO_TRAVELER_PERMISSIONS: Permission[] = [
+// Base permissions for logged-in users
+const EXPLORER_PERMISSIONS: Permission[] = [
   'learn:view_first_chapter',
   'learn:view_free_courses',
-  'learn:view_all_courses',
   'forum:read',
   'forum:like_comment',
-  'forum:post',
   'sprint:view_projects',
-  'sprint:submit_project',
-  'sprint:vote',
   'shop:browse',
   'shop:purchase',
+  // Space marketplace is now open to all logged-in users
+  'space:enter',
+  'space:match',
+  'space:create_post',
+  'space:view_nunu',
+];
+
+// Premium permissions for solo travelers
+const SOLO_TRAVELER_PERMISSIONS: Permission[] = [
+  ...EXPLORER_PERMISSIONS,
+  'learn:view_all_courses',
+  'forum:post',
+  'sprint:submit_project',
+  'sprint:vote',
+  // Premium users can also view certified Nunus
+  'space:view_certified_nunu',
 ];
 
 export const PERMISSION_MATRIX: Record<IdentityType, Permission[]> = {
@@ -44,34 +58,8 @@ export const PERMISSION_MATRIX: Record<IdentityType, Permission[]> = {
     'sprint:view_projects',
     'shop:browse',
   ],
-  explorer: [
-    'learn:view_first_chapter',
-    'learn:view_free_courses',
-    'forum:read',
-    'forum:like_comment',
-    'sprint:view_projects',
-    'shop:browse',
-    'shop:purchase',
-  ],
+  explorer: EXPLORER_PERMISSIONS,
   'solo-traveler': SOLO_TRAVELER_PERMISSIONS,
-  'duo-go': [
-    ...SOLO_TRAVELER_PERMISSIONS,
-    'space:enter',
-    'space:match',
-    'space:view_nunu',
-  ],
-  'duo-run': [
-    ...SOLO_TRAVELER_PERMISSIONS,
-    'space:enter',
-    'space:match',
-    'space:view_certified_nunu',
-  ],
-  'duo-fly': [
-    ...SOLO_TRAVELER_PERMISSIONS,
-    'space:enter',
-    'space:match',
-    'space:view_shangzhe',
-  ],
 };
 
 export function hasPermission(

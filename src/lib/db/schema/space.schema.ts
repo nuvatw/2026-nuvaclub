@@ -14,7 +14,9 @@ export type NunuApplicationStatus = 'pending' | 'approved' | 'rejected';
 export type NunuLevel = 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
 export type NunuType = 'regular' | 'verified';
 export type MatchingPostType = 'nunu-looking-for-vava' | 'vava-looking-for-nunu';
-export type TimeSelectionType = 'monthly' | 'seasonal';
+export type PriceType = 'fixed' | 'range' | 'negotiable';
+export type MentorshipAgreementStatus = 'pending' | 'accepted' | 'active' | 'completed' | 'cancelled';
+export type PaymentStatus = 'unpaid' | 'paid' | 'refunded';
 
 // Nunu level configuration
 export const NUNU_LEVEL_CONFIG: Record<NunuLevel, { maxVavas: number; label: string }> = {
@@ -408,7 +410,7 @@ export interface MentorshipSessionRecord {
 
 // ==========================================
 // MATCHING POSTS TABLE
-// Community board for finding mentors/mentees
+// Marketplace board for finding mentors/mentees
 // ==========================================
 export interface MatchingPostRecord {
   // Primary Key
@@ -422,12 +424,22 @@ export interface MatchingPostRecord {
   title: string;
   content: string;
 
-  // Time Selection
-  timeSelection: TimeSelectionType;
-  timePeriod: string; // e.g., "2026-01" for monthly, "2026-Q1" for seasonal
+  // Pricing (monthly only in marketplace model)
+  priceType: PriceType;
+  priceAmount?: number; // For fixed price (Nunu sets exact price)
+  priceMin?: number; // For range (Vava sets budget min)
+  priceMax?: number; // For range (Vava sets budget max)
+  priceCurrency: string; // Always 'TWD' for now
+
+  // Available Months (YYYY-MM format)
+  availableMonths: string[]; // e.g., ['2026-02', '2026-03', '2026-04']
+
+  // Capacity (for Nunu posts)
+  maxSlots?: number; // How many Vavas can take this offer
+  currentSlots?: number; // How many already matched
 
   // Access Control
-  isVerifiedNunuOnly: boolean; // If true, only Duo Run+ can see
+  isVerifiedNunuOnly: boolean; // If true, only verified Nunus can see
 
   // Status
   isActive: boolean;
@@ -506,3 +518,41 @@ export interface MatchingCommentRecord {
 }
 
 // Index: postId, authorId, parentId, isPrivate, createdAt
+
+// ==========================================
+// MENTORSHIP AGREEMENTS TABLE
+// Agreements created when Vava purchases from Nunu post
+// ==========================================
+export interface MentorshipAgreementRecord {
+  // Primary Key
+  id: string;
+
+  // Foreign Keys
+  postId: string; // FK -> matching_posts.id (origin post)
+  nunuId: string; // FK -> users.id (the mentor)
+  vavaId: string; // FK -> users.id (the mentee)
+
+  // Agreement Terms
+  agreedPrice: number; // Per month price in TWD
+  agreedMonths: string[]; // Months purchased e.g., ['2026-02', '2026-03']
+  totalAmount: number; // agreedPrice * agreedMonths.length
+
+  // Status
+  status: MentorshipAgreementStatus;
+
+  // Payment Tracking
+  paymentStatus: PaymentStatus;
+  paymentMethod?: string; // e.g., 'credit-card'
+  paymentIntentId?: string; // External payment reference
+  paidAt?: Date;
+
+  // Lifecycle Timestamps
+  createdAt: Date;
+  acceptedAt?: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  cancelledAt?: Date;
+  cancelReason?: string;
+}
+
+// Index: postId, nunuId, vavaId, status, paymentStatus

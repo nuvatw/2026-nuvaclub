@@ -6,7 +6,7 @@ import type {
   MatchingPostRecord,
   MatchingPostTagRecord,
   MatchingPostType,
-  TimeSelectionType,
+  PriceType,
   NunuProfileRecord,
   NunuStatsRecord,
   MatchingPostStatsRecord,
@@ -29,7 +29,10 @@ export interface MatchingPostWithRelations extends MatchingPostRecord {
 export interface MatchingPostFilters {
   type?: MatchingPostType;
   isVerifiedNunuOnly?: boolean;
-  timeSelection?: TimeSelectionType;
+  priceType?: PriceType;
+  priceMin?: number;
+  priceMax?: number;
+  months?: string[];
   authorId?: string;
   isActive?: boolean;
   tags?: string[];
@@ -134,8 +137,22 @@ export function useMatchingPosts(filters?: MatchingPostFilters, sortBy: Matching
       // Filter by verified nunu only
       if (filters.isVerifiedNunuOnly !== undefined && post.isVerifiedNunuOnly !== filters.isVerifiedNunuOnly) return false;
 
-      // Filter by time selection
-      if (filters.timeSelection && post.timeSelection !== filters.timeSelection) return false;
+      // Filter by price type
+      if (filters.priceType && post.priceType !== filters.priceType) return false;
+
+      // Filter by price range (for fixed price posts)
+      if (filters.priceMin !== undefined && post.priceAmount !== undefined) {
+        if (post.priceAmount < filters.priceMin) return false;
+      }
+      if (filters.priceMax !== undefined && post.priceAmount !== undefined) {
+        if (post.priceAmount > filters.priceMax) return false;
+      }
+
+      // Filter by available months (any match)
+      if (filters.months && filters.months.length > 0) {
+        const hasMatchingMonth = filters.months.some((m) => post.availableMonths?.includes(m));
+        if (!hasMatchingMonth) return false;
+      }
 
       // Filter by author
       if (filters.authorId && post.authorId !== filters.authorId) return false;

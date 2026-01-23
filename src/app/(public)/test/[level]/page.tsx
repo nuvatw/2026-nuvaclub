@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 import { useLevelStats, useTests, useActiveTestSession, useUserTestProgress, useLevelConfigs } from '@/lib/db/hooks';
 import { Button } from '@/components/atoms';
+import { ChevronLeftIcon, ClipboardIcon, TagIcon, LightBulbIcon, CheckIcon } from '@/components/icons';
 import {
   getLevelTier,
   getLevelColor,
@@ -97,9 +98,7 @@ export default function LevelDetailPage() {
             onClick={() => router.push('/test')}
             className="flex items-center gap-2 text-neutral-400 hover:text-neutral-200 mb-6 transition-colors"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
+            <ChevronLeftIcon size="md" />
             Back to Level List
           </button>
 
@@ -148,9 +147,7 @@ export default function LevelDetailPage() {
             {/* What You'll Be Tested On */}
             <div className="bg-neutral-800/50 rounded-xl p-6 mb-6">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <svg className="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                </svg>
+                <ClipboardIcon size="md" className="text-primary-400" />
                 What You&apos;ll Be Tested On
               </h3>
               <ul className="space-y-2">
@@ -168,9 +165,7 @@ export default function LevelDetailPage() {
               {/* Topics */}
               <div className="bg-neutral-800/50 rounded-xl p-6">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                  </svg>
+                  <TagIcon size="md" className="text-blue-400" />
                   Topics Covered
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -188,17 +183,13 @@ export default function LevelDetailPage() {
               {/* Skills */}
               <div className="bg-neutral-800/50 rounded-xl p-6">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                  </svg>
+                  <LightBulbIcon size="md" className="text-green-400" />
                   Skills Assessed
                 </h3>
                 <ul className="space-y-2">
                   {levelDetail.skills.map((skill, index) => (
                     <li key={index} className="flex items-center gap-2 text-neutral-300 text-sm">
-                      <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
+                      <CheckIcon size="sm" className="text-green-500 flex-shrink-0" />
                       {skill}
                     </li>
                   ))}

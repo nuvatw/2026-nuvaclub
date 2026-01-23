@@ -9,6 +9,7 @@ import {
   useHoverPreviewContext,
 } from '@/components/organisms/HoverPreviewPanel';
 import { VideoPlayer } from './VideoPlayer';
+import { PlayIcon } from '@/components/icons';
 import type { Course } from '@/features/learn/types';
 import { LEVEL_LABELS, LEVEL_BADGE_VARIANTS } from '@/features/learn/types';
 import { cn } from '@/lib/utils';
@@ -55,7 +56,7 @@ export function CourseCard({
           className={cn(
             'relative aspect-[16/9] rounded-lg overflow-hidden cursor-pointer',
             'transition-shadow duration-200',
-            isHovered && 'shadow-lg shadow-black/40'
+            isHovered && 'shadow-md shadow-black/20'
           )}
           animate={{
             scale: isExpanded ? 1.03 : 1,
@@ -85,9 +86,7 @@ export function CourseCard({
             )}
           >
             <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
-              <svg className="w-6 h-6 text-neutral-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z" />
-              </svg>
+              <PlayIcon size="lg" className="text-neutral-900 ml-0.5" />
             </div>
           </div>
 

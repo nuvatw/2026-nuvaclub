@@ -1,4 +1,13 @@
-// Re-export from existing feature modules
+/**
+ * Entity Re-exports
+ *
+ * This file re-exports from @/mocks for backward compatibility.
+ * New code should import directly from '@/mocks'.
+ *
+ * @deprecated Import from '@/mocks' instead
+ */
+
+// Courses - still in original location
 export {
   MOCK_COURSES,
   COURSE_CATEGORIES,
@@ -7,17 +16,16 @@ export {
   getCourseById,
 } from '@/features/learn/data/courses';
 
-export { MOCK_POSTS, getPinnedPosts, getRecentPosts } from '@/features/forum/data/posts';
+// Forum - from mocks
+export { MOCK_POSTS, getPinnedPosts, getRecentPosts } from '@/mocks/entities/posts.mock';
 
-export { MOCK_COMPANIONS } from '@/features/space/data/companions';
+// Companions - from mocks
+export { MOCK_COMPANIONS } from '@/mocks/entities/companions.mock';
 
-export { MOCK_SEASONS } from '@/features/sprint/data/sprints';
+// Seasons - from mocks
+export { MOCK_SEASONS } from '@/mocks/entities/seasons.mock';
 
-export { PLANS } from '@/features/shop/data/plans';
-
-export {
-  DUO_TICKETS,
-  EVENTS,
-  MERCHANDISE,
-  getAllProducts,
-} from '@/features/shop/data/products';
+// Shop - from mocks
+export { MOCK_PLANS, PLANS } from '@/mocks/entities/plans.mock';
+export { MOCK_MERCHANDISE, MERCHANDISE, getAllProducts } from '@/mocks/entities/products.mock';
+export { MOCK_EVENTS, EVENTS } from '@/mocks/entities/events.mock';

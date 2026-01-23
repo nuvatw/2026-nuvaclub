@@ -179,15 +179,31 @@ export async function seedSpace(db: MockDB): Promise<void> {
   ]);
 
   // ==========================================
-  // MATCHING POSTS
+  // MATCHING POSTS (Marketplace Model with Pricing)
   // ==========================================
   db.matchingPosts.createMany([
-    { id: 'matching-post-1', authorId: 'user-2', type: 'nunu-looking-for-vava', title: 'Automation Expert Looking for Vava!', content: 'I am a Nunu focused on automation, skilled in Make.com, Zapier, and other tools.', timeSelection: 'monthly', timePeriod: '2026-02', isVerifiedNunuOnly: false, isActive: true, createdAt: new Date('2026-01-10'), updatedAt: now },
-    { id: 'matching-post-2', authorId: 'user-4', type: 'nunu-looking-for-vava', title: '[Certified Nunu] AI Strategy and Business Application Guidance', content: 'As a Certified Nunu, I focus on helping learners apply AI to real business scenarios.', timeSelection: 'seasonal', timePeriod: '2026-Q1', isVerifiedNunuOnly: true, isActive: true, createdAt: new Date('2026-01-05'), updatedAt: now },
-    { id: 'matching-post-3', authorId: 'user-5', type: 'vava-looking-for-nunu', title: 'Beginner Looking for Nunu!', content: 'I am a beginner with AI tools, hoping to find a patient Nunu to guide me.', timeSelection: 'monthly', timePeriod: '2026-02', isVerifiedNunuOnly: false, isActive: true, createdAt: new Date('2026-01-18'), updatedAt: now },
-    { id: 'matching-post-4', authorId: 'user-10', type: 'nunu-looking-for-vava', title: 'Master-Level Nunu Recruiting Vava!', content: 'I am an N1 level Certified Nunu with extensive teaching experience.', timeSelection: 'seasonal', timePeriod: '2026-Q1', isVerifiedNunuOnly: true, isActive: true, createdAt: new Date('2026-01-02'), updatedAt: now },
-    { id: 'matching-post-5', authorId: 'user-5', type: 'vava-looking-for-nunu', title: 'Advanced Learner Looking for Certified Nunu!', content: 'I already have a solid AI foundation and now want to dive deeper.', timeSelection: 'seasonal', timePeriod: '2026-Q1', isVerifiedNunuOnly: true, isActive: true, createdAt: new Date('2026-01-15'), updatedAt: now },
-    { id: 'matching-post-6', authorId: 'user-6', type: 'nunu-looking-for-vava', title: '[Matched] Beginner Nunu Looking for Vava', content: 'I am a beginner Nunu, looking for a Vava to grow and learn together.', timeSelection: 'monthly', timePeriod: '2026-01', isVerifiedNunuOnly: false, isActive: false, createdAt: new Date('2025-12-20'), updatedAt: new Date('2026-01-05') },
+    // Nunu posts with fixed prices
+    { id: 'matching-post-1', authorId: 'user-2', type: 'nunu-looking-for-vava', title: 'Automation Expert Looking for Vava!', content: 'I am a Nunu focused on automation, skilled in Make.com, Zapier, and other tools. I can help you build your first workflow and automate repetitive tasks.', priceType: 'fixed', priceAmount: 800, priceCurrency: 'TWD', availableMonths: ['2026-02', '2026-03', '2026-04'], maxSlots: 3, currentSlots: 1, isVerifiedNunuOnly: false, isActive: true, createdAt: new Date('2026-01-10'), updatedAt: now },
+    { id: 'matching-post-2', authorId: 'user-4', type: 'nunu-looking-for-vava', title: '[Certified Nunu] AI Strategy and Business Application Guidance', content: 'As a Certified Nunu, I focus on helping learners apply AI to real business scenarios. Premium mentorship with guaranteed results.', priceType: 'fixed', priceAmount: 2000, priceCurrency: 'TWD', availableMonths: ['2026-02', '2026-03', '2026-04', '2026-05'], maxSlots: 5, currentSlots: 2, isVerifiedNunuOnly: true, isActive: true, createdAt: new Date('2026-01-05'), updatedAt: now },
+    { id: 'matching-post-4', authorId: 'user-10', type: 'nunu-looking-for-vava', title: 'Master-Level Nunu Recruiting Vava!', content: 'I am an N1 level Certified Nunu with extensive teaching experience. Personal mentorship for serious learners.', priceType: 'fixed', priceAmount: 3500, priceCurrency: 'TWD', availableMonths: ['2026-02', '2026-03'], maxSlots: 3, currentSlots: 0, isVerifiedNunuOnly: true, isActive: true, createdAt: new Date('2026-01-02'), updatedAt: now },
+    { id: 'matching-post-6', authorId: 'user-6', type: 'nunu-looking-for-vava', title: '[Matched] Beginner Nunu Looking for Vava', content: 'I am a beginner Nunu, looking for a Vava to grow and learn together.', priceType: 'negotiable', priceCurrency: 'TWD', availableMonths: ['2026-01'], maxSlots: 1, currentSlots: 1, isVerifiedNunuOnly: false, isActive: false, createdAt: new Date('2025-12-20'), updatedAt: new Date('2026-01-05') },
+    // Vava posts with budget ranges
+    { id: 'matching-post-3', authorId: 'user-5', type: 'vava-looking-for-nunu', title: 'Beginner Looking for Nunu!', content: 'I am a beginner with AI tools, hoping to find a patient Nunu to guide me. Looking for someone who can explain concepts simply.', priceType: 'range', priceMin: 500, priceMax: 1000, priceCurrency: 'TWD', availableMonths: ['2026-02', '2026-03'], isVerifiedNunuOnly: false, isActive: true, createdAt: new Date('2026-01-18'), updatedAt: now },
+    { id: 'matching-post-5', authorId: 'user-7', type: 'vava-looking-for-nunu', title: 'Advanced Learner Looking for Certified Nunu!', content: 'I already have a solid AI foundation and now want to dive deeper into prompt engineering and automation.', priceType: 'range', priceMin: 1500, priceMax: 2500, priceCurrency: 'TWD', availableMonths: ['2026-02', '2026-03', '2026-04'], isVerifiedNunuOnly: true, isActive: true, createdAt: new Date('2026-01-15'), updatedAt: now },
+  ]);
+
+  // ==========================================
+  // MENTORSHIP AGREEMENTS (Marketplace Purchases)
+  // ==========================================
+  db.mentorshipAgreements.createMany([
+    // User-5 purchased from User-2's post (matching-post-1)
+    { id: 'agreement-1', postId: 'matching-post-1', nunuId: 'user-2', vavaId: 'user-5', agreedPrice: 800, agreedMonths: ['2026-02'], totalAmount: 800, status: 'active', paymentStatus: 'paid', paymentMethod: 'credit-card', paidAt: new Date('2026-01-20'), createdAt: new Date('2026-01-20'), acceptedAt: new Date('2026-01-20'), startedAt: new Date('2026-02-01') },
+    // User-7 purchased from User-4's post (matching-post-2) - multiple months
+    { id: 'agreement-2', postId: 'matching-post-2', nunuId: 'user-4', vavaId: 'user-7', agreedPrice: 2000, agreedMonths: ['2026-02', '2026-03'], totalAmount: 4000, status: 'accepted', paymentStatus: 'paid', paymentMethod: 'credit-card', paidAt: new Date('2026-01-18'), createdAt: new Date('2026-01-18'), acceptedAt: new Date('2026-01-18') },
+    // User-8 purchased from User-4's post (matching-post-2)
+    { id: 'agreement-3', postId: 'matching-post-2', nunuId: 'user-4', vavaId: 'user-8', agreedPrice: 2000, agreedMonths: ['2026-02'], totalAmount: 2000, status: 'accepted', paymentStatus: 'paid', paymentMethod: 'credit-card', paidAt: new Date('2026-01-15'), createdAt: new Date('2026-01-15'), acceptedAt: new Date('2026-01-15') },
+    // User-1 purchased from User-6's post before it closed (matching-post-6)
+    { id: 'agreement-4', postId: 'matching-post-6', nunuId: 'user-6', vavaId: 'user-1', agreedPrice: 500, agreedMonths: ['2026-01'], totalAmount: 500, status: 'active', paymentStatus: 'paid', paymentMethod: 'credit-card', paidAt: new Date('2026-01-05'), createdAt: new Date('2026-01-05'), acceptedAt: new Date('2026-01-05'), startedAt: new Date('2026-01-05') },
   ]);
 
   // ==========================================

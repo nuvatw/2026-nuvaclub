@@ -6,24 +6,33 @@ import { Button } from '@/components/atoms';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 import { useMatchingPosts, useMatchingPost } from '@/lib/db/hooks/useMatchingPosts';
 import { useMatchingComments } from '@/lib/db/hooks/useMatchingComments';
+import { useDBContext } from '@/lib/db';
 import { MatchingFilters } from './MatchingFilters';
 import { MatchingPostCard } from './MatchingPostCard';
 import { MatchingPostDetail } from './MatchingPostDetail';
 import { LockedPostCard } from './LockedPostCard';
-import type { MatchingPostType, TimeSelectionType } from '@/features/space/types';
-import type { MatchingPostSortBy } from '@/lib/db/hooks/useMatchingPosts';
+import { CreatePostModal, type CreatePostData } from '../CreatePostModal';
+import { PurchaseModal } from '../PurchaseModal';
+import type { MatchingPostType, PriceType } from '@/features/space/types';
+import type { MatchingPostSortBy, MatchingPostWithRelations } from '@/lib/db/hooks/useMatchingPosts';
 
 const POSTS_PER_PAGE = 6;
 
 export function MatchingBoardSection() {
   const { user, identity, hasPermission } = useAuth();
+  const { db } = useDBContext();
   const canViewVerified = hasPermission('space:view_certified_nunu');
+
+  // Check if user is an approved Nunu
+  const isNunu = useMemo(() => {
+    if (!db || !user) return false;
+    const profile = db.nunuProfiles.findFirst({ where: { userId: user.id } });
+    return !!profile;
+  }, [db, user]);
 
   // Filters state - default to "Find Nunu" (vava looking for nunu)
   const [selectedType, setSelectedType] = useState<MatchingPostType | 'all'>('vava-looking-for-nunu');
-  const [selectedTimeSelection, setSelectedTimeSelection] = useState<TimeSelectionType | 'all'>(
-    'all'
-  );
+  const [selectedPriceType, setSelectedPriceType] = useState<PriceType | 'all'>('all');
   const [sortBy, setSortBy] = useState<MatchingPostSortBy>('newest');
   const [showVerifiedOnly, setShowVerifiedOnly] = useState(false);
 
@@ -33,11 +42,17 @@ export function MatchingBoardSection() {
   // Selected post state
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
+  // Create post modal state
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  // Purchase modal state
+  const [purchasePost, setPurchasePost] = useState<MatchingPostWithRelations | null>(null);
+
   // Build filters object
   const filters = useMemo(() => {
     const f: {
       type?: MatchingPostType;
-      timeSelection?: TimeSelectionType;
+      priceType?: PriceType;
       isVerifiedNunuOnly?: boolean;
       isActive?: boolean;
     } = {
@@ -47,15 +62,15 @@ export function MatchingBoardSection() {
     if (selectedType !== 'all') {
       f.type = selectedType;
     }
-    if (selectedTimeSelection !== 'all') {
-      f.timeSelection = selectedTimeSelection;
+    if (selectedPriceType !== 'all') {
+      f.priceType = selectedPriceType;
     }
     if (showVerifiedOnly) {
       f.isVerifiedNunuOnly = true;
     }
 
     return f;
-  }, [selectedType, selectedTimeSelection, showVerifiedOnly]);
+  }, [selectedType, selectedPriceType, showVerifiedOnly]);
 
   // Fetch posts
   const { posts, isReady } = useMatchingPosts(filters, sortBy);
@@ -86,8 +101,8 @@ export function MatchingBoardSection() {
     setVisibleCount(POSTS_PER_PAGE);
   }, []);
 
-  const handleTimeSelectionChange = useCallback((time: TimeSelectionType | 'all') => {
-    setSelectedTimeSelection(time);
+  const handlePriceTypeChange = useCallback((priceType: PriceType | 'all') => {
+    setSelectedPriceType(priceType);
     setVisibleCount(POSTS_PER_PAGE);
   }, []);
 
@@ -111,10 +126,62 @@ export function MatchingBoardSection() {
   const selectedPost = useMatchingPost(selectedPostId || '');
   const { comments } = useMatchingComments(selectedPostId || '', user?.id);
 
-  const handleCreatePost = () => {
-    // TODO: Open create post modal
-    console.log('Open create post modal');
-  };
+  const handleCreatePost = useCallback(() => {
+    setIsCreateModalOpen(true);
+  }, []);
+
+  const handleCloseCreateModal = useCallback(() => {
+    setIsCreateModalOpen(false);
+  }, []);
+
+  const handleSubmitPost = useCallback((data: CreatePostData) => {
+    if (!db || !user) return;
+
+    const now = new Date();
+    const newPost = {
+      id: `matching-post-${Date.now()}`,
+      authorId: user.id,
+      type: data.type,
+      title: data.title,
+      content: data.content,
+      priceType: data.priceType,
+      priceAmount: data.priceAmount,
+      priceMin: data.priceMin,
+      priceMax: data.priceMax,
+      priceCurrency: 'TWD',
+      availableMonths: data.availableMonths,
+      maxSlots: data.maxSlots,
+      currentSlots: 0,
+      isVerifiedNunuOnly: false,
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    db.matchingPosts.create(newPost);
+
+    // Create tags
+    data.tags.forEach((tag, index) => {
+      db.matchingPostTags.create({
+        id: `mpt-${newPost.id}-${index}`,
+        postId: newPost.id,
+        tag,
+      });
+    });
+
+    // Create stats entry
+    db.matchingPostStats.create({
+      postId: newPost.id,
+      viewCount: 0,
+      commentCount: 0,
+      lastUpdatedAt: now,
+    });
+
+    // Persist to storage
+    db.persist();
+
+    setIsCreateModalOpen(false);
+  }, [db, user]);
 
   const handlePostClick = (postId: string) => {
     setSelectedPostId(postId);
@@ -124,10 +191,56 @@ export function MatchingBoardSection() {
     setSelectedPostId(null);
   };
 
-  const handleRequestMatch = (postId: string) => {
-    // TODO: Open request match modal
-    console.log('Request match for post', postId);
-  };
+  const handleRequestMatch = useCallback((postId: string) => {
+    // Find the post and open purchase modal for Nunu posts
+    const post = allVisiblePosts.find(p => p.id === postId);
+    if (post && post.type === 'nunu-looking-for-vava') {
+      setPurchasePost(post);
+    }
+  }, [allVisiblePosts]);
+
+  const handleClosePurchaseModal = useCallback(() => {
+    setPurchasePost(null);
+  }, []);
+
+  const handleConfirmPurchase = useCallback((selectedMonths: string[]) => {
+    if (!db || !user || !purchasePost) return;
+
+    const now = new Date();
+
+    // Create mentorship agreement
+    const agreement = {
+      id: `agreement-${Date.now()}`,
+      postId: purchasePost.id,
+      nunuId: purchasePost.authorId,
+      vavaId: user.id,
+      agreedPrice: purchasePost.priceAmount || 0,
+      agreedMonths: selectedMonths,
+      totalAmount: (purchasePost.priceAmount || 0) * selectedMonths.length,
+      status: 'accepted' as const,
+      paymentStatus: 'paid' as const,
+      paymentMethod: 'credit-card',
+      paidAt: now,
+      createdAt: now,
+      acceptedAt: now,
+    };
+
+    db.mentorshipAgreements.create(agreement);
+
+    // Update post's current slots
+    const post = db.matchingPosts.findById(purchasePost.id);
+    if (post) {
+      db.matchingPosts.update(purchasePost.id, {
+        currentSlots: (post.currentSlots || 0) + 1,
+        updatedAt: now,
+      });
+    }
+
+    // Persist changes
+    db.persist();
+
+    setPurchasePost(null);
+  }, [db, user, purchasePost]);
 
   const handleAddComment = (content: string, isPrivate: boolean, parentId?: string) => {
     // TODO: Add comment to database
@@ -182,8 +295,8 @@ export function MatchingBoardSection() {
       <MatchingFilters
         selectedType={selectedType}
         onTypeChange={handleTypeChange}
-        selectedTimeSelection={selectedTimeSelection}
-        onTimeSelectionChange={handleTimeSelectionChange}
+        selectedPriceType={selectedPriceType}
+        onPriceTypeChange={handlePriceTypeChange}
         sortBy={sortBy}
         onSortChange={handleSortChange}
         showVerifiedOnly={showVerifiedOnly}
@@ -253,7 +366,7 @@ export function MatchingBoardSection() {
                   className="col-span-full text-center py-4"
                 >
                   <p className="text-neutral-500">
-                    +{lockedPostsCount - 2} more verified Nunu posts available with Duo Run or Fly
+                    +{lockedPostsCount - 2} more verified Nunu posts available
                   </p>
                 </motion.div>
               )}
@@ -285,6 +398,24 @@ export function MatchingBoardSection() {
           onClose={handleCloseDetail}
           onRequestMatch={() => handleRequestMatch(selectedPost.id)}
           onAddComment={handleAddComment}
+        />
+      )}
+
+      {/* Create Post Modal */}
+      <CreatePostModal
+        isOpen={isCreateModalOpen}
+        onClose={handleCloseCreateModal}
+        onSubmit={handleSubmitPost}
+        isNunu={isNunu}
+      />
+
+      {/* Purchase Modal */}
+      {purchasePost && (
+        <PurchaseModal
+          isOpen={!!purchasePost}
+          onClose={handleClosePurchaseModal}
+          post={purchasePost}
+          onConfirm={handleConfirmPurchase}
         />
       )}
     </section>

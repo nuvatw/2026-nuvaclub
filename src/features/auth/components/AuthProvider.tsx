@@ -20,12 +20,16 @@ import { useDBContext } from '@/lib/db';
 /**
  * Test accounts available for selection
  * These map to the users seeded in the database
+ *
+ * Note: Duo identities have been removed in the marketplace model.
+ * Space is now open to all logged-in users (Explorer+).
  */
 export interface TestAccount {
   id: string;
   name: string;
   description: string;
   identity: IdentityType;
+  isNunu?: boolean; // Whether this user is an approved Nunu
 }
 
 export const TEST_ACCOUNTS: TestAccount[] = [
@@ -48,6 +52,18 @@ export const TEST_ACCOUNTS: TestAccount[] = [
     identity: 'explorer',
   },
   {
+    id: 'user-6',
+    name: 'Jessica Wu',
+    description: 'Explorer - Engaged learner',
+    identity: 'explorer',
+  },
+  {
+    id: 'user-8',
+    name: 'Lisa Chen',
+    description: 'Explorer - Active participant',
+    identity: 'explorer',
+  },
+  {
     id: 'user-1',
     name: 'Alex Chen',
     description: 'Solo Traveler - Active community member',
@@ -60,34 +76,25 @@ export const TEST_ACCOUNTS: TestAccount[] = [
     identity: 'solo-traveler',
   },
   {
-    id: 'user-6',
-    name: 'Jessica Wu',
-    description: 'Duo Go - Engaged learner',
-    identity: 'duo-go',
-  },
-  {
-    id: 'user-8',
-    name: 'Lisa Chen',
-    description: 'Duo Go - Active participant',
-    identity: 'duo-go',
-  },
-  {
     id: 'user-2',
     name: 'Sarah Lin',
-    description: 'Duo Run - Power user, mentor',
-    identity: 'duo-run',
+    description: 'Solo Traveler - Nunu Mentor (N4)',
+    identity: 'solo-traveler',
+    isNunu: true,
   },
   {
     id: 'user-4',
     name: 'Emily Huang',
-    description: 'Duo Fly - Premium user, content creator',
-    identity: 'duo-fly',
+    description: 'Solo Traveler - Nunu Mentor (N3)',
+    identity: 'solo-traveler',
+    isNunu: true,
   },
   {
     id: 'user-10',
     name: 'Amy Lin',
-    description: 'Duo Fly - Expert mentor',
-    identity: 'duo-fly',
+    description: 'Solo Traveler - Nunu Mentor (N2)',
+    identity: 'solo-traveler',
+    isNunu: true,
   },
 ];
 
@@ -127,30 +134,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const userRecord = db.users.findById(currentAccountId);
     if (userRecord) {
-      // Get duo ticket if exists
-      const ticketRecord = db.userDuoTickets.findFirst({
-        where: { userId: currentAccountId, status: 'active' },
-      });
+      // Map the identity type, defaulting non-existent duo types to explorer
+      let mappedIdentity = userRecord.identityType as IdentityType;
+      if (!['guest', 'explorer', 'solo-traveler'].includes(mappedIdentity)) {
+        // Legacy duo identities get mapped to solo-traveler
+        mappedIdentity = 'solo-traveler';
+      }
 
       const mappedUser: User = {
         id: userRecord.id,
         name: userRecord.name,
         email: userRecord.email,
         avatar: userRecord.avatar,
-        identity: userRecord.identityType as IdentityType,
-        duoTicket: ticketRecord
-          ? {
-              type: ticketRecord.tier as 'go' | 'run' | 'fly',
-              validFrom: ticketRecord.validFrom,
-              validUntil: ticketRecord.validUntil,
-              isActive: ticketRecord.status === 'active',
-            }
-          : undefined,
+        identity: mappedIdentity,
         createdAt: userRecord.createdAt,
       };
 
       setUser(mappedUser);
-      setIdentityState(userRecord.identityType as IdentityType);
+      setIdentityState(mappedIdentity);
     }
   }, [currentAccountId, db, isReady]);
 

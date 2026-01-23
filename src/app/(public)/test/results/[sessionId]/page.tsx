@@ -6,6 +6,7 @@ import { useDB } from '@/lib/db/provider/DBProvider';
 import { TestRepository } from '@/lib/db/repositories';
 import { QuestionRenderer } from '@/features/test/components';
 import { Button, Badge } from '@/components/atoms';
+import { ChevronLeftIcon, CheckIcon, XIcon, ExclamationCircleIcon } from '@/components/icons';
 import { formatTime, getLevelColor } from '@/features/test/constants';
 import { cn } from '@/lib/utils';
 import { PageTransition } from '@/components/molecules/PageTransition';
@@ -50,9 +51,7 @@ export default function ResultsPage() {
           onClick={() => router.push('/test')}
           className="flex items-center gap-2 text-neutral-400 hover:text-neutral-200 mb-6 transition-colors"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
+          <ChevronLeftIcon size="md" />
           Back to Level List
         </button>
 
@@ -121,25 +120,19 @@ export default function ResultsPage() {
                   <div className="flex items-center gap-2">
                     {isCorrect === true && (
                       <div className="flex items-center gap-2 text-green-400">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
-                        </svg>
+                        <CheckIcon size="md" />
                         <span className="text-sm font-medium">Correct</span>
                       </div>
                     )}
                     {isCorrect === false && (
                       <div className="flex items-center gap-2 text-red-400">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        <XIcon size="md" />
                         <span className="text-sm font-medium">Incorrect</span>
                       </div>
                     )}
                     {isCorrect === undefined && (
                       <div className="flex items-center gap-2 text-amber-400">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        <ExclamationCircleIcon size="md" />
                         <span className="text-sm font-medium">Pending Review</span>
                       </div>
                     )}

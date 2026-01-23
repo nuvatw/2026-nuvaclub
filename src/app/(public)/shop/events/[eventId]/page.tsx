@@ -10,7 +10,7 @@ import {
   EventSidebar,
   EventFAQ,
 } from '@/features/shop/components/events';
-import { getEventById } from '@/features/shop/data/products';
+import { getEventById } from '@/mocks';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { EventDetailSkeleton } from '@/components/skeletons';
 

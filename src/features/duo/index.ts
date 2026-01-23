@@ -8,7 +8,5 @@ export * from './utils/month-utils';
 export { useDuoMonthPasses } from './hooks/useDuoMonthPasses';
 
 // Components
-export { DuoMonthSelector } from './components/DuoMonthSelector';
 export { DuoCalendarView } from './components/DuoCalendarView';
 export { InviteModal } from './components/InviteModal';
-export { DuoProductCard } from './components/DuoProductCard';

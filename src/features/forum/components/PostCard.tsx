@@ -2,21 +2,36 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { motion } from 'motion/react';
-import { Badge } from '@/components/atoms';
+import {
+  ChevronUpIcon,
+  ChevronDownIcon,
+  ChatBubbleIcon,
+  EyeIcon,
+  ShareIcon,
+  BookmarkIcon,
+  BookmarkSolidIcon,
+  PinIcon,
+  MoreHorizontalIcon,
+  SearchIcon,
+} from '@/components/icons';
 import type { Post } from '@/features/forum/types';
 import { POST_CATEGORY_LABELS, POST_CATEGORY_COLORS } from '@/features/forum/types';
-import { IDENTITY_COLORS } from '@/features/auth/types';
+import { IDENTITY_COLORS, IDENTITY_LABELS } from '@/features/auth/types';
 import { cn } from '@/lib/utils';
 import { formatTimeAgo } from '@/lib/utils/date';
 
 interface PostCardProps {
   post: Post;
+  index?: number;
+  isFirst?: boolean;
 }
 
-export function PostCard({ post }: PostCardProps) {
+export function PostCard({ post, index = 0, isFirst = false }: PostCardProps) {
   const [showCopied, setShowCopied] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [postSearchQuery, setPostSearchQuery] = useState('');
 
   const handleShare = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -32,7 +47,6 @@ export function PostCard({ post }: PostCardProps) {
           url: url,
         });
       } catch {
-        // User cancelled or share failed, fall back to clipboard
         await copyToClipboard(url);
       }
     } else {
@@ -46,7 +60,6 @@ export function PostCard({ post }: PostCardProps) {
       setShowCopied(true);
       setTimeout(() => setShowCopied(false), 2000);
     } catch {
-      // Fallback for older browsers
       const textArea = document.createElement('textarea');
       textArea.value = url;
       document.body.appendChild(textArea);
@@ -58,192 +71,190 @@ export function PostCard({ post }: PostCardProps) {
     }
   };
 
+  const handleBookmark = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsBookmarked(!isBookmarked);
+  };
+
+  const handleVote = (e: React.MouseEvent, direction: 'up' | 'down') => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Vote logic would go here
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className={cn(
-        'group p-4 rounded-xl',
-        'bg-neutral-900 border border-neutral-800',
-        'hover:border-neutral-700 hover:bg-neutral-800/50',
-        'transition-colors cursor-pointer'
-      )}
+      transition={{ delay: index * 0.02, duration: 0.2 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <Link href={`/forum/${post.id}`} className="block">
-        <div className="flex gap-4">
-          {/* Vote Section */}
-          <div className="flex-shrink-0 flex flex-col items-center gap-1 text-center w-12">
-            <button className="p-1 text-neutral-500 hover:text-primary-400 transition-colors">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 15l7-7 7 7"
-                />
-              </svg>
-            </button>
-            <span
-              className={cn(
-                'text-sm font-medium',
-                post.score > 0 ? 'text-green-400' : 'text-neutral-400'
-              )}
+        <div className={cn(
+          'flex bg-[#1a1a1b] border rounded-[4px] transition-all duration-150',
+          isHovered ? 'border-[#4a4a4b]' : 'border-[#343536]',
+          post.isPinned && 'border-l-2 border-l-amber-500'
+        )}>
+          {/* Vote Column */}
+          <div className="hidden sm:flex flex-col items-center py-2 px-2 bg-[#161617] rounded-l-[4px] w-10 flex-shrink-0">
+            <button
+              onClick={(e) => handleVote(e, 'up')}
+              className="p-1 text-[#818384] hover:text-[#ff4500] hover:bg-[#ff4500]/10 rounded transition-colors"
             >
+              <ChevronUpIcon size="md" />
+            </button>
+            <span className={cn(
+              'text-xs font-bold my-0.5',
+              post.score > 0 ? 'text-[#ff4500]' : post.score < 0 ? 'text-[#7193ff]' : 'text-[#d7dadc]'
+            )}>
               {post.score}
             </span>
-            <button className="p-1 text-neutral-500 hover:text-red-400 transition-colors">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
+            <button
+              onClick={(e) => handleVote(e, 'down')}
+              className="p-1 text-[#818384] hover:text-[#7193ff] hover:bg-[#7193ff]/10 rounded transition-colors"
+            >
+              <ChevronDownIcon size="md" />
             </button>
           </div>
 
-          {/* Content */}
-          <div className="flex-1 min-w-0">
-            {/* Header */}
-            <div className="flex items-center gap-2 mb-2">
-              {post.isPinned && (
-                <Badge variant="warning" size="sm">
-                  Pinned
-                </Badge>
-              )}
-              <span
-                className={cn(
-                  'px-2 py-0.5 rounded text-xs font-medium',
-                  POST_CATEGORY_COLORS[post.category]
+          {/* Main Content */}
+          <div className="flex-1 min-w-0 p-2.5 sm:p-3">
+            {/* Meta Line with First Post Search */}
+            <div className="flex items-center justify-between gap-2 mb-1.5">
+              <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                {/* Pinned Badge */}
+                {post.isPinned && (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-medium">
+                    <PinIcon size="sm" className="w-3 h-3" />
+                    Pinned
+                  </span>
                 )}
-              >
-                {POST_CATEGORY_LABELS[post.category]}
-              </span>
+                {/* Category Badge */}
+                <span className={cn(
+                  'px-1.5 py-0.5 rounded text-[10px] font-medium',
+                  POST_CATEGORY_COLORS[post.category]
+                )}>
+                  {POST_CATEGORY_LABELS[post.category]}
+                </span>
+                {/* Author & Time */}
+                <span className="text-[#818384]">
+                  Posted by
+                </span>
+                <span className="flex items-center gap-1 text-[#d7dadc] font-medium">
+                  u/{post.author.name}
+                  <span className={cn('w-1.5 h-1.5 rounded-full', IDENTITY_COLORS[post.author.identity])}
+                        title={IDENTITY_LABELS[post.author.identity]} />
+                </span>
+                <span className="text-[#818384]">
+                  {formatTimeAgo(post.createdAt, 'en-US')}
+                </span>
+              </div>
+
+              {/* First Post Search */}
+              {isFirst && (
+                <div className="hidden md:flex items-center">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={postSearchQuery}
+                      onChange={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setPostSearchQuery(e.target.value);
+                      }}
+                      onClick={(e) => e.preventDefault()}
+                      placeholder="Search this post..."
+                      className="w-40 h-6 pl-7 pr-2 text-[10px] bg-[#272729] border border-[#343536] rounded-full text-[#d7dadc] placeholder-[#6b6c6d] focus:outline-none focus:border-primary-500 focus:w-48 transition-all"
+                    />
+                    <SearchIcon size="sm" className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#6b6c6d]" />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Title */}
-            <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary-400 transition-colors line-clamp-2">
+            <h3 className={cn(
+              'text-base font-semibold text-[#d7dadc] mb-1.5 leading-snug line-clamp-2 transition-colors',
+              isHovered && 'text-primary-400'
+            )}>
               {post.title}
             </h3>
 
             {/* Preview */}
-            <p className="text-sm text-neutral-400 line-clamp-2 mb-3">
+            <p className="text-sm text-[#818384] line-clamp-2 mb-2 leading-relaxed">
               {post.content}
             </p>
 
             {/* Tags */}
-            <div className="flex flex-wrap gap-1 mb-3">
-              {post.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-2 py-0.5 rounded text-xs bg-neutral-800 text-neutral-400"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            {/* Footer */}
-            <div className="flex items-center justify-between text-xs text-neutral-500">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5">
-                  {post.author.avatar && (
-                    <Image
-                      src={post.author.avatar}
-                      alt={post.author.name}
-                      width={20}
-                      height={20}
-                      className="rounded-full"
-                    />
-                  )}
-                  <span className="flex items-center gap-1">
-                    {post.author.name}
-                    <span
-                      className={cn(
-                        'w-1.5 h-1.5 rounded-full',
-                        IDENTITY_COLORS[post.author.identity]
-                      )}
-                    />
+            {post.tags && post.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-2.5">
+                {post.tags.slice(0, 3).map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-2 py-0.5 rounded-full text-[10px] bg-[#272729] text-[#818384] border border-[#343536]"
+                  >
+                    {tag}
                   </span>
-                </div>
-                <span>{formatTimeAgo(post.createdAt, 'en-US')}</span>
+                ))}
+                {post.tags.length > 3 && (
+                  <span className="text-[10px] text-[#6b6c6d]">+{post.tags.length - 3} more</span>
+                )}
+              </div>
+            )}
+
+            {/* Action Row */}
+            <div className="flex items-center gap-1 -ml-1.5">
+              {/* Mobile Vote */}
+              <div className="flex sm:hidden items-center gap-1 px-2 py-1 rounded hover:bg-[#272729] transition-colors">
+                <ChevronUpIcon size="sm" className="text-[#818384]" />
+                <span className="text-xs font-bold text-[#d7dadc]">{post.score}</span>
+                <ChevronDownIcon size="sm" className="text-[#818384]" />
               </div>
 
-              <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                    />
-                  </svg>
-                  {post.commentCount}
-                </span>
-                <span className="flex items-center gap-1">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                  {post.viewCount}
-                </span>
-                <button
-                  onClick={handleShare}
-                  className="flex items-center gap-1 text-neutral-500 hover:text-primary-400 transition-colors relative"
-                  title="Share"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                    />
-                  </svg>
-                  {showCopied && (
-                    <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 text-xs bg-neutral-700 text-white rounded whitespace-nowrap">
-                      Copied!
-                    </span>
-                  )}
-                </button>
-              </div>
+              {/* Comments */}
+              <button className="flex items-center gap-1.5 px-2 py-1 rounded text-[#818384] hover:bg-[#272729] transition-colors">
+                <ChatBubbleIcon size="sm" />
+                <span className="text-xs font-medium">{post.commentCount} Comments</span>
+              </button>
+
+              {/* Share */}
+              <button
+                onClick={handleShare}
+                className="flex items-center gap-1.5 px-2 py-1 rounded text-[#818384] hover:bg-[#272729] transition-colors relative"
+              >
+                <ShareIcon size="sm" />
+                <span className="text-xs font-medium hidden sm:inline">Share</span>
+                {showCopied && (
+                  <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 text-[10px] bg-[#272729] text-white rounded whitespace-nowrap z-10 border border-[#343536]">
+                    Link copied!
+                  </span>
+                )}
+              </button>
+
+              {/* Save/Bookmark */}
+              <button
+                onClick={handleBookmark}
+                className={cn(
+                  'flex items-center gap-1.5 px-2 py-1 rounded transition-colors',
+                  isBookmarked ? 'text-amber-400' : 'text-[#818384] hover:bg-[#272729]'
+                )}
+              >
+                {isBookmarked ? <BookmarkSolidIcon size="sm" /> : <BookmarkIcon size="sm" />}
+                <span className="text-xs font-medium hidden sm:inline">{isBookmarked ? 'Saved' : 'Save'}</span>
+              </button>
+
+              {/* Views */}
+              <span className="hidden sm:flex items-center gap-1.5 px-2 py-1 text-[#818384]">
+                <EyeIcon size="sm" />
+                <span className="text-xs">{post.viewCount}</span>
+              </span>
+
+              {/* More */}
+              <button className="flex items-center px-2 py-1 rounded text-[#818384] hover:bg-[#272729] transition-colors ml-auto">
+                <MoreHorizontalIcon size="sm" />
+              </button>
             </div>
           </div>
         </div>

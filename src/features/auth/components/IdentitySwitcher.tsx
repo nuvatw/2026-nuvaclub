@@ -10,9 +10,6 @@ const IDENTITIES: IdentityType[] = [
   'guest',
   'explorer',
   'solo-traveler',
-  'duo-go',
-  'duo-run',
-  'duo-fly',
 ];
 
 export function IdentitySwitcher() {

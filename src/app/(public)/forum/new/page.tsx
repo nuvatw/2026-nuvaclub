@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'motion/react';
 import { Button, Card, CardContent } from '@/components/atoms';
+import { LockIcon, ChevronLeftIcon } from '@/components/icons';
 import { PostForm } from '@/features/forum/components/PostForm';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 
@@ -18,19 +19,7 @@ function UpgradePrompt() {
         <Card className="text-center">
           <CardContent className="py-12 px-8">
             <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-neutral-800 flex items-center justify-center">
-              <svg
-                className="w-8 h-8 text-neutral-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
+              <LockIcon size="lg" className="w-8 h-8 text-neutral-400" />
             </div>
 
             <h2 className="text-2xl font-bold text-white mb-3">Upgrade to Unlock Posting</h2>
@@ -93,14 +82,7 @@ export default function NewPostPage() {
           href="/forum"
           className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors mb-6"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
+          <ChevronLeftIcon size="sm" />
           Back to Forum
         </Link>
 

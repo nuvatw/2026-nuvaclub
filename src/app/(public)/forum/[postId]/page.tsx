@@ -6,6 +6,14 @@ import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'motion/react';
 import { Button, Badge, Card, CardContent } from '@/components/atoms';
+import {
+  ChevronLeftIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
+  BookmarkIcon,
+  BookmarkSolidIcon,
+  ShareIcon,
+} from '@/components/icons';
 import { Gate } from '@/features/auth/components/Gate';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 import { usePost } from '@/lib/db/hooks/usePosts';
@@ -79,19 +87,7 @@ export default function PostPage({ params }: PostPageProps) {
           href="/forum"
           className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors mb-6"
         >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
+          <ChevronLeftIcon size="sm" />
           Back to Forum
         </Link>
 
@@ -189,35 +185,11 @@ export default function PostPage({ params }: PostPageProps) {
                   >
                     <div className="flex items-center gap-2">
                       <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 transition-colors">
-                        <svg
-                          className="w-4 h-4 text-green-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 15l7-7 7 7"
-                          />
-                        </svg>
+                        <ChevronUpIcon size="sm" className="text-green-400" />
                         <span className="text-sm text-neutral-300">{post.stats?.upvotes ?? 0}</span>
                       </button>
                       <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 transition-colors">
-                        <svg
-                          className="w-4 h-4 text-red-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 9l-7 7-7-7"
-                          />
-                        </svg>
+                        <ChevronDownIcon size="sm" className="text-red-400" />
                         <span className="text-sm text-neutral-300">{post.stats?.downvotes ?? 0}</span>
                       </button>
                     </div>
@@ -236,19 +208,11 @@ export default function PostPage({ params }: PostPageProps) {
                         isBookmarked && 'text-amber-400'
                       )}
                     >
-                      <svg
-                        className="w-4 h-4"
-                        fill={isBookmarked ? 'currentColor' : 'none'}
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-                        />
-                      </svg>
+                      {isBookmarked ? (
+                        <BookmarkSolidIcon size="sm" />
+                      ) : (
+                        <BookmarkIcon size="sm" />
+                      )}
                       <span className={isBookmarked ? 'text-amber-400' : 'text-neutral-300'}>
                         {isBookmarked ? 'Saved' : 'Save'}
                       </span>
@@ -258,19 +222,7 @@ export default function PostPage({ params }: PostPageProps) {
                     onClick={handleShare}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 transition-colors relative"
                   >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                      />
-                    </svg>
+                    <ShareIcon size="sm" />
                     <span className="text-neutral-300">{showCopied ? 'Copied!' : 'Share'}</span>
                   </button>
                 </div>
@@ -344,19 +296,7 @@ export default function PostPage({ params }: PostPageProps) {
                         <div className="flex items-center gap-4 mt-3">
                           <Gate permission="forum:like_comment">
                             <button className="flex items-center gap-1 text-sm text-neutral-400 hover:text-white transition-colors">
-                              <svg
-                                className="w-4 h-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M5 15l7-7 7 7"
-                                />
-                              </svg>
+                              <ChevronUpIcon size="sm" />
                               {comment.stats?.score ?? 0}
                             </button>
                           </Gate>

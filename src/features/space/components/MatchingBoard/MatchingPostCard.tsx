@@ -10,10 +10,11 @@ import {
   MATCHING_POST_TYPE_LABELS,
   MATCHING_POST_TYPE_COLORS,
   MATCHING_POST_TYPE_ICONS,
-  TIME_SELECTION_LABELS,
   getNunuLevelConfig,
+  formatPrice,
+  formatAvailableMonths,
 } from '@/features/space/types';
-import type { NunuLevel } from '@/features/space/types';
+import type { NunuLevel, PriceType } from '@/features/space/types';
 
 interface MatchingPostCardProps {
   post: MatchingPostWithRelations;
@@ -63,9 +64,22 @@ export function MatchingPostCard({ post, onClick, onRequestMatch }: MatchingPost
             </Badge>
           )}
         </div>
-        <span className="text-xs text-neutral-500">
-          {TIME_SELECTION_LABELS[post.timeSelection]} - {post.timePeriod}
+        <span className="text-sm font-semibold text-primary-400">
+          {formatPrice(post.priceType as PriceType, post.priceAmount, post.priceMin, post.priceMax, post.priceCurrency)}
         </span>
+      </div>
+
+      {/* Available Months */}
+      <div className="flex items-center gap-2 mb-2 text-xs text-neutral-500">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span>{formatAvailableMonths(post.availableMonths || [])}</span>
+        {post.maxSlots !== undefined && post.type === 'nunu-looking-for-vava' && (
+          <span className="text-neutral-600">
+            | {(post.maxSlots ?? 0) - (post.currentSlots ?? 0)} slots available
+          </span>
+        )}
       </div>
 
       {/* Title */}
@@ -162,8 +176,8 @@ export function MatchingPostCard({ post, onClick, onRequestMatch }: MatchingPost
         </div>
       </div>
 
-      {/* Action Button */}
-      {onRequestMatch && (
+      {/* Action Button - Only show for Nunu posts */}
+      {onRequestMatch && post.type === 'nunu-looking-for-vava' && (
         <div className="mt-4 pt-4 border-t border-neutral-800">
           <Button
             size="sm"
@@ -173,7 +187,7 @@ export function MatchingPostCard({ post, onClick, onRequestMatch }: MatchingPost
               onRequestMatch();
             }}
           >
-            Request Match
+            Purchase Mentorship
           </Button>
         </div>
       )}

@@ -4,21 +4,15 @@ import type {
   ProductRecord,
   ProductType,
   PlanProductRecord,
-  DuoTicketProductRecord,
   EventProductRecord,
   MerchandiseProductRecord,
   MerchandiseVariantRecord,
   EventAgendaItemRecord,
   EventFAQRecord,
-  ProductStatsRecord,
 } from '../schema';
 
 export interface PlanDetails extends PlanProductRecord {
   features?: string[];
-}
-
-export interface DuoTicketDetails extends DuoTicketProductRecord {
-  benefits?: string[];
 }
 
 export interface EventDetails extends EventProductRecord {
@@ -35,8 +29,6 @@ export interface MerchandiseDetails extends MerchandiseProductRecord {
 export interface ProductWithDetails extends ProductRecord {
   // Plan specific
   planDetails?: PlanDetails;
-  // Duo ticket specific
-  duoTicketDetails?: DuoTicketDetails;
   // Event specific
   eventDetails?: EventDetails;
   // Merchandise specific
@@ -85,13 +77,6 @@ export class ProductRepository extends BaseRepository<ProductRecord> {
    */
   findPlans(): ProductWithDetails[] {
     return this.findByType('plan');
-  }
-
-  /**
-   * Find duo tickets
-   */
-  findDuoTickets(): ProductWithDetails[] {
-    return this.findByType('duo-ticket');
   }
 
   /**
@@ -154,19 +139,6 @@ export class ProductRepository extends BaseRepository<ProductRecord> {
   }
 
   /**
-   * Find duo ticket by type
-   */
-  findDuoTicketByType(ticketType: 'go' | 'run' | 'fly'): ProductWithDetails | undefined {
-    const duoTicketProduct = this.db.duoTicketProducts.findFirst({
-      where: { ticketType },
-    });
-    if (!duoTicketProduct) return undefined;
-
-    const product = this.findById(duoTicketProduct.productId);
-    return product ? this.enrichProduct(product) : undefined;
-  }
-
-  /**
    * Enrich product with type-specific details
    */
   private enrichProduct(product: ProductRecord): ProductWithDetails {
@@ -200,23 +172,6 @@ export class ProductRepository extends BaseRepository<ProductRecord> {
           result.planDetails = {
             ...planDetails,
             features: featureRecords.map((f) => f.feature),
-          };
-        }
-        break;
-      }
-      case 'duo-ticket': {
-        const duoDetails = this.db.duoTicketProducts.findFirst({
-          where: { productId: product.id },
-        });
-        if (duoDetails) {
-          // Get benefits from junction table
-          const benefitRecords = this.db.duoTicketProductBenefits.findMany({
-            where: { duoTicketProductId: duoDetails.id },
-            orderBy: { field: 'sortOrder', direction: 'asc' },
-          });
-          result.duoTicketDetails = {
-            ...duoDetails,
-            benefits: benefitRecords.map((b) => b.benefit),
           };
         }
         break;

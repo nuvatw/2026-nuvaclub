@@ -8,6 +8,12 @@ import {
   HoverPreviewPanel,
   type PreviewAction,
 } from '@/components/organisms/HoverPreviewPanel';
+import {
+  PlaySolidIcon,
+  InformationCircleIcon,
+  PlusIcon,
+  CheckIcon,
+} from '@/components/icons';
 import type { Course } from '@/features/learn/types';
 import { LEVEL_LABELS, LEVEL_BADGE_VARIANTS } from '@/features/learn/types';
 
@@ -50,36 +56,6 @@ function LazyTrailerVideo({
     </>
   );
 }
-
-// Icons
-const PlayIcon = () => (
-  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-    <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-  </svg>
-);
-
-const InfoIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-    />
-  </svg>
-);
-
-const PlusIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-  </svg>
-);
-
-const CheckIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-  </svg>
-);
 
 function getYouTubeVideoId(urlOrId: string): string | null {
   if (!urlOrId) return null;
@@ -127,14 +103,14 @@ export function LearnHoverPreview() {
     {
       id: 'start',
       label: 'Start Learning',
-      icon: <PlayIcon />,
+      icon: <PlaySolidIcon size="sm" />,
       variant: 'primary',
       onClick: () => handleStartLearning(course),
     },
     {
       id: 'details',
       label: 'Course Details',
-      icon: <InfoIcon />,
+      icon: <InformationCircleIcon size="sm" />,
       variant: 'secondary',
       onClick: () => handleCourseDetails(course),
     },
@@ -142,8 +118,8 @@ export function LearnHoverPreview() {
       id: 'add',
       label: 'Add',
       activeLabel: 'Added',
-      icon: <PlusIcon />,
-      activeIcon: <CheckIcon />,
+      icon: <PlusIcon size="sm" />,
+      activeIcon: <CheckIcon size="sm" />,
       variant: 'icon',
       onClick: () => handleAddToList(course),
       isActive: savedCourses.has(course.id),
@@ -181,9 +157,7 @@ export function LearnHoverPreview() {
         {/* Play Button Overlay */}
         <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
           <div className="p-4 rounded-full bg-white/90 shadow-lg">
-            <svg className="w-8 h-8 text-neutral-900 ml-1" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-            </svg>
+            <PlaySolidIcon size="lg" className="text-neutral-900 ml-0.5 w-8 h-8" />
           </div>
         </div>
       </>

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'motion/react';
 import { Button, Badge, Card, CardContent } from '@/components/atoms';
+import { PlaySolidIcon, LockIcon } from '@/components/icons';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 import { getCourseById } from '@/features/learn/data/courses';
 import { VideoPlayer } from '@/features/learn/components/VideoPlayer';
@@ -210,31 +211,9 @@ export default function CoursePage({ params }: CoursePageProps) {
                               </div>
                               <div className="flex-shrink-0">
                                 {hasAccess ? (
-                                  <svg
-                                    className="w-5 h-5 text-primary-500"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                  >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
+                                  <PlaySolidIcon size="md" className="text-primary-500" />
                                 ) : (
-                                  <svg
-                                    className="w-5 h-5 text-neutral-500"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                                    />
-                                  </svg>
+                                  <LockIcon size="md" className="text-neutral-500" />
                                 )}
                               </div>
                             </div>
@@ -262,17 +241,7 @@ export default function CoursePage({ params }: CoursePageProps) {
                   />
                   <div className="absolute inset-0 flex items-center justify-center bg-black/40">
                     <div className="p-4 rounded-full bg-white/90">
-                      <svg
-                        className="w-8 h-8 text-neutral-900"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
+                      <PlaySolidIcon size="lg" className="w-8 h-8 text-neutral-900" />
                     </div>
                   </div>
                 </div>

@@ -3,6 +3,15 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
+import {
+  XIcon as CloseIcon,
+  PlaySolidIcon,
+  PauseIcon as PauseIconGlobal,
+  VolumeUpIcon,
+  VolumeOffIcon,
+  ExpandIcon,
+  MenuIcon,
+} from '@/components/icons';
 import type { Course, Lesson, Chapter } from '../types';
 import { getAllLessons } from '../types';
 
@@ -42,6 +51,12 @@ interface YTPlayer {
   getPlaybackRate: () => number;
   setPlaybackRate: (rate: number) => void;
   getAvailablePlaybackRates: () => number[];
+  setVolume: (volume: number) => void;
+  getVolume: () => number;
+  isMuted: () => boolean;
+  mute: () => void;
+  unMute: () => void;
+  getVideoLoadedFraction: () => number;
   setOption: (module: string, option: string, value: unknown) => void;
   loadVideoById: (videoId: string) => void;
   destroy: () => void;
@@ -93,6 +108,9 @@ export function VideoPlayer({
   const [reportDescription, setReportDescription] = useState('');
   const [wasPlayingBeforeReport, setWasPlayingBeforeReport] = useState(false);
   const [prevEpisodeTapCount, setPrevEpisodeTapCount] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(100);
+  const [bufferedProgress, setBufferedProgress] = useState(0);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -182,6 +200,10 @@ export function VideoPlayer({
     progressIntervalRef.current = setInterval(() => {
       if (ytPlayer && ytPlayer.getCurrentTime) {
         setCurrentTime(ytPlayer.getCurrentTime());
+        // Track buffered progress
+        if (ytPlayer.getVideoLoadedFraction) {
+          setBufferedProgress(ytPlayer.getVideoLoadedFraction() * 100);
+        }
       }
     }, 500);
   }, []);
@@ -252,6 +274,19 @@ export function VideoPlayer({
         case 'P':
           e.preventDefault();
           goToPrevEpisode();
+          break;
+        case 'm':
+        case 'M':
+          e.preventDefault();
+          toggleMute();
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          adjustVolume(10);
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          adjustVolume(-10);
           break;
         case 'Escape':
           if (showReportModal) {
@@ -347,6 +382,34 @@ export function VideoPlayer({
     if (player) {
       player.setOption('captions', 'track', captionsEnabled ? {} : { languageCode: 'en' });
     }
+  };
+
+  // Volume control
+  const toggleMute = () => {
+    if (!player) return;
+    if (isMuted) {
+      player.unMute();
+      player.setVolume(volume);
+      setIsMuted(false);
+    } else {
+      player.mute();
+      setIsMuted(true);
+    }
+    resetControlsTimeout();
+  };
+
+  const adjustVolume = (delta: number) => {
+    if (!player) return;
+    const newVolume = Math.max(0, Math.min(100, volume + delta));
+    setVolume(newVolume);
+    player.setVolume(newVolume);
+    if (newVolume === 0) {
+      setIsMuted(true);
+    } else if (isMuted) {
+      player.unMute();
+      setIsMuted(false);
+    }
+    resetControlsTimeout();
   };
 
   // Playback speed control
@@ -562,7 +625,7 @@ export function VideoPlayer({
               onClick={(e) => e.stopPropagation()}
             >
               {/* Top gradient */}
-              <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/80 to-transparent pointer-events-auto">
+              <div className="absolute top-0 left-0 right-0 h-36 bg-gradient-to-b from-black/80 to-transparent pointer-events-auto">
                 {/* Close button */}
                 <CloseButton onClick={handleClose} />
 
@@ -570,9 +633,9 @@ export function VideoPlayer({
                 <ReportButton onClick={openReportModal} />
 
                 {/* Current Episode Title */}
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 text-center">
-                  <p className="text-neutral-400 text-sm">{course.title}</p>
-                  <p className="text-white font-medium">
+                <div className="absolute top-5 left-1/2 -translate-x-1/2 text-center">
+                  <p className="text-neutral-400 text-base">{course.title}</p>
+                  <p className="text-white font-semibold text-lg">
                     {currentLessonIndex === -1
                       ? (course.trailer?.title || 'Trailer')
                       : (allLessons[currentLessonIndex]?.title || 'Now Playing')}
@@ -581,24 +644,31 @@ export function VideoPlayer({
               </div>
 
               {/* Bottom Controls */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-20 pb-6 px-6 pointer-events-auto">
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-24 pb-8 px-8 pointer-events-auto">
                 {/* Progress Bar */}
                 <div
-                  className="relative h-1 bg-neutral-700 rounded-full mb-4 cursor-pointer group"
+                  className="relative h-1.5 bg-neutral-700 rounded-full mb-5 cursor-pointer group"
                   onClick={handleProgressClick}
                 >
+                  {/* Buffered indicator */}
+                  <div
+                    className="absolute h-full bg-neutral-500 rounded-full"
+                    style={{ width: `${bufferedProgress}%` }}
+                  />
+                  {/* Current progress */}
                   <div
                     className="absolute h-full bg-primary-500 rounded-full transition-all"
                     style={{ width: `${(currentTime / duration) * 100}%` }}
                   />
+                  {/* Scrubber handle */}
                   <div
-                    className="absolute w-3 h-3 bg-primary-500 rounded-full -top-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                    style={{ left: `calc(${(currentTime / duration) * 100}% - 6px)` }}
+                    className="absolute w-4 h-4 bg-primary-500 rounded-full -top-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ left: `calc(${(currentTime / duration) * 100}% - 8px)` }}
                   />
                 </div>
 
                 {/* Time Display */}
-                <div className="flex items-center justify-between mb-4 text-sm text-neutral-300">
+                <div className="flex items-center justify-between mb-4 text-base text-neutral-300">
                   <span>{formatTime(currentTime)}</span>
                   <span>{formatTime(duration)}</span>
                 </div>
@@ -610,51 +680,89 @@ export function VideoPlayer({
                     {/* Play/Pause */}
                     <ControlButton
                       onClick={togglePlay}
-                      label={isPlaying ? 'Pause' : 'Play'}
+                      label={isPlaying ? 'Pause (Space)' : 'Play (Space)'}
                     >
                       {isPlaying ? (
-                        <PauseIcon className="w-7 h-7" />
+                        <PauseIconGlobal size="lg" className="w-8 h-8" />
                       ) : (
-                        <PlayIcon className="w-7 h-7" />
+                        <PlaySolidIcon size="lg" className="w-8 h-8" />
                       )}
                     </ControlButton>
 
                     {/* Rewind 10s */}
                     <ControlButton onClick={seekBackward} label="Rewind 10s (←)">
-                      <Rewind10Icon className="w-6 h-6" />
+                      <Rewind10Icon className="w-7 h-7" />
                     </ControlButton>
 
                     {/* Forward 10s */}
                     <ControlButton onClick={seekForward} label="Forward 10s (→)">
-                      <Forward10Icon className="w-6 h-6" />
+                      <Forward10Icon className="w-7 h-7" />
                     </ControlButton>
 
-                    <div className="w-px h-6 bg-neutral-700" />
+                    {/* Volume */}
+                    <ControlButton
+                      onClick={toggleMute}
+                      label={isMuted ? 'Unmute (M)' : 'Mute (M)'}
+                    >
+                      {isMuted || volume === 0 ? (
+                        <VolumeOffIcon size="lg" className="w-7 h-7" />
+                      ) : (
+                        <VolumeUpIcon size="lg" className="w-7 h-7" />
+                      )}
+                    </ControlButton>
+                  </div>
 
+                  {/* Center: Prev + Episode Title + Next */}
+                  <div className="hidden sm:flex items-center gap-4">
                     {/* Previous Episode */}
                     <ControlButton
                       onClick={goToPrevEpisode}
-                      label="Previous (P)"
+                      label="Previous episode (P)"
                       disabled={!canGoPrev}
                     >
-                      <PrevEpisodeIcon className="w-5 h-5" />
+                      <PrevEpisodeIcon className="w-6 h-6" />
                     </ControlButton>
+
+                    {/* Episode info */}
+                    <div className="text-center min-w-[160px]">
+                      <p className="text-base text-white font-medium truncate max-w-[220px]">
+                        {currentLessonIndex === -1
+                          ? 'Trailer'
+                          : allLessons[currentLessonIndex]?.title || 'Now Playing'}
+                      </p>
+                      <p className="text-sm text-neutral-500">
+                        {currentLessonIndex === -1
+                          ? course.title
+                          : `Episode ${currentLessonIndex + 1} of ${totalEpisodes}`}
+                      </p>
+                    </div>
 
                     {/* Next Episode */}
                     <ControlButton
                       onClick={goToNextEpisode}
-                      label="Next (N)"
+                      label="Next episode (N)"
                       disabled={!canGoNext}
                     >
-                      <NextEpisodeIcon className="w-5 h-5" />
+                      <NextEpisodeIcon className="w-6 h-6" />
                     </ControlButton>
                   </div>
 
-                  {/* Center: Episode info */}
-                  <div className="hidden sm:flex items-center gap-2 text-sm text-neutral-300">
-                    <span className="text-neutral-500">
-                      {currentLessonIndex === -1 ? 'Trailer' : `Episode ${currentLessonIndex + 1} of ${totalEpisodes}`}
-                    </span>
+                  {/* Mobile: Prev/Next only */}
+                  <div className="flex sm:hidden items-center gap-3">
+                    <ControlButton
+                      onClick={goToPrevEpisode}
+                      label="Previous"
+                      disabled={!canGoPrev}
+                    >
+                      <PrevEpisodeIcon className="w-6 h-6" />
+                    </ControlButton>
+                    <ControlButton
+                      onClick={goToNextEpisode}
+                      label="Next"
+                      disabled={!canGoNext}
+                    >
+                      <NextEpisodeIcon className="w-6 h-6" />
+                    </ControlButton>
                   </div>
 
                   {/* Right side controls */}
@@ -673,7 +781,7 @@ export function VideoPlayer({
                       label="Episodes"
                       active={showEpisodes}
                     >
-                      <EpisodeIcon className="w-5 h-5" />
+                      <MenuIcon size="lg" />
                     </ControlButton>
 
                     {/* Captions */}
@@ -682,7 +790,7 @@ export function VideoPlayer({
                       label="Captions (C)"
                       active={captionsEnabled}
                     >
-                      <CaptionsIcon className="w-5 h-5" />
+                      <CaptionsIcon className="w-6 h-6" />
                     </ControlButton>
 
                     {/* Fullscreen */}
@@ -691,9 +799,9 @@ export function VideoPlayer({
                       label={isFullscreen ? 'Exit fullscreen (F)' : 'Fullscreen (F)'}
                     >
                       {isFullscreen ? (
-                        <ExitFullscreenIcon className="w-5 h-5" />
+                        <ExitFullscreenIcon className="w-6 h-6" />
                       ) : (
-                        <FullscreenIcon className="w-5 h-5" />
+                        <FullscreenIcon className="w-6 h-6" />
                       )}
                     </ControlButton>
                   </div>
@@ -739,14 +847,14 @@ function CloseButton({ onClick }: { onClick: () => void }) {
   const [showTooltip, setShowTooltip] = useState(false);
 
   return (
-    <div className="absolute top-4 left-4">
+    <div className="absolute top-5 left-5">
       <button
         onClick={onClick}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
-        className="p-2 rounded-full bg-neutral-900/50 hover:bg-neutral-800 transition-colors"
+        className="p-3 rounded-full bg-neutral-900/50 hover:bg-neutral-800 transition-colors"
       >
-        <XIcon className="w-6 h-6 text-white" />
+        <CloseIcon size="lg" className="w-7 h-7 text-white" />
       </button>
       <AnimatePresence>
         {showTooltip && (
@@ -755,7 +863,7 @@ function CloseButton({ onClick }: { onClick: () => void }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 bg-neutral-800 text-white text-sm rounded-lg whitespace-nowrap pointer-events-none z-50"
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 bg-neutral-800 text-white text-base rounded-lg whitespace-nowrap pointer-events-none z-50"
           >
             Close (Esc)
             <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-neutral-800" />
@@ -798,8 +906,8 @@ function ControlButton({
         className={cn(
           'rounded-full transition-all text-white',
           size === 'lg'
-            ? 'p-4 bg-white/20 hover:bg-white/30'
-            : 'p-2.5 hover:bg-white/10',
+            ? 'p-5 bg-white/20 hover:bg-white/30'
+            : 'p-3 hover:bg-white/10',
           active && 'text-primary-400',
           disabled
             ? 'opacity-40 cursor-not-allowed'
@@ -815,7 +923,7 @@ function ControlButton({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.15 }}
-            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-neutral-800 text-white text-sm rounded-lg whitespace-nowrap pointer-events-none z-50"
+            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-neutral-800 text-white text-base rounded-lg whitespace-nowrap pointer-events-none z-50"
           >
             {label}
             <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-800" />
@@ -862,7 +970,7 @@ function EpisodeDrawer({
           }}
           className="p-2 hover:bg-neutral-800 rounded-full transition-colors"
         >
-          <XIcon className="w-5 h-5 text-neutral-400 hover:text-white transition-colors" />
+          <CloseIcon size="md" className="text-neutral-400 hover:text-white transition-colors" />
         </button>
       </div>
 
@@ -964,30 +1072,7 @@ function EpisodeDrawer({
   );
 }
 
-// Icons
-function XIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-    </svg>
-  );
-}
-
-function PlayIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-      <path d="M8 5v14l11-7z" />
-    </svg>
-  );
-}
-
-function PauseIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-    </svg>
-  );
-}
+// Custom Media Player Icons (specialized icons not in the main icon system)
 
 function Rewind10Icon({ className }: { className?: string }) {
   return (
@@ -1007,13 +1092,6 @@ function Forward10Icon({ className }: { className?: string }) {
   );
 }
 
-function EpisodeIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-    </svg>
-  );
-}
 
 function CaptionsIcon({ className }: { className?: string }) {
   return (
@@ -1054,6 +1132,7 @@ function ExitFullscreenIcon({ className }: { className?: string }) {
   );
 }
 
+
 function PrevEpisodeIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="currentColor" viewBox="0 0 24 24">
@@ -1088,7 +1167,7 @@ function ReportButton({ onClick }: { onClick: () => void }) {
   const [showTooltip, setShowTooltip] = useState(false);
 
   return (
-    <div className="absolute top-4 right-4">
+    <div className="absolute top-5 right-5">
       <button
         onClick={(e) => {
           e.stopPropagation();
@@ -1097,9 +1176,9 @@ function ReportButton({ onClick }: { onClick: () => void }) {
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
         aria-label="Report issue"
-        className="p-2 rounded-full bg-neutral-900/50 hover:bg-neutral-800 transition-colors"
+        className="p-3 rounded-full bg-neutral-900/50 hover:bg-neutral-800 transition-colors"
       >
-        <FlagIcon className="w-5 h-5 text-white" />
+        <FlagIcon className="w-6 h-6 text-white" />
       </button>
       <AnimatePresence>
         {showTooltip && (
@@ -1108,7 +1187,7 @@ function ReportButton({ onClick }: { onClick: () => void }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-full right-0 mt-2 px-3 py-1.5 bg-neutral-800 text-white text-sm rounded-lg whitespace-nowrap pointer-events-none z-50"
+            className="absolute top-full right-0 mt-2 px-3 py-1.5 bg-neutral-800 text-white text-base rounded-lg whitespace-nowrap pointer-events-none z-50"
           >
             Report issue
             <div className="absolute bottom-full right-4 border-4 border-transparent border-b-neutral-800" />
@@ -1140,7 +1219,7 @@ function SpeedButton({
         }}
         aria-label={`Playback speed: ${speed}x`}
         className={cn(
-          'px-2.5 py-1.5 rounded-md text-sm font-medium transition-all',
+          'px-3 py-2 rounded-lg text-base font-medium transition-all',
           'hover:bg-white/10 active:scale-95',
           isOpen ? 'bg-white/20 text-primary-400' : 'text-white'
         )}
@@ -1155,16 +1234,16 @@ function SpeedButton({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute bottom-full right-0 mb-2 bg-neutral-900 border border-neutral-700 rounded-lg shadow-xl overflow-hidden z-50"
+            className="absolute bottom-full right-0 mb-3 bg-neutral-900 border border-neutral-700 rounded-xl shadow-xl overflow-hidden z-50"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="py-1">
+            <div className="py-2">
               {PLAYBACK_SPEEDS.map((s) => (
                 <button
                   key={s}
                   onClick={() => onSelect(s)}
                   className={cn(
-                    'w-full px-4 py-2 text-sm text-left transition-colors',
+                    'w-full px-5 py-2.5 text-base text-left transition-colors',
                     s === speed
                       ? 'bg-primary-500/20 text-primary-400'
                       : 'text-white hover:bg-white/10'
@@ -1225,7 +1304,7 @@ function ReportModal({
             onClick={onClose}
             className="p-1.5 hover:bg-neutral-800 rounded-full transition-colors"
           >
-            <XIcon className="w-5 h-5 text-neutral-400" />
+            <CloseIcon size="md" className="text-neutral-400" />
           </button>
         </div>
 

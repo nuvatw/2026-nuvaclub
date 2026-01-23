@@ -15,16 +15,19 @@ import {
   getCurrentSeason,
   getSprintsBySeasonId,
   getProjectsWithSeasonInfo,
-} from '@/features/sprint/data/sprints';
+} from '@/mocks';
 import type { SortOption, SeasonFilter } from '@/features/sprint/types';
 import { PageTransition } from '@/components/molecules/PageTransition';
+import { SearchBar } from '@/components/molecules';
 import { SprintPageSkeleton } from '@/components/skeletons';
 import { formatDateCompact, formatDateRange } from '@/lib/utils/date';
+import { FolderIcon, SearchIcon } from '@/components/icons';
 
 export default function SprintPage() {
   const [selectedSeason, setSelectedSeason] = useState<SeasonFilter>('all');
   const [selectedSprint, setSelectedSprint] = useState<SprintFilter>('all');
   const [sortBy, setSortBy] = useState<SortOption>('most-viewed');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Get current season
   const currentSeason = getCurrentSeason();
@@ -71,6 +74,16 @@ export default function SprintPage() {
       projects = projects.filter((p) => p.sprintId === selectedSprint);
     }
 
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      projects = projects.filter((p) =>
+        p.title.toLowerCase().includes(query) ||
+        p.author.name.toLowerCase().includes(query) ||
+        p.description?.toLowerCase().includes(query)
+      );
+    }
+
     // Apply sorting
     return projects.sort((a, b) => {
       if (sortBy === 'most-viewed') {
@@ -79,7 +92,9 @@ export default function SprintPage() {
         return b.starCount - a.starCount;
       }
     });
-  }, [allProjectsWithSeasonInfo, pastSeasons, selectedSeason, selectedSprint, sortBy]);
+  }, [allProjectsWithSeasonInfo, pastSeasons, selectedSeason, selectedSprint, sortBy, searchQuery]);
+
+  const isSearching = searchQuery.trim().length > 0;
 
   return (
     <PageTransition skeleton={<SprintPageSkeleton />}>
@@ -183,7 +198,7 @@ export default function SprintPage() {
         {/* Section 2: Project Library - Grid with Filters */}
         <section className="py-12">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Library Header with Filters */}
+            {/* Library Header with Search and Filters */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -195,19 +210,32 @@ export default function SprintPage() {
                   Project Library
                 </h2>
                 <p className="text-neutral-400">
-                  Browse {archivedProjects.length} projects from previous seasons (2024 Q1 - 2025 Q4)
+                  {isSearching
+                    ? `Found ${archivedProjects.length} project${archivedProjects.length !== 1 ? 's' : ''} matching "${searchQuery}"`
+                    : `Browse ${archivedProjects.length} projects from previous seasons`}
                 </p>
               </div>
-              <SprintFilters
-                seasons={pastSeasons}
-                sprints={pastSprints}
-                selectedSeason={selectedSeason}
-                onSeasonChange={setSelectedSeason}
-                selectedSprint={selectedSprint}
-                onSprintChange={setSelectedSprint}
-                sortBy={sortBy}
-                onSortChange={setSortBy}
-              />
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1 max-w-md">
+                  <SearchBar
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    placeholder="Search projects by title or author..."
+                    showButton={false}
+                    size="md"
+                  />
+                </div>
+                <SprintFilters
+                  seasons={pastSeasons}
+                  sprints={pastSprints}
+                  selectedSeason={selectedSeason}
+                  onSeasonChange={setSelectedSeason}
+                  selectedSprint={selectedSprint}
+                  onSprintChange={setSelectedSprint}
+                  sortBy={sortBy}
+                  onSortChange={setSortBy}
+                />
+              </div>
             </motion.div>
 
             {/* Projects Grid */}
@@ -226,22 +254,34 @@ export default function SprintPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-16 text-neutral-500">
-                <svg
-                  className="w-16 h-16 mx-auto mb-4 text-neutral-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                  />
-                </svg>
-                <p className="text-lg">No projects match the selected filters</p>
-                <p className="text-sm mt-2">Try adjusting your filter criteria</p>
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="w-16 h-16 rounded-full bg-neutral-800 flex items-center justify-center mb-4">
+                  {isSearching ? (
+                    <SearchIcon size="lg" className="text-neutral-500" />
+                  ) : (
+                    <FolderIcon size="lg" className="text-neutral-500" />
+                  )}
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">
+                  No projects found
+                </h3>
+                <p className="text-neutral-400 max-w-md mb-4">
+                  {isSearching
+                    ? `No projects match "${searchQuery}". Try different search terms.`
+                    : 'No projects match the selected filters. Try adjusting your criteria.'}
+                </p>
+                {(isSearching || selectedSeason !== 'all' || selectedSprint !== 'all') && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedSeason('all');
+                      setSelectedSprint('all');
+                    }}
+                    className="text-primary-400 hover:text-primary-300 transition-colors font-medium"
+                  >
+                    Clear all filters
+                  </button>
+                )}
               </div>
             )}
           </div>

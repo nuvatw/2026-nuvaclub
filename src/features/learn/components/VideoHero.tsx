@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button, Badge } from '@/components/atoms';
 import { VideoPlayer } from './VideoPlayer';
+import { PlaySolidIcon, InformationCircleIcon } from '@/components/icons';
 import type { Course } from '@/features/learn/types';
 import { LEVEL_LABELS, LEVEL_BADGE_VARIANTS } from '@/features/learn/types';
 
@@ -72,19 +73,7 @@ export function VideoHero({ course, videoId }: VideoHeroProps) {
               <Button
                 size="lg"
                 onClick={handleStartLearning}
-                leftIcon={
-                  <svg
-                    className="w-5 h-5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                }
+                leftIcon={<PlaySolidIcon size="md" />}
               >
                 Start Learning
               </Button>
@@ -92,21 +81,7 @@ export function VideoHero({ course, videoId }: VideoHeroProps) {
                 <Button
                   variant="secondary"
                   size="lg"
-                  leftIcon={
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  }
+                  leftIcon={<InformationCircleIcon size="md" />}
                 >
                   Course Details
                 </Button>
