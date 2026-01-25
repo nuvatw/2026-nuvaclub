@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button, Badge } from '@/components/atoms';
 import type { Course } from '@/features/learn/types';
-import { LEVEL_LABELS, LEVEL_BADGE_VARIANTS } from '@/features/learn/types';
+import { LEVEL_BADGE_VARIANTS } from '@/features/learn/types';
+import { getLvLabel } from '@/lib/utils/level';
 import { cn } from '@/lib/utils';
 
 interface HeroCarouselProps {
@@ -82,8 +83,8 @@ export function HeroCarousel({
           >
             <div className="flex items-center gap-2 mb-4">
               <Badge variant="primary">{currentCourse.category}</Badge>
-              <Badge variant={LEVEL_BADGE_VARIANTS[currentCourse.level]}>
-                {LEVEL_LABELS[currentCourse.level]}
+              <Badge variant={LEVEL_BADGE_VARIANTS[currentCourse.level]} size="md">
+                {getLvLabel(currentCourse.level)}
               </Badge>
               {currentCourse.level === 1 && (
                 <Badge variant="success">Free</Badge>

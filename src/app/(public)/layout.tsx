@@ -1,4 +1,4 @@
-import { Navbar } from '@/components/organisms';
+import { Navbar, Footer } from '@/components/organisms';
 
 export default function PublicLayout({
   children,
@@ -6,9 +6,10 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className="pt-16 min-h-screen">{children}</main>
-    </>
+      <main className="pt-16 flex-1">{children}</main>
+      <Footer />
+    </div>
   );
 }

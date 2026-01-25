@@ -51,7 +51,7 @@ export function SprintFilters({
 
   const sortOptions: { value: SortOption; label: string }[] = [
     { value: 'most-viewed', label: 'Most Viewed' },
-    { value: 'most-starred', label: 'Most Starred' },
+    { value: 'most-starred', label: 'Most Voted' },
   ];
 
   return (

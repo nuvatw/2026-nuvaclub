@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState, useEffect } from 'react';
 import type { ModuleType } from '@/data/types';
 import type { WatchProgress } from '@/data/types/user';
 import { MOCK_USER_PROGRESS } from '@/data/user-data/progress';
+import { getEffectiveUserId } from '@/features/auth/components/AuthProvider';
 
 const PROGRESS_STORAGE_KEY = 'nuva-user-progress';
 
@@ -19,9 +20,20 @@ interface UserProgress {
   items: WatchProgress[];
 }
 
-export function useProgress(moduleType?: ModuleType) {
+/**
+ * Hook for managing user progress across modules.
+ * @param moduleType - Optional module type to filter progress
+ * @param currentUserId - The current user/account ID (e.g., 'test-explorer-solo-1' or 'user-1')
+ */
+export function useProgress(moduleType?: ModuleType, currentUserId?: string | null) {
   const [progress, setProgress] = useState<UserProgress>({ items: [] });
   const [isHydrated, setIsHydrated] = useState(false);
+
+  // Get the effective user ID for lookups (maps test account IDs to user IDs)
+  const effectiveUserId = useMemo(
+    () => getEffectiveUserId(currentUserId ?? null),
+    [currentUserId]
+  );
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -54,39 +66,64 @@ export function useProgress(moduleType?: ModuleType) {
   }, [progress, isHydrated]);
 
   const getItemsInProgress = useCallback(
-    (module: ModuleType, userId = 'user-1') => {
+    (module: ModuleType, userId?: string | null) => {
+      // Use provided userId, fall back to effectiveUserId from hook, then to 'user-1'
+      const resolvedUserId = getEffectiveUserId(userId ?? null) ?? effectiveUserId ?? 'user-1';
       const validTypes = MODULE_ITEM_TYPES[module] || [];
 
       return progress.items
         .filter(
           (item) =>
-            item.userId === userId &&
+            item.userId === resolvedUserId &&
             validTypes.includes(item.itemType) &&
             item.progressPercent > 0 &&
             item.progressPercent < 100
         )
         .sort((a, b) => b.lastWatchedAt.getTime() - a.lastWatchedAt.getTime());
     },
-    [progress.items]
+    [progress.items, effectiveUserId]
+  );
+
+  const getCompletedItems = useCallback(
+    (module: ModuleType, userId?: string | null) => {
+      const resolvedUserId = getEffectiveUserId(userId ?? null) ?? effectiveUserId ?? 'user-1';
+      const validTypes = MODULE_ITEM_TYPES[module] || [];
+
+      return progress.items
+        .filter(
+          (item) =>
+            item.userId === resolvedUserId &&
+            validTypes.includes(item.itemType) &&
+            item.progressPercent === 100
+        )
+        .sort((a, b) => {
+          const aTime = a.completedAt?.getTime() || 0;
+          const bTime = b.completedAt?.getTime() || 0;
+          return bTime - aTime;
+        });
+    },
+    [progress.items, effectiveUserId]
   );
 
   const hasProgress = useCallback(
-    (module: ModuleType, userId = 'user-1') => {
+    (module: ModuleType, userId?: string | null) => {
+      const resolvedUserId = getEffectiveUserId(userId ?? null) ?? effectiveUserId ?? 'user-1';
       const validTypes = MODULE_ITEM_TYPES[module] || [];
 
       return progress.items.some(
         (item) =>
-          item.userId === userId && validTypes.includes(item.itemType) && item.progressPercent > 0
+          item.userId === resolvedUserId && validTypes.includes(item.itemType) && item.progressPercent > 0
       );
     },
-    [progress.items]
+    [progress.items, effectiveUserId]
   );
 
   const getItemProgress = useCallback(
-    (itemId: string, userId = 'user-1') => {
-      return progress.items.find((item) => item.itemId === itemId && item.userId === userId);
+    (itemId: string, userId?: string | null) => {
+      const resolvedUserId = getEffectiveUserId(userId ?? null) ?? effectiveUserId ?? 'user-1';
+      return progress.items.find((item) => item.itemId === itemId && item.userId === resolvedUserId);
     },
-    [progress.items]
+    [progress.items, effectiveUserId]
   );
 
   const updateProgress = useCallback(
@@ -95,17 +132,19 @@ export function useProgress(moduleType?: ModuleType) {
       itemType: WatchProgress['itemType'],
       progressValue: number,
       totalDuration: number,
-      userId = 'user-1'
+      userId?: string | null
     ) => {
+      const resolvedUserId = getEffectiveUserId(userId ?? null) ?? effectiveUserId ?? 'user-1';
+
       setProgress((prev) => {
         const existingIndex = prev.items.findIndex(
-          (item) => item.itemId === itemId && item.userId === userId
+          (item) => item.itemId === itemId && item.userId === resolvedUserId
         );
 
         const newItem: WatchProgress = {
           itemId,
           itemType,
-          userId,
+          userId: resolvedUserId,
           progressPercent: Math.min(100, Math.max(0, progressValue)),
           currentPosition: Math.round((progressValue / 100) * totalDuration),
           totalDuration,
@@ -122,18 +161,21 @@ export function useProgress(moduleType?: ModuleType) {
         return { items: [...prev.items, newItem] };
       });
     },
-    []
+    [effectiveUserId]
   );
 
+  // Module items filtered by current user
   const moduleItems = useMemo(
-    () => (moduleType ? getItemsInProgress(moduleType) : []),
-    [moduleType, getItemsInProgress]
+    () => (moduleType && effectiveUserId ? getItemsInProgress(moduleType, effectiveUserId) : []),
+    [moduleType, effectiveUserId, getItemsInProgress]
   );
 
   return {
     progress,
     isHydrated,
+    effectiveUserId,
     getItemsInProgress,
+    getCompletedItems,
     hasProgress,
     getItemProgress,
     updateProgress,

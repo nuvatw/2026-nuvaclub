@@ -1,13 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button, Badge } from '@/components/atoms';
 import { VideoPlayer } from './VideoPlayer';
 import { PlaySolidIcon, InformationCircleIcon } from '@/components/icons';
 import type { Course } from '@/features/learn/types';
-import { LEVEL_LABELS, LEVEL_BADGE_VARIANTS } from '@/features/learn/types';
+import { LEVEL_BADGE_VARIANTS, getAllLessons } from '@/features/learn/types';
+import { getLvLabel } from '@/lib/utils/level';
+import { useAuth } from '@/features/auth/components/AuthProvider';
+import { useVideoProgress } from '@/lib/db/hooks';
 
 interface VideoHeroProps {
   course: Course;
@@ -16,18 +19,78 @@ interface VideoHeroProps {
 
 export function VideoHero({ course, videoId }: VideoHeroProps) {
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
+  const [playerLessonIndex, setPlayerLessonIndex] = useState(-1);
+  const [playerStartSeconds, setPlayerStartSeconds] = useState(0);
+
+  const { currentAccountId } = useAuth();
+
+  // Video progress hook
+  const userId = currentAccountId !== 'guest' ? currentAccountId : null;
+  const {
+    getResumePoint,
+    saveTrailerProgress,
+    saveLessonProgress,
+    getCourseProgress,
+  } = useVideoProgress(userId);
+
+  // Get all lessons for progress saving
+  const allLessons = useMemo(() => getAllLessons(course), [course]);
+
+  // Calculate course progress
+  const courseProgress = getCourseProgress(course.id, allLessons.length);
+
+  // Get video ID based on lesson index
+  const getVideoId = useCallback(
+    (lessonIndex: number): string => {
+      if (lessonIndex === -1) {
+        return course.trailer?.youtubeId || '';
+      }
+      return allLessons[lessonIndex]?.videoUrl || course.trailer?.youtubeId || '';
+    },
+    [course.trailer?.youtubeId, allLessons]
+  );
 
   // Get trailer video ID for background
   const backgroundVideoId = videoId || course.trailer?.youtubeId || '0kARDVL2nZg';
 
-  // Start Learning always plays the trailer first (index -1 represents trailer)
+  // Handle progress updates from VideoPlayer
+  const handleProgressUpdate = useCallback(
+    (lessonIndex: number, currentSeconds: number, totalDuration: number) => {
+      if (lessonIndex === -1) {
+        saveTrailerProgress(course.id, currentSeconds, totalDuration);
+      } else {
+        const lesson = allLessons[lessonIndex];
+        if (lesson) {
+          saveLessonProgress(course.id, lesson.id, lessonIndex, currentSeconds, totalDuration);
+        }
+      }
+    },
+    [course.id, allLessons, saveTrailerProgress, saveLessonProgress]
+  );
+
+  // Start Learning with resume functionality
   const handleStartLearning = () => {
+    const resumePoint = getResumePoint(course.id, course.trailer?.duration || 120);
+    setPlayerLessonIndex(resumePoint.lessonIndex);
+    setPlayerStartSeconds(resumePoint.startSeconds);
     setIsPlayerOpen(true);
   };
 
+  // Determine button text based on progress
+  const getButtonText = () => {
+    const resumePoint = getResumePoint(course.id, course.trailer?.duration || 120);
+    if (!resumePoint.hasAnyProgress) return 'Start Learning';
+    if (courseProgress === 100) return 'Watch Again';
+    return 'Continue Learning';
+  };
+
+  // Current video ID for the player
+  const currentVideoId = getVideoId(playerLessonIndex);
+
   return (
     <>
-      <div className="relative h-[70vh] min-h-[500px] max-h-[700px] overflow-hidden">
+      {/* Large hero - only 1 row visible below */}
+      <div className="relative h-[65vh] min-h-[450px] max-h-[650px] overflow-hidden">
         {/* YouTube Video Background - Priority loading */}
         <div className="absolute inset-0">
           <iframe
@@ -44,16 +107,25 @@ export function VideoHero({ course, videoId }: VideoHeroProps) {
           <div className="absolute inset-0 bg-neutral-950/30" />
         </div>
 
-        {/* Content */}
-        <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
+        {/* Content - uses app gutter for consistent left alignment with header brand */}
+        <div
+          className="relative h-full w-full flex items-center"
+          style={{ paddingLeft: 'var(--app-gutter)', paddingRight: 'var(--app-gutter)' }}
+        >
           <div className="max-w-2xl">
             <div className="flex items-center gap-2 mb-4">
               <Badge variant="primary">{course.category}</Badge>
-              <Badge variant={LEVEL_BADGE_VARIANTS[course.level]}>
-                {LEVEL_LABELS[course.level]}
+              <Badge variant={LEVEL_BADGE_VARIANTS[course.level]} size="md">
+                {getLvLabel(course.level)}
               </Badge>
               {course.level === 1 && (
                 <Badge variant="success">Free</Badge>
+              )}
+              {courseProgress > 0 && courseProgress < 100 && (
+                <Badge variant="default">{courseProgress}% Complete</Badge>
+              )}
+              {courseProgress === 100 && (
+                <Badge variant="success">Completed</Badge>
               )}
             </div>
 
@@ -75,7 +147,7 @@ export function VideoHero({ course, videoId }: VideoHeroProps) {
                 onClick={handleStartLearning}
                 leftIcon={<PlaySolidIcon size="md" />}
               >
-                Start Learning
+                {getButtonText()}
               </Button>
               <Link href={`/learn/${course.id}`}>
                 <Button
@@ -108,14 +180,18 @@ export function VideoHero({ course, videoId }: VideoHeroProps) {
         </div>
       </div>
 
-      {/* Fullscreen Video Player - starts at trailer (index -1) */}
-      <VideoPlayer
-        course={course}
-        videoId={course.trailer?.youtubeId || backgroundVideoId}
-        isOpen={isPlayerOpen}
-        onClose={() => setIsPlayerOpen(false)}
-        initialLessonIndex={-1}
-      />
+      {/* Fullscreen Video Player with resume functionality */}
+      {currentVideoId && (
+        <VideoPlayer
+          course={course}
+          videoId={currentVideoId}
+          isOpen={isPlayerOpen}
+          onClose={() => setIsPlayerOpen(false)}
+          initialLessonIndex={playerLessonIndex}
+          initialStartSeconds={playerStartSeconds}
+          onProgressUpdate={handleProgressUpdate}
+        />
+      )}
     </>
   );
 }

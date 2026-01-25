@@ -90,9 +90,9 @@ export const DUO_TIER_CONFIG: Record<
     price: 4990,
     maxCompanions: 999, // Unlimited
     companionType: 'shangzhe',
-    color: 'text-purple-400',
-    bgColor: 'bg-purple-500/10',
-    borderColor: 'border-purple-500/30',
+    color: 'text-red-400',
+    bgColor: 'bg-red-500/10',
+    borderColor: 'border-red-500/30',
     features: [
       'Enter Space',
       'Access Shangzhe (Founders)',

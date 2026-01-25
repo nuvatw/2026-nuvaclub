@@ -121,3 +121,38 @@ export function formatDateWithTime(date: Date | string, locale: SupportedLocale 
 export function formatDateRange(start: Date, end: Date, locale: SupportedLocale = 'en-US'): string {
   return `${formatDateCompact(start, locale)} - ${formatDateCompact(end, locale)}`;
 }
+
+/**
+ * Format a date as "YYYY MonthName" (e.g., "2026 October")
+ * Used for month grouping headers in event listings
+ */
+export function formatMonthYear(date: Date, locale: SupportedLocale = 'en-US'): string {
+  const d = date instanceof Date ? date : new Date(date);
+  const year = d.getFullYear();
+  const month = d.toLocaleDateString(locale, { month: 'long' });
+  return `${year} ${month}`;
+}
+
+/**
+ * Get the short weekday name (e.g., "Tue", "Wed")
+ */
+export function formatDayOfWeek(date: Date, locale: SupportedLocale = 'en-US'): string {
+  const d = date instanceof Date ? date : new Date(date);
+  return d.toLocaleDateString(locale, { weekday: 'short' });
+}
+
+/**
+ * Get the day of month as a number (e.g., 1, 15, 31)
+ */
+export function formatDayNumber(date: Date): number {
+  const d = date instanceof Date ? date : new Date(date);
+  return d.getDate();
+}
+
+/**
+ * Get year-month key for grouping (e.g., "2026-10")
+ */
+export function getMonthKey(date: Date): string {
+  const d = date instanceof Date ? date : new Date(date);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}

@@ -1,39 +1,15 @@
-import type { PlanFeature } from '@/features/shop/types';
-
 /**
  * Comparison Tables Configuration
  *
- * Feature comparison data for plans.
+ * Re-exports from the canonical source for backward compatibility.
+ * All plan comparison data is now defined in @/features/shop/data/comparisons.
  */
 
-export const PLAN_COMPARISON: PlanFeature[] = [
-  { feature: 'Browse first chapter', explorer: true, traveler: true },
-  { feature: 'Browse free courses', explorer: true, traveler: true },
-  { feature: 'Access all courses', explorer: false, traveler: true },
-  { feature: 'Forum comments & interaction', explorer: true, traveler: true },
-  { feature: 'Forum post articles', explorer: false, traveler: true },
-  { feature: 'Sprint browse projects', explorer: true, traveler: true },
-  { feature: 'Sprint upload projects', explorer: false, traveler: true },
-  { feature: 'Sprint voting', explorer: false, traveler: true },
-  { feature: 'Priority customer support', explorer: false, traveler: true },
-];
+export {
+  FEATURE_CATEGORIES,
+  PLAN_COMPARISON,
+  PLAN_INFO,
+  getFeaturesByCategory,
+} from '@/features/shop/data/comparisons';
 
-export const PLAN_INFO = {
-  explorer: {
-    name: 'Explorer',
-    price: 0,
-    priceLabel: 'FREE',
-    description: 'Start your exploration journey with free access to basic features',
-  },
-  traveler: {
-    name: 'Traveler',
-    price: 990,
-    priceLabel: '$990/mo',
-    description: 'Unlock full courses, forum posting, and Sprint participation',
-  },
-} as const;
-
-// Helper functions
-export const getPlanInfo = (planType: 'explorer' | 'traveler') => PLAN_INFO[planType];
-
-export const getPlanFeatures = () => PLAN_COMPARISON;
+export type { FeatureCategory, PlanFeature } from '@/features/shop/types';

@@ -17,7 +17,9 @@ export function useScrollPinnedPosition(
   // Store position in both ref (for stability) and state (for reactivity)
   const [pinnedPosition, setPinnedPosition] = useState<PinnedPosition | null>(null);
   const pinnedPositionRef = useRef<PinnedPosition | null>(null);
-  const isFirstCalculation = useRef(true);
+
+  // Track the card position that was used to calculate the current pinned position
+  // This allows us to detect when the card has changed (different position = different card)
   const lastCardPositionRef = useRef<CardPosition | null>(null);
 
   const calculatePosition = useCallback(
@@ -56,31 +58,40 @@ export function useScrollPinnedPosition(
     [mergedConfig]
   );
 
-  // Calculate position ONLY on first open - this is the key for scroll-pinned behavior
+  // Calculate position when cardPosition changes
+  // The position is pinned (not updated during scroll) until the card changes or closes
   useEffect(() => {
-    if (cardPosition && isFirstCalculation.current) {
-      // Check if this is actually a new card position (not just a re-render)
-      const isSamePosition =
-        lastCardPositionRef.current &&
-        lastCardPositionRef.current.top === cardPosition.top &&
-        lastCardPositionRef.current.left === cardPosition.left;
+    if (cardPosition) {
+      // Check if this is a different card position (different card being hovered)
+      const isDifferentCard =
+        !lastCardPositionRef.current ||
+        lastCardPositionRef.current.top !== cardPosition.top ||
+        lastCardPositionRef.current.left !== cardPosition.left ||
+        lastCardPositionRef.current.width !== cardPosition.width ||
+        lastCardPositionRef.current.height !== cardPosition.height;
 
-      if (!isSamePosition) {
+      if (isDifferentCard) {
+        // Calculate fresh position for the new card
         const position = calculatePosition(cardPosition);
         pinnedPositionRef.current = position;
         setPinnedPosition(position);
         lastCardPositionRef.current = cardPosition;
-        isFirstCalculation.current = false;
+      }
+    } else {
+      // Card position is null (preview closed) - reset everything
+      if (pinnedPositionRef.current !== null) {
+        pinnedPositionRef.current = null;
+        setPinnedPosition(null);
+        lastCardPositionRef.current = null;
       }
     }
   }, [cardPosition, calculatePosition]);
 
-  // Reset when preview closes
+  // Reset when preview closes (called by context)
   const resetPosition = useCallback(() => {
     setPinnedPosition(null);
     pinnedPositionRef.current = null;
     lastCardPositionRef.current = null;
-    isFirstCalculation.current = true;
   }, []);
 
   return { pinnedPosition, resetPosition };

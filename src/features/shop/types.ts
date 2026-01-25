@@ -1,21 +1,33 @@
 // Product type discriminators
-export type ProductType = 'plan' | 'event' | 'merchandise';
-export type ProductCategory = 'plan' | 'event' | 'merchant';
+export type ProductType = 'plan' | 'event' | 'merchandise' | 'duo';
+export type ProductCategory = 'plan' | 'event' | 'merchant' | 'duo';
 
-// Plan product (Explorer, Traveler)
+// Nunu tier types for Duo ticket matching access
+export type NunuTier = 'nunu' | 'verified_nunu' | 'super_nunu';
+
+// Duo ticket variants
+export type DuoVariant = 'go' | 'run' | 'fly';
+
+// Plan product (Explorer, Traveler, Voyager, Enterprise)
 export interface PlanProduct {
   id: string;
   type: 'plan';
-  planType: 'explorer' | 'traveler';
+  planType: 'explorer' | 'traveler' | 'voyager' | 'enterprise';
   name: string;
   description: string;
-  price: number;
+  price: number; // Monthly price
+  yearlyPrice: number; // Yearly price (pay 10 months, get 12 - 17% discount)
   billingCycle: 'monthly' | 'yearly';
   features: string[];
   imageUrl: string;
   rating: number;
   reviewCount: number;
   isPopular?: boolean;
+  badge?: string; // e.g., "Most Recommended", "Popular"
+  promoted?: boolean; // Visual emphasis (Voyager = true)
+  ctaText?: string; // Custom CTA button text
+  ctaLink?: string; // External link (Enterprise LINE)
+  ctaExternal?: boolean; // Open in new tab
 }
 
 // Agenda item for events
@@ -47,6 +59,7 @@ export interface EventProduct {
   imageUrl: string;
   rating: number;
   reviewCount: number;
+  hotScore?: number; // For hot/trending sorting
   // Detail page fields
   overview: string;
   whatYouWillLearn: string[];
@@ -69,8 +82,26 @@ export interface MerchandiseProduct {
   variants?: { name: string; stock: number }[];
 }
 
+// Duo ticket product (Go, Run, Fly)
+export interface DuoProduct {
+  id: string;
+  type: 'duo';
+  duoVariant: DuoVariant;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  rating: number;
+  reviewCount: number;
+  // Tiers this ticket grants matching access to
+  matchAccess: NunuTier[];
+  features: string[];
+  badge?: string;
+  isPopular?: boolean;
+}
+
 // Union type for all products
-export type Product = PlanProduct | EventProduct | MerchandiseProduct;
+export type Product = PlanProduct | EventProduct | MerchandiseProduct | DuoProduct;
 
 // Unified shop product interface for display purposes
 export interface ShopProduct {
@@ -87,9 +118,35 @@ export interface ShopProduct {
   isNew?: boolean;
   isBestSeller?: boolean;
   isOnDiscount?: boolean;
+  // Event-specific fields for filtering/sorting
+  eventType?: 'in-person' | 'online';
+  date?: Date;
+  hotScore?: number;
 }
 
 // Cart types
+
+/** Unique identifier for a cart item (productId + variant + period) */
+export interface CartItemIdentifier {
+  productId: string;
+  selectedVariant?: string;
+  selectedPeriod?: string;
+}
+
+/** Generate a stable key string for a cart item */
+export function getCartItemKey(item: CartItemIdentifier): string {
+  return `${item.productId}|${item.selectedVariant ?? ''}|${item.selectedPeriod ?? ''}`;
+}
+
+/** Check if two cart item identifiers match */
+export function cartItemsMatch(a: CartItemIdentifier, b: CartItemIdentifier): boolean {
+  return (
+    a.productId === b.productId &&
+    a.selectedVariant === b.selectedVariant &&
+    a.selectedPeriod === b.selectedPeriod
+  );
+}
+
 export interface CartItem {
   productId: string;
   productType: ProductType;
@@ -115,10 +172,14 @@ export interface CategoryCount {
 }
 
 // Plan comparison types
+export type FeatureCategory = 'learn' | 'test' | 'forum' | 'sprint' | 'space' | 'extras';
+
 export interface PlanFeature {
   feature: string;
-  explorer: boolean;
-  traveler: boolean;
+  category: FeatureCategory;
+  explorer: boolean | string;
+  traveler: boolean | string;
+  voyager: boolean | string;
 }
 
-export type PlanType = 'explorer' | 'traveler';
+export type PlanType = 'explorer' | 'traveler' | 'voyager' | 'enterprise';

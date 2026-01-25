@@ -165,7 +165,7 @@ export async function seedLearn(db: MockDB): Promise<void> {
       title: 'AI Data Analysis for Beginners',
       subtitle: 'Quick data analysis with AI',
       description: 'Learn for free how to use AI tools for basic data analysis.',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800',
       trailerUrl: 'https://www.youtube.com/watch?v=dLRdaUda8Ho',
       categoryId: 'cat-5',
       instructorId: 'instructor-6',

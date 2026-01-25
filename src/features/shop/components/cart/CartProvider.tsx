@@ -9,7 +9,8 @@ import {
   useMemo,
   type ReactNode,
 } from 'react';
-import type { Cart, CartItem, ProductType } from '@/features/shop/types';
+import type { Cart, CartItem, ProductType, CartItemIdentifier } from '@/features/shop/types';
+import { cartItemsMatch, getCartItemKey } from '@/features/shop/types';
 import { getProductById } from '@/mocks';
 
 const CART_STORAGE_KEY = 'nuvaclub_cart';
@@ -21,8 +22,8 @@ interface CartContextType {
     productType: ProductType,
     options?: { variant?: string; period?: string; quantity?: number }
   ) => void;
-  removeFromCart: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  removeFromCart: (identifier: CartItemIdentifier) => void;
+  updateQuantity: (identifier: CartItemIdentifier, quantity: number) => void;
   clearCart: () => void;
   isInCart: (productId: string) => boolean;
   getCartItem: (productId: string) => CartItem | undefined;
@@ -126,23 +127,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
     []
   );
 
-  const removeFromCart = useCallback((productId: string) => {
+  const removeFromCart = useCallback((identifier: CartItemIdentifier) => {
     setCart((prev) => {
-      const newItems = prev.items.filter((item) => item.productId !== productId);
+      const newItems = prev.items.filter((item) => !cartItemsMatch(item, identifier));
       const { totalItems, totalPrice } = calculateTotals(newItems);
       return { items: newItems, totalItems, totalPrice };
     });
   }, []);
 
-  const updateQuantity = useCallback((productId: string, quantity: number) => {
+  const updateQuantity = useCallback((identifier: CartItemIdentifier, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(productId);
+      removeFromCart(identifier);
       return;
     }
 
     setCart((prev) => {
       const newItems = prev.items.map((item) =>
-        item.productId === productId ? { ...item, quantity } : item
+        cartItemsMatch(item, identifier) ? { ...item, quantity } : item
       );
       const { totalItems, totalPrice } = calculateTotals(newItems);
       return { items: newItems, totalItems, totalPrice };

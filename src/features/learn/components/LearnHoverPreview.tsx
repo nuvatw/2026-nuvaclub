@@ -15,7 +15,9 @@ import {
   CheckIcon,
 } from '@/components/icons';
 import type { Course } from '@/features/learn/types';
-import { LEVEL_LABELS, LEVEL_BADGE_VARIANTS } from '@/features/learn/types';
+import { isNunuCourse } from '@/features/learn/types';
+import { getLvLabel } from '@/lib/utils/level';
+import { useLearnVideoPlayer } from '@/features/learn/context/LearnVideoPlayerContext';
 
 // Lazy loaded video component with loading state
 function LazyTrailerVideo({
@@ -68,11 +70,13 @@ function getYouTubeVideoId(urlOrId: string): string | null {
 
 export function LearnHoverPreview() {
   const router = useRouter();
+  const { openPlayer } = useLearnVideoPlayer();
   const [savedCourses, setSavedCourses] = useState<Set<string>>(new Set());
   const [savingCourse, setSavingCourse] = useState<string | null>(null);
 
+  // Open video player directly with smart resume logic
   const handleStartLearning = (course: Course) => {
-    router.push(`/learn/${course.id}?play=1`);
+    openPlayer(course);
   };
 
   const handleCourseDetails = (course: Course) => {
@@ -132,6 +136,17 @@ export function LearnHoverPreview() {
 
     return (
       <>
+        {/* Clickable video area - plays trailer (same as Start Learning) */}
+        <button
+          type="button"
+          className="absolute inset-0 w-full h-full z-10 cursor-pointer"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleStartLearning(course);
+          }}
+          aria-label={`Play ${course.title} trailer`}
+        />
         {videoId ? (
           <LazyTrailerVideo videoId={videoId} title={course.title} />
         ) : (
@@ -147,19 +162,18 @@ export function LearnHoverPreview() {
           </>
         )}
 
-        {/* Level Badge */}
-        <div className="absolute top-2 right-2 z-20">
-          <Badge variant={LEVEL_BADGE_VARIANTS[course.level]} size="sm">
-            {LEVEL_LABELS[course.level]}
-          </Badge>
-        </div>
-
-        {/* Play Button Overlay */}
-        <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-          <div className="p-4 rounded-full bg-white/90 shadow-lg">
-            <PlaySolidIcon size="lg" className="text-neutral-900 ml-0.5 w-8 h-8" />
+        {/* Level Badge - hidden for Nunu courses, consistent color for visibility */}
+        {!isNunuCourse(course) && (
+          <div className="absolute top-2 right-2 z-20">
+            <Badge
+              variant="default"
+              size="md"
+              className="bg-neutral-900/90 text-white font-semibold backdrop-blur-sm"
+            >
+              {getLvLabel(course.level)}
+            </Badge>
           </div>
-        </div>
+        )}
       </>
     );
   };

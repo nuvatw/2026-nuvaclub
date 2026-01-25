@@ -82,6 +82,18 @@ export const NUNU_LEVEL_MAX_VAVAS: Record<NunuLevel, number> = {
   N1: 50,
 };
 
+/**
+ * Nunu level sort order for sorting (higher = stronger)
+ * N1 is the strongest (5), N5 is the weakest (1)
+ */
+export const NUNU_LEVEL_SORT_ORDER: Record<NunuLevel, number> = {
+  N1: 5, // Master - strongest
+  N2: 4, // Expert
+  N3: 3, // Advanced
+  N4: 2, // Intermediate
+  N5: 1, // Beginner - weakest
+};
+
 export const NUNU_LEVEL_CONFIGS: NunuLevelConfig[] = [
   {
     level: 'N5',
@@ -330,4 +342,25 @@ export interface Mentorship {
     name: string;
     avatar: string;
   };
+}
+
+// ==========================================
+// Match Request / Invitation Types
+// ==========================================
+export type InvitationStatus = 'pending' | 'accepted' | 'declined';
+
+export interface MatchInvitation {
+  id: string;
+  listingId: string;
+  listingTitle: string;
+  listingType: MatchingPostType;
+  fromUserId: string;
+  fromUserName: string;
+  fromUserAvatar?: string;
+  toUserId: string;
+  toUserName: string;
+  message: string;
+  status: InvitationStatus;
+  createdAt: Date;
+  respondedAt?: Date;
 }

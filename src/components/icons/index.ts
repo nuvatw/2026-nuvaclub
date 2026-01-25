@@ -74,6 +74,7 @@ export {
   VolumeUpIcon,
   VolumeOffIcon,
   ExpandIcon,
+  ImageIcon,
 
   // Content
   BookIcon,
@@ -135,4 +136,5 @@ export {
   MoreHorizontalIcon,
   MoreVerticalIcon,
   SpinnerIcon,
+  ShieldIcon,
 } from './Icon';

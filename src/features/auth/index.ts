@@ -14,3 +14,6 @@ export { AuthProvider, useAuth } from './components/AuthProvider';
 export { Gate } from './components/Gate';
 export { IdentitySwitcher } from './components/IdentitySwitcher';
 export { LoginModal } from './components/LoginModal';
+
+// Utilities
+export * from './utils';

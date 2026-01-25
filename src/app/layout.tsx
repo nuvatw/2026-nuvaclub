@@ -3,6 +3,8 @@ import './globals.css';
 import { DBProvider } from '@/lib/db';
 import { AuthProvider } from '@/features/auth/components/AuthProvider';
 import { CartProvider } from '@/features/shop/components/cart';
+import { AdminThemeProvider } from '@/features/admin/components/AdminThemeProvider';
+import { KeyboardShortcutsProvider } from '@/features/keyboard-shortcuts';
 
 export const metadata: Metadata = {
   title: 'nuvaClub',
@@ -19,9 +21,13 @@ export default function RootLayout({
       <body className="antialiased min-h-screen bg-neutral-950">
         <DBProvider>
           <AuthProvider>
-            <CartProvider>
-              {children}
-            </CartProvider>
+            <AdminThemeProvider>
+              <CartProvider>
+                <KeyboardShortcutsProvider>
+                  {children}
+                </KeyboardShortcutsProvider>
+              </CartProvider>
+            </AdminThemeProvider>
           </AuthProvider>
         </DBProvider>
       </body>

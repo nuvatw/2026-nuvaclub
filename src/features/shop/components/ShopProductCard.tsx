@@ -18,12 +18,14 @@ const CATEGORY_LABELS: Record<ProductCategory, string> = {
   plan: 'Plan',
   event: 'Event',
   merchant: 'Merchandise',
+  duo: 'Duo',
 };
 
 const CATEGORY_COLORS: Record<ProductCategory, string> = {
   plan: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
   event: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
   merchant: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+  duo: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
 };
 
 export function ShopProductCard({ product, onBuyNow }: ShopProductCardProps) {

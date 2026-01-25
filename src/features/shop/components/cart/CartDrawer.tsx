@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { useCart } from './CartProvider';
 import { CartItem } from './CartItem';
+import { getCartItemKey } from '@/features/shop/types';
 import { Button, Modal } from '@/components/atoms';
 import { useEscapeKey, useBodyScrollLock } from '@/hooks';
 import { XIcon, ShoppingBagIcon, TrashIcon } from '@/components/icons';
@@ -33,6 +34,7 @@ export function CartDrawer() {
         <>
           {/* Backdrop */}
           <motion.div
+            key="cart-backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -44,6 +46,7 @@ export function CartDrawer() {
 
           {/* Drawer Panel */}
           <motion.div
+            key="cart-drawer"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
@@ -81,7 +84,7 @@ export function CartDrawer() {
               ) : (
                 <div className="space-y-0">
                   {cart.items.map((item) => (
-                    <CartItem key={`${item.productId}-${item.selectedVariant || ''}`} item={item} />
+                    <CartItem key={getCartItemKey(item)} item={item} />
                   ))}
                 </div>
               )}
@@ -125,6 +128,7 @@ export function CartDrawer() {
 
       {/* Clear Cart Confirmation Modal */}
       <Modal
+        key="clear-cart-modal"
         isOpen={showClearConfirm}
         onClose={() => setShowClearConfirm(false)}
         title="Clear Shopping Cart"

@@ -14,6 +14,8 @@ import type {
   UserActivityRecord,
   UserPointsRecord,
   PointTransactionRecord,
+  DuoTransactionRecord,
+  MonthlyMatchStatusRecord,
 } from '../schema/user.schema';
 
 import type {
@@ -133,6 +135,8 @@ interface DatabaseSchema {
   userSubscriptions: Collection<UserSubscriptionRecord>;
   userDuoTickets: Collection<UserDuoTicketRecord>;
   duoMonthPasses: Collection<DuoMonthPassRecord>;
+  duoTransactions: Collection<DuoTransactionRecord>;
+  monthlyMatchStatus: Collection<MonthlyMatchStatusRecord>;
   userFavorites: Collection<UserFavoriteRecord>;
   userActivities: Collection<UserActivityRecord>;
   userPoints: Collection<UserPointsRecord>;
@@ -289,6 +293,8 @@ class MockDB {
       userSubscriptions: new Collection<UserSubscriptionRecord>('userSubscriptions'),
       userDuoTickets: new Collection<UserDuoTicketRecord>('userDuoTickets'),
       duoMonthPasses: new Collection<DuoMonthPassRecord>('duoMonthPasses'),
+      duoTransactions: new Collection<DuoTransactionRecord>('duoTransactions'),
+      monthlyMatchStatus: new Collection<MonthlyMatchStatusRecord>('monthlyMatchStatus'),
       userFavorites: new Collection<UserFavoriteRecord>('userFavorites'),
       userActivities: new Collection<UserActivityRecord>('userActivities'),
       userPoints: new Collection<UserPointsRecord>('userPoints'),
@@ -424,11 +430,31 @@ class MockDB {
     const hasData = await this.adapter.hasData();
     if (hasData) {
       await this.loadFromStorage();
+      // Check if duo data needs to be re-seeded (version check)
+      await this.checkAndReseedDuo();
     } else {
       await this.seed();
     }
 
     this.isInitialized = true;
+  }
+
+  /**
+   * Check if duo data needs to be re-seeded and reseed if necessary.
+   * This ensures existing users get the new duo seed data.
+   */
+  private async checkAndReseedDuo(): Promise<void> {
+    // Check if we have any duo passes at all
+    const existingPasses = this.schema.duoMonthPasses.findAll();
+
+    // If no duo passes exist, reseed just the duo module
+    if (existingPasses.length === 0) {
+      console.log('[MockDB] No duo passes found, seeding duo data...');
+      const { seedDuo } = await import('../seed');
+      await seedDuo(this);
+      await this.persist();
+      console.log('[MockDB] Duo data seeded successfully');
+    }
   }
 
   /**
@@ -520,6 +546,8 @@ class MockDB {
   get userSubscriptions() { return this.schema.userSubscriptions; }
   get userDuoTickets() { return this.schema.userDuoTickets; }
   get duoMonthPasses() { return this.schema.duoMonthPasses; }
+  get duoTransactions() { return this.schema.duoTransactions; }
+  get monthlyMatchStatus() { return this.schema.monthlyMatchStatus; }
   get userFavorites() { return this.schema.userFavorites; }
   get userActivities() { return this.schema.userActivities; }
   get userPoints() { return this.schema.userPoints; }

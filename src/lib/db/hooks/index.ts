@@ -61,3 +61,18 @@ export { useBookmark } from './useBookmark';
 export { useTrackView } from './useTrackView';
 export { useShare } from './useShare';
 export { useUserPoints, useLeaderboard } from './useUserPoints';
+
+// Learn - Video Progress hooks
+export {
+  useVideoProgress,
+  getVideoResumePoint,
+  type LessonProgress,
+  type TrailerProgress,
+  type ResumePoint,
+} from './useVideoProgress';
+
+// Duo - Month Pass hooks
+export {
+  useDuoMonthPasses,
+  type DuoMonthPassWithMeta,
+} from '@/features/duo/hooks/useDuoMonthPasses';

@@ -12,6 +12,13 @@ interface CartItemProps {
 export function CartItem({ item }: CartItemProps) {
   const { updateQuantity, removeFromCart } = useCart();
 
+  // Create identifier for this specific cart item
+  const itemIdentifier = {
+    productId: item.productId,
+    selectedVariant: item.selectedVariant,
+    selectedPeriod: item.selectedPeriod,
+  };
+
   return (
     <div className="flex gap-4 py-4 border-b border-neutral-800">
       {/* Product Image */}
@@ -47,7 +54,7 @@ export function CartItem({ item }: CartItemProps) {
         {/* Quantity Controls */}
         <div className="flex items-center gap-2 mt-2">
           <button
-            onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+            onClick={() => updateQuantity(itemIdentifier, item.quantity - 1)}
             className="w-9 h-9 flex items-center justify-center rounded-full border border-neutral-700 text-neutral-400 hover:bg-neutral-800 hover:border-neutral-600 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:outline-none transition-all"
             aria-label="Decrease quantity"
           >
@@ -57,14 +64,14 @@ export function CartItem({ item }: CartItemProps) {
             {item.quantity}
           </span>
           <button
-            onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+            onClick={() => updateQuantity(itemIdentifier, item.quantity + 1)}
             className="w-9 h-9 flex items-center justify-center rounded-full border border-neutral-700 text-neutral-400 hover:bg-neutral-800 hover:border-neutral-600 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:outline-none transition-all"
             aria-label="Increase quantity"
           >
             <PlusIcon size="sm" />
           </button>
           <button
-            onClick={() => removeFromCart(item.productId)}
+            onClick={() => removeFromCart(itemIdentifier)}
             className="ml-auto text-neutral-400 hover:text-red-400 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:outline-none rounded-lg transition-all p-2"
             aria-label="Remove item"
           >

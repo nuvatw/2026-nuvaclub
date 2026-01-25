@@ -32,7 +32,10 @@ export interface PreviewAction {
 }
 
 export interface PreviewData<T = unknown> {
+  /** Unique instance ID for positioning (from useId()) */
   id: string;
+  /** Original item ID (e.g., course.id) for consumers to match */
+  itemId: string;
   item: T;
   position: CardPosition;
 }

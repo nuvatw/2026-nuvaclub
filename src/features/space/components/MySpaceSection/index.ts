@@ -1,6 +1,8 @@
 export { MySpaceSection } from './MySpaceSection';
 export { MyNunuSection } from './MyNunuSection';
 export { MyVavaSection } from './MyVavaSection';
+export { LockedMyNunuSection } from './LockedMyNunuSection';
+export { LockedMyVavaSection } from './LockedMyVavaSection';
 export { PairingCard } from './PairingCard';
 export { NunuApplicationCard } from './NunuApplicationCard';
 export { NunuDashboard } from './NunuDashboard';

@@ -95,24 +95,52 @@ export function PlaybookSidebar({ activeId, tableOfContents }: PlaybookSidebarPr
   );
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  // Auto-expand parent of active section
+  // Auto-expand parent of active section (accordion mode: only one section expanded)
   useEffect(() => {
-    tableOfContents.forEach((item) => {
+    // Find the parent section that contains the active item
+    let parentId: string | null = null;
+
+    for (const item of tableOfContents) {
+      // Check if active is a child of this item
       if (item.children?.some((child) => child.id === activeId)) {
-        setExpandedSections((prev) => new Set(prev).add(item.id));
+        parentId = item.id;
+        break;
       }
+      // Check if active is the parent item itself (and it has children)
+      if (item.id === activeId && item.children && item.children.length > 0) {
+        parentId = item.id;
+        break;
+      }
+    }
+
+    // Update expanded sections to only contain the parent (accordion behavior)
+    setExpandedSections((prev) => {
+      // If no parent found (top-level item without children), keep current or clear
+      if (!parentId) {
+        // Clear if we're at a top-level item without children
+        if (prev.size > 0) {
+          return new Set();
+        }
+        return prev;
+      }
+
+      // If already expanded to just this section, no change needed
+      if (prev.size === 1 && prev.has(parentId)) {
+        return prev;
+      }
+
+      // Replace with only the new parent section
+      return new Set([parentId]);
     });
   }, [activeId, tableOfContents]);
 
   const toggleSection = (id: string) => {
     setExpandedSections((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
+      // Accordion behavior: if clicking the open section, close it; otherwise open only this one
+      if (prev.has(id)) {
+        return new Set(); // Collapse the currently open section
       }
-      return next;
+      return new Set([id]); // Open only this section (closes any other)
     });
   };
 

@@ -1,6 +1,30 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 
+/* ============================================
+   APP-WIDE GUTTER TOKEN
+   ============================================
+   Shared horizontal spacing for consistent left/right alignment.
+   - Header brand and avatar use this
+   - Learn page hero, headings, and first card use this
+   - Values match: px-4 (16px), sm:px-6 (24px), lg:px-8 (32px)
+*/
+:root {
+  --app-gutter: 16px;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --app-gutter: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --app-gutter: 32px;
+  }
+}
+
 @theme {
   /* Color palette - Clean, modern, no gradients */
   --color-primary-50: #eff6ff;
@@ -135,4 +159,189 @@ body {
 
 .animate-hero-shimmer {
   animation: hero-shimmer 2.5s ease-in-out infinite;
+}
+
+/* ============================================
+   ADMIN THEME (Light Mode for Guardian Mode)
+   ============================================
+   When .admin-theme is applied, switch to light mode
+   to distinguish Guardian (Admin) from Player (Nunu/Vava)
+*/
+
+/* Admin theme - Light mode overrides */
+.admin-theme {
+  --admin-bg: #f8fafc;
+  --admin-bg-secondary: #ffffff;
+  --admin-bg-tertiary: #f1f5f9;
+  --admin-text: #0f172a;
+  --admin-text-secondary: #475569;
+  --admin-text-muted: #64748b;
+  --admin-border: #e2e8f0;
+  --admin-border-hover: #cbd5e1;
+  --admin-accent: #d97706;
+  --admin-accent-light: #fef3c7;
+}
+
+.admin-theme body,
+body.admin-theme {
+  background-color: var(--admin-bg) !important;
+  color: var(--admin-text) !important;
+}
+
+/* Admin Navbar - Light theme */
+.admin-theme .admin-navbar,
+.admin-theme nav {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-bottom-color: var(--admin-border) !important;
+}
+
+.admin-theme nav a,
+.admin-theme nav button,
+.admin-theme nav span {
+  color: var(--admin-text-secondary);
+}
+
+.admin-theme nav a:hover,
+.admin-theme nav button:hover {
+  color: var(--admin-text);
+}
+
+/* Admin Nav active state */
+.admin-theme nav .text-white {
+  color: var(--admin-text) !important;
+}
+
+.admin-theme nav .text-neutral-500 {
+  color: var(--admin-text-muted) !important;
+}
+
+/* Admin cards and panels */
+.admin-theme .bg-neutral-900,
+.admin-theme .bg-neutral-950 {
+  background-color: var(--admin-bg-secondary) !important;
+}
+
+.admin-theme .bg-neutral-800,
+.admin-theme .bg-neutral-850 {
+  background-color: var(--admin-bg-tertiary) !important;
+}
+
+/* Admin borders */
+.admin-theme .border-neutral-800,
+.admin-theme .border-neutral-700 {
+  border-color: var(--admin-border) !important;
+}
+
+/* Admin text colors */
+.admin-theme .text-white {
+  color: var(--admin-text) !important;
+}
+
+.admin-theme .text-neutral-100,
+.admin-theme .text-neutral-200,
+.admin-theme .text-neutral-300 {
+  color: var(--admin-text-secondary) !important;
+}
+
+.admin-theme .text-neutral-400,
+.admin-theme .text-neutral-500 {
+  color: var(--admin-text-muted) !important;
+}
+
+/* Admin input fields */
+.admin-theme input,
+.admin-theme textarea,
+.admin-theme select {
+  background-color: var(--admin-bg-secondary) !important;
+  border-color: var(--admin-border) !important;
+  color: var(--admin-text) !important;
+}
+
+.admin-theme input::placeholder,
+.admin-theme textarea::placeholder {
+  color: var(--admin-text-muted) !important;
+}
+
+/* Admin hover states */
+.admin-theme .hover\:bg-neutral-800:hover {
+  background-color: var(--admin-bg-tertiary) !important;
+}
+
+/* Admin logo text override */
+.admin-theme nav .text-2xl.font-bold.text-white {
+  color: var(--admin-text) !important;
+}
+
+/* Admin scrollbar - Light version */
+.admin-theme ::-webkit-scrollbar-track {
+  background: var(--admin-bg-tertiary);
+}
+
+.admin-theme ::-webkit-scrollbar-thumb {
+  background: var(--admin-border);
+}
+
+.admin-theme ::-webkit-scrollbar-thumb:hover {
+  background: var(--admin-border-hover);
+}
+
+/* Admin underline indicator */
+.admin-theme nav .bg-white {
+  background-color: var(--admin-accent) !important;
+}
+
+/* Keep admin badge styling consistent */
+.admin-theme .bg-amber-600\/20 {
+  background-color: rgba(217, 119, 6, 0.15) !important;
+}
+
+.admin-theme .text-amber-400 {
+  color: var(--admin-accent) !important;
+}
+
+/* Admin mode indicator bar */
+.admin-theme .border-amber-600\/30 {
+  border-color: rgba(217, 119, 6, 0.3) !important;
+}
+
+.admin-theme .bg-amber-600\/5 {
+  background-color: rgba(217, 119, 6, 0.08) !important;
+}
+
+/* Modal overlays in admin theme */
+.admin-theme .bg-black\/60 {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Admin mobile menu */
+.admin-theme .bg-neutral-900 {
+  background-color: var(--admin-bg-secondary) !important;
+}
+
+/* Primary button stays visible */
+.admin-theme .bg-primary-600 {
+  background-color: #2563eb !important;
+  color: white !important;
+}
+
+/* Ghost button in admin */
+.admin-theme button.bg-transparent {
+  color: var(--admin-text-secondary) !important;
+}
+
+/* Status badges - keep colorful */
+.admin-theme .bg-green-500\/20 {
+  background-color: rgba(34, 197, 94, 0.15) !important;
+}
+
+.admin-theme .bg-red-500\/20 {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+.admin-theme .bg-blue-500\/20 {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+}
+
+.admin-theme .bg-purple-500\/20 {
+  background-color: rgba(168, 85, 247, 0.15) !important;
 }

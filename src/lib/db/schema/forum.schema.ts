@@ -7,7 +7,7 @@
 // ==========================================
 // ENUMS & TYPES
 // ==========================================
-export type ForumPostCategory = 'discussion' | 'question' | 'share' | 'resource' | 'announcement';
+export type ForumPostCategory = 'discussion' | 'question' | 'resource' | 'announcement' | 'share';
 export type PostCategory = ForumPostCategory; // Backward compatibility alias
 export type VoteType = 'upvote' | 'downvote';
 

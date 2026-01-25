@@ -5,11 +5,19 @@ import { useAuth } from '@/features/auth/components/AuthProvider';
 import { useProgress } from '@/features/shared/progress/useProgress';
 import type { SectionVisibilityRule } from './types';
 import type { ModuleType } from '@/data/types';
-import { FREE_CONTENT_IDENTITIES } from './types';
+import { isGuestOrExplorer } from '@/features/auth/utils/role-gating';
 
-export function useSectionVisibility(moduleType: ModuleType) {
-  const { identity } = useAuth();
-  const { hasProgress, isHydrated } = useProgress(moduleType);
+/**
+ * Hook for determining section visibility based on identity and progress.
+ * @param moduleType - The module type (learn, forum, etc.)
+ * @param userId - Optional user ID to check progress for (defaults to current account)
+ */
+export function useSectionVisibility(moduleType: ModuleType, userId?: string | null) {
+  const { identity, currentAccountId } = useAuth();
+
+  // Use provided userId or fall back to currentAccountId
+  const effectiveAccountId = userId ?? currentAccountId;
+  const { hasProgress, isHydrated, effectiveUserId } = useProgress(moduleType, effectiveAccountId);
 
   const checkVisibility = useMemo(() => {
     return (rule: SectionVisibilityRule, isEmpty: boolean): boolean => {
@@ -39,11 +47,11 @@ export function useSectionVisibility(moduleType: ModuleType) {
 
   // Pre-built visibility checks for common patterns
   const shouldShowContinueWatching = useMemo(() => {
-    return isHydrated && hasProgress(moduleType);
-  }, [isHydrated, hasProgress, moduleType]);
+    return isHydrated && hasProgress(moduleType, effectiveAccountId);
+  }, [isHydrated, hasProgress, moduleType, effectiveAccountId]);
 
   const shouldShowFreeContent = useMemo(() => {
-    return FREE_CONTENT_IDENTITIES.includes(identity);
+    return isGuestOrExplorer(identity);
   }, [identity]);
 
   return {
@@ -52,5 +60,7 @@ export function useSectionVisibility(moduleType: ModuleType) {
     shouldShowFreeContent,
     isHydrated,
     identity,
+    effectiveUserId,
+    currentAccountId: effectiveAccountId,
   };
 }

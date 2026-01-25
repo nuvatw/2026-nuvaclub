@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 import { getMembershipDisplay } from '@/features/auth/types';
@@ -10,16 +10,23 @@ import { LoginModal } from '@/features/auth/components/LoginModal';
 import { Button } from '@/components/atoms';
 import { CartIcon, CartDrawer } from '@/features/shop/components/cart';
 import {
-  BookIcon,
   MenuIcon,
   XIcon,
   ChevronRightIcon,
   BookOpenIcon,
   HeartIcon,
   LogoutIcon,
+  FireIcon,
+  SearchIcon,
+  ShieldIcon,
 } from '@/components/icons';
+import { MissionPanel } from '@/features/mission';
 import { UserAvatarDropdown } from '@/components/organisms/UserAvatarDropdown';
+import { NotificationBell } from '@/features/space/components/Notifications';
+import { HeaderSearch } from '@/components/organisms/HeaderSearch';
+import { AdminMenu } from '@/features/admin/components/AdminMenu';
 import { cn } from '@/lib/utils';
+import { useKeyboardShortcuts } from '@/features/keyboard-shortcuts';
 
 const NAV_ITEMS = [
   { href: '/learn', label: 'Learn' },
@@ -35,62 +42,119 @@ export function Navbar() {
   const { user, identity, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const { isSearchOpen, openSearch, closeSearch } = useKeyboardShortcuts();
 
   const membership = getMembershipDisplay(identity);
+
+  // Refs for calculating underline position relative to container (scroll-independent)
+  const navContainerRef = useRef<HTMLDivElement>(null);
+  const navItemRefs = useRef<Map<string, HTMLAnchorElement>>(new Map());
+  const [underlineStyle, setUnderlineStyle] = useState<{ left: number; width: number } | null>(null);
+
+  // Calculate underline position relative to nav container (not viewport)
+  const updateUnderlinePosition = useCallback(() => {
+    const activeItem = NAV_ITEMS.find((item) => pathname.startsWith(item.href));
+    if (!activeItem || !navContainerRef.current) {
+      setUnderlineStyle(null);
+      return;
+    }
+
+    const navItemEl = navItemRefs.current.get(activeItem.href);
+    if (!navItemEl) {
+      setUnderlineStyle(null);
+      return;
+    }
+
+    // Use offsetLeft/offsetWidth which are relative to offsetParent, not viewport
+    // This makes the position independent of scroll state
+    setUnderlineStyle({
+      left: navItemEl.offsetLeft,
+      width: navItemEl.offsetWidth,
+    });
+  }, [pathname]);
+
+  // Update underline on pathname change and mount
+  useEffect(() => {
+    updateUnderlinePosition();
+  }, [updateUnderlinePosition]);
+
+  // Update on window resize
+  useEffect(() => {
+    window.addEventListener('resize', updateUnderlinePosition);
+    return () => window.removeEventListener('resize', updateUnderlinePosition);
+  }, [updateUnderlinePosition]);
 
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 z-40 bg-neutral-950/90 backdrop-blur-md border-b border-neutral-800/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Full-width container with app gutter for consistent alignment with Learn page */}
+        <div className="w-full" style={{ paddingLeft: 'var(--app-gutter)', paddingRight: 'var(--app-gutter)' }}>
           <div className="flex items-center justify-between h-18">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-white">nuva</span>
-              <span className="text-2xl font-bold text-primary-500">Club</span>
-            </Link>
+            {/* Left Cluster: Logo + Desktop Navigation */}
+            <div className="flex items-center gap-8">
+              {/* Logo */}
+              <Link href="/" className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-white">nuva</span>
+                <span className="text-2xl font-bold text-primary-500">Club</span>
+              </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-8">
-              {NAV_ITEMS.map((item) => {
-                const isActive = pathname.startsWith(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="relative py-6 group"
-                  >
-                    <span
-                      className={cn(
-                        'text-base font-medium transition-all duration-200',
-                        isActive
-                          ? 'text-white'
-                          : 'text-neutral-500 group-hover:text-white'
-                      )}
+              {/* Desktop Navigation */}
+              <div ref={navContainerRef} className="hidden md:flex items-center gap-8 relative">
+                {NAV_ITEMS.map((item) => {
+                  const isActive = pathname.startsWith(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      ref={(el) => {
+                        if (el) {
+                          navItemRefs.current.set(item.href, el);
+                        } else {
+                          navItemRefs.current.delete(item.href);
+                        }
+                      }}
+                      className="relative py-6 group"
                     >
-                      {item.label}
-                    </span>
-                    {/* Active underline indicator */}
-                    {isActive && (
-                      <motion.div
-                        layoutId="navbar-indicator"
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-white"
-                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                      />
-                    )}
-                  </Link>
-                );
-              })}
+                      <span
+                        className={cn(
+                          'text-base font-medium transition-all duration-200',
+                          isActive
+                            ? 'text-white'
+                            : 'text-neutral-500 group-hover:text-white'
+                        )}
+                      >
+                        {item.label}
+                      </span>
+                    </Link>
+                  );
+                })}
+                {/* Active underline indicator - positioned relative to container, not viewport */}
+                {underlineStyle && (
+                  <motion.div
+                    className="absolute bottom-0 h-0.5 bg-white"
+                    initial={false}
+                    animate={{
+                      left: underlineStyle.left,
+                      width: underlineStyle.width,
+                    }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </div>
             </div>
 
-            {/* User Area */}
-            <div className="hidden md:flex items-center gap-5">
-              <Link
-                href="/document"
+            {/* Right Cluster: User Area - Icon order: Search, Mission, Notification, Cart, Avatar/Login */}
+            <div className="hidden md:flex items-center gap-3">
+              <button
+                onClick={openSearch}
                 className="p-2 text-neutral-500 hover:text-white transition-colors"
-                title="Playbook"
+                title="Search (⌘K)"
+                aria-label="Open search (⌘K)"
               >
-                <BookIcon className="w-6 h-6" />
-              </Link>
+                <SearchIcon size="lg" />
+              </button>
+              <MissionPanel />
+              <NotificationBell />
               <CartIcon />
               {user ? (
                 <UserAvatarDropdown />
@@ -148,22 +212,22 @@ export function Navbar() {
                     </Link>
                   );
                 })}
-                {/* Playbook Link */}
+                {/* Mission Link */}
                 <Link
-                  href="/document"
+                  href="/mission"
                   onClick={() => setMobileMenuOpen(false)}
                   className={cn(
                     'relative flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors',
-                    pathname === '/document'
+                    pathname === '/mission'
                       ? 'text-white'
                       : 'text-neutral-500 hover:text-white'
                   )}
                 >
-                  {pathname === '/document' && (
+                  {pathname === '/mission' && (
                     <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-white rounded-full" />
                   )}
-                  <BookIcon className="w-4 h-4" />
-                  Playbook
+                  <FireIcon className="w-4 h-4" />
+                  Missions
                 </Link>
                 <div className="pt-4 border-t border-neutral-800">
                   {user ? (
@@ -250,6 +314,12 @@ export function Navbar() {
       <LoginModal
         isOpen={loginModalOpen}
         onClose={() => setLoginModalOpen(false)}
+      />
+
+      {/* Header Search Modal */}
+      <HeaderSearch
+        isOpen={isSearchOpen}
+        onClose={closeSearch}
       />
     </>
   );

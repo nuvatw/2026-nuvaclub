@@ -10,7 +10,9 @@ import type {
   NunuProfileRecord,
   NunuStatsRecord,
   MatchingPostStatsRecord,
+  NunuLevel,
 } from '../schema';
+import { NUNU_LEVEL_SORT_ORDER } from '@/features/space/types';
 
 export interface MatchingPostWithRelations extends MatchingPostRecord {
   tags: string[];
@@ -23,6 +25,8 @@ export interface MatchingPostWithRelations extends MatchingPostRecord {
     nunuLevel?: string;
     nunuType?: string;
     rating?: number;
+    totalRatings?: number;
+    mentoredMonths?: number;
   };
 }
 
@@ -38,7 +42,7 @@ export interface MatchingPostFilters {
   tags?: string[];
 }
 
-export type MatchingPostSortBy = 'newest' | 'oldest' | 'mostViews' | 'mostComments';
+export type MatchingPostSortBy = 'newest' | 'oldest' | 'mostViews' | 'mostComments' | 'rating' | 'ratingLow' | 'reviews' | 'level' | 'mentoredMonthsHigh' | 'mentoredMonthsLow';
 
 /**
  * Hook to access matching board posts - optimized with O(n) lookups
@@ -83,6 +87,17 @@ export function useMatchingPosts(filters?: MatchingPostFilters, sortBy: Matching
     const usersMap = new Map<string, { id: string; name: string; avatar?: string }>();
     const profilesMap = new Map<string, NunuProfileRecord>();
     const nunuStatsMap = new Map<string, NunuStatsRecord>();
+    const mentoredMonthsMap = new Map<string, number>();
+
+    // Pre-compute mentored months for each user (as Nunu)
+    const allMentorships = db.userMentorships.findAll();
+    for (const mentorship of allMentorships) {
+      const months = mentorship.months?.length || 0;
+      mentoredMonthsMap.set(
+        mentorship.nunuId,
+        (mentoredMonthsMap.get(mentorship.nunuId) || 0) + months
+      );
+    }
 
     for (const authorId of authorIds) {
       const user = db.users.findById(authorId);
@@ -120,6 +135,8 @@ export function useMatchingPosts(filters?: MatchingPostFilters, sortBy: Matching
               nunuLevel: nunuProfile?.level,
               nunuType: nunuProfile?.type,
               rating: nunuStats?.avgRating,
+              totalRatings: nunuStats?.totalRatings,
+              mentoredMonths: mentoredMonthsMap.get(post.authorId) || 0,
             }
           : undefined,
       };
@@ -187,6 +204,30 @@ export function useMatchingPosts(filters?: MatchingPostFilters, sortBy: Matching
         return posts.sort((a, b) => b.viewCount - a.viewCount);
       case 'mostComments':
         return posts.sort((a, b) => b.commentCount - a.commentCount);
+      case 'rating':
+        // Sort by rating (stars) - highest first
+        return posts.sort((a, b) => (b.author?.rating ?? 0) - (a.author?.rating ?? 0));
+      case 'ratingLow':
+        // Sort by rating (stars) - lowest first
+        return posts.sort((a, b) => (a.author?.rating ?? 0) - (b.author?.rating ?? 0));
+      case 'reviews':
+        // Sort by total number of reviews - most first
+        return posts.sort((a, b) => (b.author?.totalRatings ?? 0) - (a.author?.totalRatings ?? 0));
+      case 'level':
+        // Sort by Nunu level - N1 (strongest) first, N5 (weakest) last
+        return posts.sort((a, b) => {
+          const levelA = a.author?.nunuLevel as NunuLevel | undefined;
+          const levelB = b.author?.nunuLevel as NunuLevel | undefined;
+          const orderA = levelA ? NUNU_LEVEL_SORT_ORDER[levelA] : 0;
+          const orderB = levelB ? NUNU_LEVEL_SORT_ORDER[levelB] : 0;
+          return orderB - orderA;
+        });
+      case 'mentoredMonthsHigh':
+        // Sort by months mentored - highest first
+        return posts.sort((a, b) => (b.author?.mentoredMonths ?? 0) - (a.author?.mentoredMonths ?? 0));
+      case 'mentoredMonthsLow':
+        // Sort by months mentored - lowest first
+        return posts.sort((a, b) => (a.author?.mentoredMonths ?? 0) - (b.author?.mentoredMonths ?? 0));
       default:
         return posts;
     }

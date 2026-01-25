@@ -81,6 +81,10 @@ export function dbCourseToLegacy(course: CourseWithRelations): Course {
     duration: 120,
   };
 
+  // Determine course type from category or track
+  const categoryName = course.category?.name ?? categoryNames[course.categoryId] ?? '';
+  const isNunuCourse = categoryName === 'Nunu Training' || course.tags?.includes('Nunu');
+
   return {
     id: course.id,
     title: course.title,
@@ -89,7 +93,7 @@ export function dbCourseToLegacy(course: CourseWithRelations): Course {
     thumbnailUrl: course.thumbnailUrl,
     trailer,
     previewVideoUrl: course.previewVideoUrl,
-    category: course.category?.name ?? categoryNames[course.categoryId] ?? '',
+    category: categoryName,
     tags: course.tags ?? [],
     instructor: course.instructor
       ? { name: course.instructor.name, avatar: course.instructor.avatar }
@@ -100,6 +104,10 @@ export function dbCourseToLegacy(course: CourseWithRelations): Course {
     lessonCount: course.lessonCount,
     isFeatured: course.isFeatured,
     createdAt: course.createdAt,
+    // New fields for Vava/Nunu course type system
+    courseType: isNunuCourse ? 'nunu' : 'vava',
+    toolTags: isNunuCourse ? undefined : [categoryName],
+    isFree: course.level === 1,
   };
 }
 

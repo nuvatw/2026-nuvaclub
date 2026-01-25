@@ -1,24 +1,30 @@
 'use client';
 
-import { use } from 'react';
+import { use, useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { motion } from 'motion/react';
-import { Button, Badge, Card, CardContent } from '@/components/atoms';
+import { Button, Badge } from '@/components/atoms';
 import {
   ChevronLeftIcon,
   PlusIcon,
-  CheckIcon,
-  HeartSolidIcon,
-  ExternalLinkIcon,
 } from '@/components/icons';
 import { Gate } from '@/features/auth/components/Gate';
+import { useAuth } from '@/features/auth';
 import {
   getSeasonById,
   getSprintById,
   getProjectsBySprintId,
 } from '@/mocks';
-import { cn } from '@/lib/utils';
+import { Dropdown } from '@/components/molecules';
+import {
+  VotingCountdown,
+  MyVotesSection,
+  VotableProjectCard,
+} from '@/features/sprint/components';
+import { useSprintVoting } from '@/features/sprint/hooks';
+import type { Project } from '@/features/sprint/types';
+
+type VotingSortOption = 'latest' | 'most-popular';
 
 interface SprintDetailPageProps {
   params: Promise<{ seasonId: string; sprintId: string }>;
@@ -26,9 +32,107 @@ interface SprintDetailPageProps {
 
 export default function SprintDetailPage({ params }: SprintDetailPageProps) {
   const { seasonId, sprintId } = use(params);
+  const { user } = useAuth();
   const season = getSeasonById(seasonId);
   const sprint = getSprintById(sprintId);
-  const projects = getProjectsBySprintId(sprintId);
+  const mockProjects = getProjectsBySprintId(sprintId);
+
+  const [sortBy, setSortBy] = useState<VotingSortOption>('most-popular');
+
+  // Get project IDs from mock data for voting scope
+  const mockProjectIds = useMemo(() => mockProjects.map((p) => p.id), [mockProjects]);
+
+  // Use voting hook for real voting functionality
+  // Pass mock project IDs and voting status to align with mock data
+  const {
+    votedProjectIds,
+    remainingVotes,
+    totalVotes,
+    isVotingOpen,
+    isDeadlinePassed,
+    canVote,
+    hasVotedFor,
+    toggleVote,
+    getProjectVoteCount,
+    isLoading: votingLoading,
+  } = useSprintVoting(sprintId, {
+    projectIds: mockProjectIds,
+    isVotingOpenOverride: sprint?.isVotingOpen,
+  });
+
+  // Merge mock projects with real vote counts from DB
+  const projectsWithVotes = useMemo(() => {
+    return mockProjects.map((project) => ({
+      ...project,
+      // Use real vote count from DB if available, fallback to mock
+      voteCount: getProjectVoteCount(project.id) || project.voteCount,
+    }));
+  }, [mockProjects, getProjectVoteCount]);
+
+  // Sort projects
+  const sortedProjects = useMemo(() => {
+    const sorted = [...projectsWithVotes];
+    if (sortBy === 'latest') {
+      sorted.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    } else {
+      // most-popular: sort by voteCount desc, then by createdAt desc
+      sorted.sort((a, b) => {
+        if (b.voteCount !== a.voteCount) {
+          return b.voteCount - a.voteCount;
+        }
+        return b.createdAt.getTime() - a.createdAt.getTime();
+      });
+    }
+    return sorted;
+  }, [projectsWithVotes, sortBy]);
+
+  // Convert mock Project to the format expected by components
+  const convertedProjects = useMemo(() => {
+    return sortedProjects.map((p) => ({
+      id: p.id,
+      sprintId: p.sprintId,
+      title: p.title,
+      description: p.description,
+      thumbnailUrl: p.thumbnailUrl,
+      videoUrl: p.videoUrl,
+      githubUrl: p.githubUrl,
+      liveUrl: p.liveUrl,
+      techStack: p.techStack,
+      author: p.author,
+      rank: p.rank,
+      createdAt: p.createdAt,
+      updatedAt: p.updatedAt,
+      authorId: p.author.id,
+      status: 'approved' as const,
+      visibility: 'public' as const,
+      visibilityAcknowledged: true,
+      isWinner: p.rank === 1,
+      stats: {
+        voteCount: p.voteCount,
+        viewCount: p.viewCount,
+        starCount: p.starCount,
+        commentCount: 0,
+      },
+    }));
+  }, [sortedProjects]);
+
+  const handleVote = useCallback((projectId: string) => {
+    if (!user) {
+      // Could show login modal here
+      return;
+    }
+    const result = toggleVote(projectId);
+    // Could show toast notification with result.message
+  }, [user, toggleVote]);
+
+  const handleUnvote = useCallback((projectId: string) => {
+    toggleVote(projectId);
+  }, [toggleVote]);
+
+  const sortOptions: { value: VotingSortOption; label: string }[] = [
+    { value: 'most-popular', label: '最熱門' },
+    { value: 'latest', label: '最新' },
+  ];
 
   if (!season || !sprint) {
     return (
@@ -42,6 +146,8 @@ export default function SprintDetailPage({ params }: SprintDetailPageProps) {
       </div>
     );
   }
+
+  const isVotingSprint = sprint.isVotingOpen;
 
   return (
     <div className="min-h-screen py-8">
@@ -61,13 +167,17 @@ export default function SprintDetailPage({ params }: SprintDetailPageProps) {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex flex-wrap items-center gap-2 mb-2">
             <Badge variant="primary">{season.name}</Badge>
             <Badge variant="outline">{sprint.theme}</Badge>
-            {sprint.isVotingOpen && <Badge variant="warning">Voting Open</Badge>}
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">{sprint.title}</h1>
-          <p className="text-neutral-400">{sprint.description}</p>
+          <p className="text-neutral-400 mb-4">{sprint.description}</p>
+
+          {/* Voting Countdown (only for voting sprint) */}
+          {isVotingSprint && (
+            <VotingCountdown className="mb-4" />
+          )}
         </motion.div>
 
         {/* Actions */}
@@ -75,157 +185,129 @@ export default function SprintDetailPage({ params }: SprintDetailPageProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex items-center gap-4 mb-8"
+          className="flex flex-wrap items-center gap-4 mb-8"
         >
-          <Gate
-            permission="sprint:submit_project"
-            fallback={
-              <Button variant="secondary" disabled>
-                Traveler+ can upload projects
-              </Button>
-            }
-          >
-            <Link href={`/sprint/${seasonId}/${sprintId}/submit`}>
-              <Button>
-                <PlusIcon size="sm" className="mr-2" />
-                Upload Project
-              </Button>
-            </Link>
-          </Gate>
-
-          {sprint.isVotingOpen && (
+          {/* Upload Project Button - shown for upload sprints or always */}
+          {!isVotingSprint && (
             <Gate
-              permission="sprint:vote"
+              permission="sprint:submit_project"
               fallback={
                 <Button variant="secondary" disabled>
-                  Traveler+ can vote
+                  Traveler+ can upload projects
                 </Button>
               }
             >
-              <Button variant="secondary">
-                <CheckIcon size="sm" className="mr-2" />
-                Cast Vote
-              </Button>
+              <Link href={`/sprint/${seasonId}/${sprintId}/submit`}>
+                <Button>
+                  <PlusIcon size="sm" className="mr-2" />
+                  Upload Project
+                </Button>
+              </Link>
             </Gate>
+          )}
+
+          {/* Vote Permissions Info */}
+          {isVotingSprint && !user && (
+            <div className="text-sm text-neutral-400">
+              <Gate
+                permission="sprint:vote"
+                fallback={
+                  <span>Traveler+ can vote</span>
+                }
+              >
+                <span>登入後即可投票</span>
+              </Gate>
+            </div>
           )}
         </motion.div>
 
-        {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project, index) => (
+        {/* Voting Layout (Two Sections) */}
+        {isVotingSprint && (
+          <>
+            {/* Section 1: My Votes */}
             <motion.div
-              key={project.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + index * 0.05 }}
+              transition={{ delay: 0.15 }}
             >
-              <Card hover className="h-full overflow-hidden group">
-                <div className="relative aspect-video">
-                  <Image
-                    src={project.thumbnailUrl}
-                    alt={project.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent to-transparent" />
-                  {project.rank && project.rank <= 3 && (
-                    <div className="absolute top-3 left-3">
-                      <div
-                        className={cn(
-                          'w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm',
-                          project.rank === 1 && 'bg-amber-500 text-black',
-                          project.rank === 2 && 'bg-neutral-400 text-black',
-                          project.rank === 3 && 'bg-amber-700 text-white'
-                        )}
-                      >
-                        {project.rank}
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <CardContent>
-                  <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary-400 transition-colors">
-                    {project.title}
-                  </h3>
-                  <p className="text-sm text-neutral-400 line-clamp-2 mb-4">
-                    {project.description}
-                  </p>
-
-                  {/* Tech Stack */}
-                  <div className="flex flex-wrap gap-1 mb-4">
-                    {project.techStack.map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-2 py-0.5 rounded text-xs bg-neutral-800 text-neutral-300"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Footer */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {project.author.avatar && (
-                        <Image
-                          src={project.author.avatar}
-                          alt={project.author.name}
-                          width={24}
-                          height={24}
-                          className="rounded-full"
-                        />
-                      )}
-                      <span className="text-sm text-neutral-400">
-                        {project.author.name}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1 text-sm text-neutral-400">
-                      <HeartSolidIcon size="sm" />
-                      {project.voteCount}
-                    </div>
-                  </div>
-
-                  {/* Links */}
-                  {(project.githubUrl || project.liveUrl) && (
-                    <div className="flex items-center gap-2 mt-4 pt-4 border-t border-neutral-800">
-                      {project.githubUrl && (
-                        <a
-                          href={project.githubUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-neutral-400 hover:text-white transition-colors"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                          </svg>
-                        </a>
-                      )}
-                      {project.liveUrl && (
-                        <a
-                          href={project.liveUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-neutral-400 hover:text-white transition-colors"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <ExternalLinkIcon size="md" />
-                        </a>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <MyVotesSection
+                votedProjectIds={votedProjectIds}
+                projects={convertedProjects}
+                remainingVotes={remainingVotes}
+                totalVotes={totalVotes}
+                onUnvote={handleUnvote}
+                isVotingEnabled={canVote && !isDeadlinePassed}
+              />
             </motion.div>
-          ))}
-        </div>
+
+            {/* Section 2: Browse Projects */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <h2 className="text-xl font-bold text-white">逛逛大家的專案</h2>
+                <Dropdown
+                  label="排序"
+                  value={sortBy}
+                  options={sortOptions}
+                  onChange={(value) => setSortBy(value as VotingSortOption)}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {convertedProjects.map((project, index) => {
+                  const isVoted = hasVotedFor(project.id);
+                  const isDisabled = remainingVotes <= 0 && !isVoted;
+
+                  return (
+                    <motion.div
+                      key={project.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 + Math.min(index * 0.03, 0.3) }}
+                    >
+                      <VotableProjectCard
+                        project={project}
+                        isVoted={isVoted}
+                        voteCount={sortedProjects.find(p => p.id === project.id)?.voteCount ?? 0}
+                        onVote={() => handleVote(project.id)}
+                        isVotingEnabled={canVote && !isDeadlinePassed}
+                        isDisabled={isDisabled}
+                        disabledReason={isDisabled ? '已用完 5 個星星' : undefined}
+                      />
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </>
+        )}
+
+        {/* Non-Voting Sprint: Simple Project Grid */}
+        {!isVotingSprint && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {convertedProjects.map((project, index) => (
+              <motion.div
+                key={project.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + index * 0.05 }}
+              >
+                <VotableProjectCard
+                  project={project}
+                  isVoted={false}
+                  voteCount={sortedProjects.find(p => p.id === project.id)?.voteCount ?? 0}
+                  isVotingEnabled={false}
+                />
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         {/* Empty State */}
-        {projects.length === 0 && (
+        {mockProjects.length === 0 && (
           <div className="text-center py-16">
             <div className="text-6xl mb-4">🚀</div>
             <h3 className="text-xl font-semibold text-white mb-2">

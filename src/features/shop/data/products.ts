@@ -1,11 +1,13 @@
 import type {
   EventProduct,
   MerchandiseProduct,
+  DuoProduct,
   Product,
   ShopProduct,
   ProductCategory,
 } from '@/features/shop/types';
 import { PLANS } from './plans';
+import { DUO_PRODUCTS } from './duo';
 
 export const EVENTS: EventProduct[] = [
   {
@@ -312,8 +314,11 @@ export const MERCHANDISE: MerchandiseProduct[] = [
 
 // Helper function to get all products
 export function getAllProducts(): Product[] {
-  return [...PLANS, ...EVENTS, ...MERCHANDISE];
+  return [...PLANS, ...EVENTS, ...MERCHANDISE, ...DUO_PRODUCTS];
 }
+
+// Export Duo products
+export { DUO_PRODUCTS } from './duo';
 
 // IDs for products with special filter flags
 const NEW_ARRIVAL_IDS = ['event-1', 'event-4', 'merch-7'];
@@ -325,6 +330,7 @@ export function toShopProduct(product: Product): ShopProduct {
     'plan': 'plan',
     'event': 'event',
     'merchandise': 'merchant',
+    'duo': 'duo',
   };
 
   const rating = 'rating' in product ? product.rating : 0;
@@ -358,6 +364,7 @@ export function getProductsByCategory(category: ProductCategory): Product[] {
     'plan': 'plan',
     'event': 'event',
     'merchant': 'merchandise',
+    'duo': 'duo',
   };
   return all.filter((p) => p.type === categoryMap[category]);
 }

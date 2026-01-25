@@ -8,7 +8,7 @@ import type { IdentityType } from '@/features/auth/types';
 // ==========================================
 // ENUMS & TYPES
 // ==========================================
-export type SubscriptionPlan = 'explorer' | 'traveler';
+export type SubscriptionPlan = 'explorer' | 'traveler' | 'voyager';
 export type SubscriptionStatus = 'active' | 'cancelled' | 'expired' | 'paused';
 export type BillingCycle = 'monthly' | 'yearly';
 export type DuoTicketTier = 'go' | 'run' | 'fly';
@@ -52,7 +52,7 @@ export interface UserRecord {
 
 // ==========================================
 // USER SUBSCRIPTIONS TABLE
-// Tracks subscription plans (Explorer/Traveler)
+// Tracks subscription plans (Explorer/Traveler/Voyager)
 // ==========================================
 export interface UserSubscriptionRecord {
   // Primary Key
@@ -69,6 +69,16 @@ export interface UserSubscriptionRecord {
   // Billing Period
   periodStart: Date;
   periodEnd: Date;
+
+  // For yearly subscriptions
+  yearlyStartDate?: Date;
+  yearlyEndDate?: Date;
+  monthsIncluded?: number; // 12 for yearly
+
+  // Renewal tracking
+  autoRenew: boolean;
+  renewalPrice: number;
+  nextBillingDate?: Date;
 
   // Lifecycle Timestamps
   cancelledAt?: Date;
@@ -263,3 +273,61 @@ export interface PointTransactionRecord {
 }
 
 // Index: userId, category, actionType, createdAt
+
+// ==========================================
+// DUO TRANSACTIONS TABLE
+// Simulated charge/refund ledger for Duo Pass purchases
+// ==========================================
+export type DuoTransactionType = 'charge' | 'refund' | 'upgrade_charge';
+
+export interface DuoTransactionRecord {
+  // Primary Key
+  id: string;
+
+  // Foreign Keys
+  userId: string; // FK -> users.id
+  passId?: string; // FK -> duoMonthPasses.id
+
+  // Transaction Details
+  type: DuoTransactionType;
+  amount: number; // Integer (NT$)
+  currency: 'TWD';
+
+  // Context
+  month: string; // YYYY-MM
+  tier: DuoTicketTier;
+  reason?: string; // e.g., "Automatic refund - no match before month start"
+
+  // Timestamps
+  createdAt: Date;
+}
+
+// Index: userId, type, month, createdAt
+
+// ==========================================
+// MONTHLY MATCH STATUS TABLE
+// Tracks whether user has a valid match for each purchased month
+// Used for automatic refund processing
+// ==========================================
+export interface MonthlyMatchStatusRecord {
+  // Primary Key
+  id: string;
+
+  // Foreign Keys
+  userId: string; // FK -> users.id
+
+  // Month specification
+  month: string; // YYYY-MM
+
+  // Match status
+  matched: boolean;
+  matchedAt?: Date; // When the match was confirmed
+  matchedWithUserId?: string; // FK -> users.id (the Nunu)
+
+  // Timestamps
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Unique Index: (userId, month)
+// Index: userId, matched, month

@@ -5,6 +5,8 @@ import type {
   ProductCategory,
 } from '@/features/shop/types';
 import { MOCK_PLANS } from './plans.mock';
+import { MOCK_EVENTS } from './events.mock';
+import { DUO_PRODUCTS } from '@/features/shop/data/duo';
 
 /**
  * Products Mock Data
@@ -99,20 +101,24 @@ export const MERCHANDISE = MOCK_MERCHANDISE;
 const NEW_ARRIVAL_IDS = ['event-1', 'event-4', 'merch-7'];
 const DISCOUNT_IDS = ['event-6'];
 
+// Re-export Duo products for convenience
+export { DUO_PRODUCTS } from '@/features/shop/data/duo';
+
 // Helper functions
 export const getAllProducts = (): Product[] =>
-  [...MOCK_PLANS, ...MOCK_MERCHANDISE];
+  [...MOCK_PLANS, ...MOCK_EVENTS, ...MOCK_MERCHANDISE, ...DUO_PRODUCTS];
 
 export const toShopProduct = (product: Product): ShopProduct => {
   const categoryMap: Record<string, ProductCategory> = {
     plan: 'plan',
     event: 'event',
     merchandise: 'merchant',
+    duo: 'duo',
   };
 
   const rating = 'rating' in product ? product.rating : 0;
 
-  return {
+  const shopProduct: ShopProduct = {
     id: product.id,
     type: product.type,
     category: categoryMap[product.type],
@@ -126,6 +132,15 @@ export const toShopProduct = (product: Product): ShopProduct => {
     isBestSeller: rating >= 4.8,
     isOnDiscount: DISCOUNT_IDS.includes(product.id) || product.price === 0,
   };
+
+  // Add event-specific fields for filtering/sorting
+  if (product.type === 'event') {
+    shopProduct.eventType = product.eventType;
+    shopProduct.date = product.date;
+    shopProduct.hotScore = product.hotScore;
+  }
+
+  return shopProduct;
 };
 
 export const getAllShopProducts = (): ShopProduct[] =>
@@ -137,6 +152,7 @@ export const getProductsByCategory = (category: ProductCategory): Product[] => {
     plan: 'plan',
     event: 'event',
     merchant: 'merchandise',
+    duo: 'duo',
   };
   return all.filter((p) => p.type === categoryMap[category]);
 };

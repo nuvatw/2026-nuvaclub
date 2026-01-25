@@ -6,35 +6,45 @@ import { Button } from '@/components/atoms';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 import { useMatchingPosts, useMatchingPost } from '@/lib/db/hooks/useMatchingPosts';
 import { useMatchingComments } from '@/lib/db/hooks/useMatchingComments';
-import { useDBContext } from '@/lib/db';
-import { MatchingFilters } from './MatchingFilters';
 import { MatchingPostCard } from './MatchingPostCard';
 import { MatchingPostDetail } from './MatchingPostDetail';
-import { LockedPostCard } from './LockedPostCard';
-import { CreatePostModal, type CreatePostData } from '../CreatePostModal';
-import { PurchaseModal } from '../PurchaseModal';
-import type { MatchingPostType, PriceType } from '@/features/space/types';
+import { cn } from '@/lib/utils';
+import { useInvitations } from '../../hooks/useInvitations';
+import { useDuoEntitlement } from '@/features/shop/hooks/useDuoEntitlement';
+import { DUO_VARIANT_LABELS, NUNU_TIER_LABELS } from '@/features/shop/data/duo';
 import type { MatchingPostSortBy, MatchingPostWithRelations } from '@/lib/db/hooks/useMatchingPosts';
+import type { MatchingPostType } from '@/features/space/types';
+import type { NunuTier } from '@/features/shop/types';
+import Link from 'next/link';
 
-const POSTS_PER_PAGE = 6;
+const POSTS_PER_PAGE = 12;
+
+type ViewMode = 'find-nunu' | 'find-vava';
+
+const SORT_OPTIONS: { value: MatchingPostSortBy; label: string }[] = [
+  { value: 'rating', label: 'Rating: High → Low' },
+  { value: 'ratingLow', label: 'Rating: Low → High' },
+  { value: 'mentoredMonthsHigh', label: 'Experience: High → Low' },
+  { value: 'mentoredMonthsLow', label: 'Experience: Low → High' },
+  { value: 'newest', label: 'Most Recent' },
+  { value: 'level', label: 'Nunu Level' },
+];
 
 export function MatchingBoardSection() {
-  const { user, identity, hasPermission } = useAuth();
-  const { db } = useDBContext();
-  const canViewVerified = hasPermission('space:view_certified_nunu');
+  const { user } = useAuth();
+  const { sendInvitation } = useInvitations();
+  const {
+    hasDuoTicket,
+    currentVariant,
+    accessibleTiers,
+    isLoading: isDuoLoading,
+  } = useDuoEntitlement();
 
-  // Check if user is an approved Nunu
-  const isNunu = useMemo(() => {
-    if (!db || !user) return false;
-    const profile = db.nunuProfiles.findFirst({ where: { userId: user.id } });
-    return !!profile;
-  }, [db, user]);
+  // View mode - Find Nunu or Find Vava
+  const [viewMode, setViewMode] = useState<ViewMode>('find-nunu');
 
-  // Filters state - default to "Find Nunu" (vava looking for nunu)
-  const [selectedType, setSelectedType] = useState<MatchingPostType | 'all'>('vava-looking-for-nunu');
-  const [selectedPriceType, setSelectedPriceType] = useState<PriceType | 'all'>('all');
-  const [sortBy, setSortBy] = useState<MatchingPostSortBy>('newest');
-  const [showVerifiedOnly, setShowVerifiedOnly] = useState(false);
+  // Sorting - default to rating high first
+  const [sortBy, setSortBy] = useState<MatchingPostSortBy>('rating');
 
   // Pagination state
   const [visibleCount, setVisibleCount] = useState(POSTS_PER_PAGE);
@@ -42,146 +52,38 @@ export function MatchingBoardSection() {
   // Selected post state
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
-  // Create post modal state
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  // Request modal state
+  const [showRequestSent, setShowRequestSent] = useState(false);
 
-  // Purchase modal state
-  const [purchasePost, setPurchasePost] = useState<MatchingPostWithRelations | null>(null);
-
-  // Build filters object
+  // Build filters - no price filtering
   const filters = useMemo(() => {
-    const f: {
-      type?: MatchingPostType;
-      priceType?: PriceType;
-      isVerifiedNunuOnly?: boolean;
-      isActive?: boolean;
-    } = {
+    return {
       isActive: true,
+      // When finding Nunu, show posts from Nunus looking for Vavas
+      // When finding Vava, show posts from Vavas looking for Nunus
+      type: viewMode === 'find-nunu'
+        ? 'nunu-looking-for-vava' as MatchingPostType
+        : 'vava-looking-for-nunu' as MatchingPostType,
     };
-
-    if (selectedType !== 'all') {
-      f.type = selectedType;
-    }
-    if (selectedPriceType !== 'all') {
-      f.priceType = selectedPriceType;
-    }
-    if (showVerifiedOnly) {
-      f.isVerifiedNunuOnly = true;
-    }
-
-    return f;
-  }, [selectedType, selectedPriceType, showVerifiedOnly]);
+  }, [viewMode]);
 
   // Fetch posts
   const { posts, isReady } = useMatchingPosts(filters, sortBy);
 
-  // Filter posts based on user permissions
-  const allVisiblePosts = useMemo(() => {
-    if (canViewVerified) {
-      return posts;
-    }
-    // For Duo Go users, show non-verified posts only
-    return posts.filter((p) => !p.isVerifiedNunuOnly);
-  }, [posts, canViewVerified]);
-
-  // Paginated posts - only render what's visible for better performance
+  // Paginated posts
   const visiblePosts = useMemo(() => {
-    return allVisiblePosts.slice(0, visibleCount);
-  }, [allVisiblePosts, visibleCount]);
+    return posts.slice(0, visibleCount);
+  }, [posts, visibleCount]);
 
-  const hasMorePosts = visibleCount < allVisiblePosts.length;
+  const hasMorePosts = visibleCount < posts.length;
 
   const handleLoadMore = useCallback(() => {
     setVisibleCount((prev) => prev + POSTS_PER_PAGE);
   }, []);
 
-  // Reset pagination when filters change
-  const handleTypeChange = useCallback((type: MatchingPostType | 'all') => {
-    setSelectedType(type);
-    setVisibleCount(POSTS_PER_PAGE);
-  }, []);
-
-  const handlePriceTypeChange = useCallback((priceType: PriceType | 'all') => {
-    setSelectedPriceType(priceType);
-    setVisibleCount(POSTS_PER_PAGE);
-  }, []);
-
-  const handleSortChange = useCallback((sort: MatchingPostSortBy) => {
-    setSortBy(sort);
-    setVisibleCount(POSTS_PER_PAGE);
-  }, []);
-
-  const handleVerifiedOnlyChange = useCallback((verified: boolean) => {
-    setShowVerifiedOnly(verified);
-    setVisibleCount(POSTS_PER_PAGE);
-  }, []);
-
-  // Locked posts count (for Duo Go users)
-  const lockedPostsCount = useMemo(() => {
-    if (canViewVerified) return 0;
-    return posts.filter((p) => p.isVerifiedNunuOnly).length;
-  }, [posts, canViewVerified]);
-
   // Selected post details
   const selectedPost = useMatchingPost(selectedPostId || '');
   const { comments } = useMatchingComments(selectedPostId || '', user?.id);
-
-  const handleCreatePost = useCallback(() => {
-    setIsCreateModalOpen(true);
-  }, []);
-
-  const handleCloseCreateModal = useCallback(() => {
-    setIsCreateModalOpen(false);
-  }, []);
-
-  const handleSubmitPost = useCallback((data: CreatePostData) => {
-    if (!db || !user) return;
-
-    const now = new Date();
-    const newPost = {
-      id: `matching-post-${Date.now()}`,
-      authorId: user.id,
-      type: data.type,
-      title: data.title,
-      content: data.content,
-      priceType: data.priceType,
-      priceAmount: data.priceAmount,
-      priceMin: data.priceMin,
-      priceMax: data.priceMax,
-      priceCurrency: 'TWD',
-      availableMonths: data.availableMonths,
-      maxSlots: data.maxSlots,
-      currentSlots: 0,
-      isVerifiedNunuOnly: false,
-      isActive: true,
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    db.matchingPosts.create(newPost);
-
-    // Create tags
-    data.tags.forEach((tag, index) => {
-      db.matchingPostTags.create({
-        id: `mpt-${newPost.id}-${index}`,
-        postId: newPost.id,
-        tag,
-      });
-    });
-
-    // Create stats entry
-    db.matchingPostStats.create({
-      postId: newPost.id,
-      viewCount: 0,
-      commentCount: 0,
-      lastUpdatedAt: now,
-    });
-
-    // Persist to storage
-    db.persist();
-
-    setIsCreateModalOpen(false);
-  }, [db, user]);
 
   const handlePostClick = (postId: string) => {
     setSelectedPostId(postId);
@@ -191,59 +93,32 @@ export function MatchingBoardSection() {
     setSelectedPostId(null);
   };
 
-  const handleRequestMatch = useCallback((postId: string) => {
-    // Find the post and open purchase modal for Nunu posts
-    const post = allVisiblePosts.find(p => p.id === postId);
-    if (post && post.type === 'nunu-looking-for-vava') {
-      setPurchasePost(post);
-    }
-  }, [allVisiblePosts]);
+  const handleSendRequest = useCallback((postId: string, message: string = '') => {
+    if (!user) return;
 
-  const handleClosePurchaseModal = useCallback(() => {
-    setPurchasePost(null);
-  }, []);
+    const post = posts.find(p => p.id === postId);
+    if (!post || !post.author) return;
 
-  const handleConfirmPurchase = useCallback((selectedMonths: string[]) => {
-    if (!db || !user || !purchasePost) return;
+    // Create an invitation using the invitations store
+    sendInvitation({
+      listingId: post.id,
+      listingTitle: post.title,
+      listingType: post.type,
+      fromUserId: user.id,
+      fromUserName: user.name,
+      fromUserAvatar: user.avatar,
+      toUserId: post.author.id,
+      toUserName: post.author.name,
+      message: message,
+    });
 
-    const now = new Date();
+    setShowRequestSent(true);
+    setTimeout(() => setShowRequestSent(false), 3000);
 
-    // Create mentorship agreement
-    const agreement = {
-      id: `agreement-${Date.now()}`,
-      postId: purchasePost.id,
-      nunuId: purchasePost.authorId,
-      vavaId: user.id,
-      agreedPrice: purchasePost.priceAmount || 0,
-      agreedMonths: selectedMonths,
-      totalAmount: (purchasePost.priceAmount || 0) * selectedMonths.length,
-      status: 'accepted' as const,
-      paymentStatus: 'paid' as const,
-      paymentMethod: 'credit-card',
-      paidAt: now,
-      createdAt: now,
-      acceptedAt: now,
-    };
-
-    db.mentorshipAgreements.create(agreement);
-
-    // Update post's current slots
-    const post = db.matchingPosts.findById(purchasePost.id);
-    if (post) {
-      db.matchingPosts.update(purchasePost.id, {
-        currentSlots: (post.currentSlots || 0) + 1,
-        updatedAt: now,
-      });
-    }
-
-    // Persist changes
-    db.persist();
-
-    setPurchasePost(null);
-  }, [db, user, purchasePost]);
+    setSelectedPostId(null);
+  }, [user, posts, sendInvitation]);
 
   const handleAddComment = (content: string, isPrivate: boolean, parentId?: string) => {
-    // TODO: Add comment to database
     console.log('Add comment', { content, isPrivate, parentId, postId: selectedPostId });
   };
 
@@ -253,9 +128,9 @@ export function MatchingBoardSection() {
         <div className="animate-pulse">
           <div className="h-8 bg-neutral-800 rounded w-48 mb-4"></div>
           <div className="h-4 bg-neutral-800 rounded w-64 mb-6"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-48 bg-neutral-800 rounded-xl"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="h-72 bg-neutral-800 rounded-xl"></div>
             ))}
           </div>
         </div>
@@ -265,113 +140,194 @@ export function MatchingBoardSection() {
 
   return (
     <section id="matching-board" className="mb-12">
-      {/* Header */}
+      {/* Success Toast */}
+      {showRequestSent && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="fixed top-4 right-4 z-50 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg"
+        >
+          Request sent successfully!
+        </motion.div>
+      )}
+
+      {/* Header with View Mode Toggle */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-start justify-between mb-6"
+        className="mb-6"
       >
-        <div>
-          <h2 className="text-2xl font-bold text-white mb-2">Matching Board</h2>
-          <p className="text-neutral-400">
-            Find your perfect Nunu mentor or recruit Vavas to guide
-          </p>
-        </div>
+        <h2 className="text-2xl font-bold text-white mb-2">Matching Board</h2>
+        <p className="text-neutral-400 mb-6">
+          Connect with mentors and learners in the community
+        </p>
 
-        <Button onClick={handleCreatePost}>
-          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-          Create Post
-        </Button>
+        {/* Find Nunu / Find Vava Toggle */}
+        <div className="flex gap-3 justify-center">
+          <button
+            onClick={() => {
+              setViewMode('find-nunu');
+              setVisibleCount(POSTS_PER_PAGE);
+            }}
+            className={cn(
+              'flex-1 sm:flex-none px-6 py-4 rounded-xl font-semibold text-lg transition-all',
+              'border-2',
+              viewMode === 'find-nunu'
+                ? 'bg-purple-600/20 border-purple-500 text-purple-400'
+                : 'bg-neutral-800/50 border-neutral-700 text-neutral-400 hover:border-neutral-600'
+            )}
+          >
+            <div className="flex items-center justify-center gap-3">
+              <span className="text-2xl">🎓</span>
+              <div className="text-left">
+                <div className="font-bold">Find Nunu</div>
+                <div className="text-xs opacity-70">Find a mentor</div>
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => {
+              setViewMode('find-vava');
+              setVisibleCount(POSTS_PER_PAGE);
+            }}
+            className={cn(
+              'flex-1 sm:flex-none px-6 py-4 rounded-xl font-semibold text-lg transition-all',
+              'border-2',
+              viewMode === 'find-vava'
+                ? 'bg-blue-600/20 border-blue-500 text-blue-400'
+                : 'bg-neutral-800/50 border-neutral-700 text-neutral-400 hover:border-neutral-600'
+            )}
+          >
+            <div className="flex items-center justify-center gap-3">
+              <span className="text-2xl">🔍</span>
+              <div className="text-left">
+                <div className="font-bold">Find Vava</div>
+                <div className="text-xs opacity-70">Find a learner</div>
+              </div>
+            </div>
+          </button>
+        </div>
       </motion.div>
 
-      {/* Filters */}
-      <MatchingFilters
-        selectedType={selectedType}
-        onTypeChange={handleTypeChange}
-        selectedPriceType={selectedPriceType}
-        onPriceTypeChange={handlePriceTypeChange}
-        sortBy={sortBy}
-        onSortChange={handleSortChange}
-        showVerifiedOnly={showVerifiedOnly}
-        onVerifiedOnlyChange={handleVerifiedOnlyChange}
-      />
+      {/* Duo Ticket Status Banner */}
+      {viewMode === 'find-nunu' && !isDuoLoading && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={cn(
+            'mb-4 p-4 rounded-xl border',
+            hasDuoTicket
+              ? 'bg-green-500/10 border-green-500/30'
+              : 'bg-amber-500/10 border-amber-500/30'
+          )}
+        >
+          {hasDuoTicket ? (
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div>
+                <p className="text-sm font-medium text-green-400">
+                  {DUO_VARIANT_LABELS[currentVariant!]} Active
+                </p>
+                <p className="text-xs text-neutral-400">
+                  You can match with: {accessibleTiers.map(t => NUNU_TIER_LABELS[t]).join(', ')}
+                </p>
+              </div>
+              {currentVariant !== 'fly' && (
+                <Link
+                  href="/shop?category=duo"
+                  className="text-xs text-green-400 hover:text-green-300 underline"
+                >
+                  Upgrade for more tiers
+                </Link>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-amber-400">
+                  No Duo Ticket
+                </p>
+                <p className="text-xs text-neutral-400">
+                  Get a Duo ticket to match with Nunu mentors
+                </p>
+              </div>
+              <Link
+                href="/shop?category=duo"
+                className="inline-flex items-center justify-center px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors"
+              >
+                Get Duo Ticket
+              </Link>
+            </div>
+          )}
+        </motion.div>
+      )}
+
+      {/* Sort Controls & Posts Count */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="text-sm text-neutral-500">
+          {posts.length} {viewMode === 'find-nunu' ? 'Nunus' : 'Vavas'} available
+          {viewMode === 'find-nunu' && hasDuoTicket && (
+            <span className="text-neutral-600 ml-1">
+              (filtered by your access tier)
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="text-xs text-neutral-500">Sort:</label>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as MatchingPostSortBy)}
+            className={cn(
+              'px-3 py-1.5 rounded-lg text-sm',
+              'bg-neutral-800 border border-neutral-700 text-white',
+              'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent'
+            )}
+          >
+            {SORT_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       {/* Posts Grid */}
-      {visiblePosts.length === 0 && lockedPostsCount === 0 ? (
+      {visiblePosts.length === 0 ? (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="text-center py-12"
         >
-          <svg
-            className="w-16 h-16 mx-auto mb-4 text-neutral-700"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-            />
-          </svg>
-          <h3 className="text-lg font-medium text-white mb-2">No posts found</h3>
+          <div className="text-6xl mb-4">
+            {viewMode === 'find-nunu' ? '🎓' : '🔍'}
+          </div>
+          <h3 className="text-lg font-medium text-white mb-2">
+            No {viewMode === 'find-nunu' ? 'Nunus' : 'Vavas'} found
+          </h3>
           <p className="text-neutral-500 mb-4">
-            Try adjusting your filters or be the first to create a post!
+            {viewMode === 'find-nunu'
+              ? 'Check back later for available mentors!'
+              : 'Check back later for learners looking for guidance!'}
           </p>
-          <Button onClick={handleCreatePost}>Create First Post</Button>
         </motion.div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {visiblePosts.map((post, index) => (
             <motion.div
               key={post.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
+              transition={{ delay: index * 0.03 }}
             >
               <MatchingPostCard
                 post={post}
                 onClick={() => handlePostClick(post.id)}
-                onRequestMatch={() => handleRequestMatch(post.id)}
+                hidePrice
               />
             </motion.div>
           ))}
-
-          {/* Show locked cards for Duo Go users */}
-          {lockedPostsCount > 0 && (
-            <>
-              {Array.from({ length: Math.min(lockedPostsCount, 2) }).map((_, i) => (
-                <motion.div
-                  key={`locked-${i}`}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: (visiblePosts.length + i) * 0.05 }}
-                >
-                  <LockedPostCard postType="verified-nunu" />
-                </motion.div>
-              ))}
-              {lockedPostsCount > 2 && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="col-span-full text-center py-4"
-                >
-                  <p className="text-neutral-500">
-                    +{lockedPostsCount - 2} more verified Nunu posts available
-                  </p>
-                </motion.div>
-              )}
-            </>
-          )}
 
           {/* Load More Button */}
           {hasMorePosts && (
@@ -381,7 +337,7 @@ export function MatchingBoardSection() {
               className="col-span-full flex justify-center pt-4"
             >
               <Button variant="secondary" onClick={handleLoadMore}>
-                Load More ({allVisiblePosts.length - visibleCount} remaining)
+                Load More ({posts.length - visibleCount} remaining)
               </Button>
             </motion.div>
           )}
@@ -394,28 +350,13 @@ export function MatchingBoardSection() {
           post={selectedPost}
           comments={comments}
           currentUserId={user?.id}
+          currentUserName={user?.name}
+          currentUserAvatar={user?.avatar}
           isOpen={!!selectedPostId}
           onClose={handleCloseDetail}
-          onRequestMatch={() => handleRequestMatch(selectedPost.id)}
+          onSendRequest={(message: string) => handleSendRequest(selectedPost.id, message)}
           onAddComment={handleAddComment}
-        />
-      )}
-
-      {/* Create Post Modal */}
-      <CreatePostModal
-        isOpen={isCreateModalOpen}
-        onClose={handleCloseCreateModal}
-        onSubmit={handleSubmitPost}
-        isNunu={isNunu}
-      />
-
-      {/* Purchase Modal */}
-      {purchasePost && (
-        <PurchaseModal
-          isOpen={!!purchasePost}
-          onClose={handleClosePurchaseModal}
-          post={purchasePost}
-          onConfirm={handleConfirmPurchase}
+          hidePrice
         />
       )}
     </section>

@@ -18,16 +18,14 @@ import {
 } from '@/mocks';
 import type { SortOption, SeasonFilter } from '@/features/sprint/types';
 import { PageTransition } from '@/components/molecules/PageTransition';
-import { SearchBar } from '@/components/molecules';
 import { SprintPageSkeleton } from '@/components/skeletons';
 import { formatDateCompact, formatDateRange } from '@/lib/utils/date';
-import { FolderIcon, SearchIcon } from '@/components/icons';
+import { FolderIcon } from '@/components/icons';
 
 export default function SprintPage() {
   const [selectedSeason, setSelectedSeason] = useState<SeasonFilter>('all');
   const [selectedSprint, setSelectedSprint] = useState<SprintFilter>('all');
   const [sortBy, setSortBy] = useState<SortOption>('most-viewed');
-  const [searchQuery, setSearchQuery] = useState('');
 
   // Get current season
   const currentSeason = getCurrentSeason();
@@ -74,54 +72,24 @@ export default function SprintPage() {
       projects = projects.filter((p) => p.sprintId === selectedSprint);
     }
 
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      projects = projects.filter((p) =>
-        p.title.toLowerCase().includes(query) ||
-        p.author.name.toLowerCase().includes(query) ||
-        p.description?.toLowerCase().includes(query)
-      );
-    }
-
     // Apply sorting
+    // Note: "most-starred" now means "Most Voted" - sort by voteCount
     return projects.sort((a, b) => {
       if (sortBy === 'most-viewed') {
         return b.viewCount - a.viewCount;
       } else {
-        return b.starCount - a.starCount;
+        // Sort by voteCount (votes), not starCount (favorites)
+        return b.voteCount - a.voteCount;
       }
     });
-  }, [allProjectsWithSeasonInfo, pastSeasons, selectedSeason, selectedSprint, sortBy, searchQuery]);
-
-  const isSearching = searchQuery.trim().length > 0;
+  }, [allProjectsWithSeasonInfo, pastSeasons, selectedSeason, selectedSprint, sortBy]);
 
   return (
     <PageTransition skeleton={<SprintPageSkeleton />}>
-      <div className="min-h-screen">
-        {/* Hero Section with Countdown */}
-        <div className="py-12 sm:py-16 bg-gradient-to-b from-neutral-900 to-neutral-950">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Header */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center mb-10"
-            >
-              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-                Sprint
-              </h1>
-              <p className="text-lg text-neutral-400 max-w-2xl mx-auto">
-                Turn learning into creations. Join Sprint challenges and showcase your skills.
-              </p>
-            </motion.div>
-
-          </div>
-        </div>
-
+      <div className="min-h-screen py-8">
         {/* Section 1: Ongoing Sprint - Clickable Cards */}
         {currentSeason && (
-          <section className="py-12 border-b border-neutral-800">
+          <section className="mb-12 border-b border-neutral-800 pb-12">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -158,11 +126,10 @@ export default function SprintPage() {
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/50 to-transparent" />
                             <div className="absolute top-3 right-3 flex gap-2">
-                              {index === 0 && (
-                                <Badge variant="primary">Official</Badge>
-                              )}
-                              {sprint.isVotingOpen && (
+                              {sprint.isVotingOpen ? (
                                 <Badge variant="warning">Voting Open</Badge>
+                              ) : (
+                                <Badge variant="success">Upload Open</Badge>
                               )}
                             </div>
                           </div>
@@ -196,7 +163,7 @@ export default function SprintPage() {
         )}
 
         {/* Section 2: Project Library - Grid with Filters */}
-        <section className="py-12">
+        <section>
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Library Header with Search and Filters */}
             <motion.div
@@ -210,21 +177,10 @@ export default function SprintPage() {
                   Project Library
                 </h2>
                 <p className="text-neutral-400">
-                  {isSearching
-                    ? `Found ${archivedProjects.length} project${archivedProjects.length !== 1 ? 's' : ''} matching "${searchQuery}"`
-                    : `Browse ${archivedProjects.length} projects from previous seasons`}
+                  Browse {archivedProjects.length} projects from previous seasons
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
-                <div className="flex-1 max-w-md">
-                  <SearchBar
-                    value={searchQuery}
-                    onChange={setSearchQuery}
-                    placeholder="Search projects by title or author..."
-                    showButton={false}
-                    size="md"
-                  />
-                </div>
                 <SprintFilters
                   seasons={pastSeasons}
                   sprints={pastSprints}
@@ -256,24 +212,17 @@ export default function SprintPage() {
             ) : (
               <div className="flex flex-col items-center justify-center py-16 text-center">
                 <div className="w-16 h-16 rounded-full bg-neutral-800 flex items-center justify-center mb-4">
-                  {isSearching ? (
-                    <SearchIcon size="lg" className="text-neutral-500" />
-                  ) : (
-                    <FolderIcon size="lg" className="text-neutral-500" />
-                  )}
+                  <FolderIcon size="lg" className="text-neutral-500" />
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">
                   No projects found
                 </h3>
                 <p className="text-neutral-400 max-w-md mb-4">
-                  {isSearching
-                    ? `No projects match "${searchQuery}". Try different search terms.`
-                    : 'No projects match the selected filters. Try adjusting your criteria.'}
+                  No projects match the selected filters. Try adjusting your criteria.
                 </p>
-                {(isSearching || selectedSeason !== 'all' || selectedSprint !== 'all') && (
+                {(selectedSeason !== 'all' || selectedSprint !== 'all') && (
                   <button
                     onClick={() => {
-                      setSearchQuery('');
                       setSelectedSeason('all');
                       setSelectedSprint('all');
                     }}

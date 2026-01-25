@@ -44,8 +44,13 @@ export interface Project {
   updatedAt: Date;
 }
 
+// Note: 'most-starred' now represents "Most Voted" (votes, not favorites)
+// The star icon in the UI represents votes, not stars/favorites
 export type SortOption = 'most-viewed' | 'most-starred';
 export type SeasonFilter = 'all' | string;
+
+// Sprint voting modes
+export type SprintMode = 'voting' | 'upload' | 'ended';
 
 // Rank display constants
 const RANK_LABELS: Record<number, string> = {

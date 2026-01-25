@@ -245,3 +245,179 @@ export function getLevelDuration(level: number): number {
   if (level <= 9) return 30;
   return 60;
 }
+
+// ==================== NUNU EXAM SYSTEM ====================
+// Separate from course levels - these are for Nunu rank certification
+
+import type { NunuExamInfo, NunuRank } from './types';
+
+export const TOTAL_NUNU_RANKS = 5;
+
+// Nunu rank details (1 = beginner Nunu, 5 = expert Nunu)
+export const NUNU_RANK_DETAILS: Record<NunuRank, {
+  title: string;
+  description: string;
+  requirements: string;
+  topics: string[];
+  skills: string[];
+}> = {
+  1: {
+    title: 'Nunu Level 1 - Newcomer',
+    description: 'Entry-level mentorship certification',
+    requirements: 'Complete Nunu training courses',
+    topics: ['Mentorship Basics', 'Communication', 'Setting Goals'],
+    skills: ['Active listening', 'Basic feedback', 'Goal setting'],
+  },
+  2: {
+    title: 'Nunu Level 2 - Guide',
+    description: 'Established mentor with proven track record',
+    requirements: 'Mentor 2+ Vavas, 3+ months experience',
+    topics: ['Advanced Communication', 'Progress Tracking', 'Conflict Resolution'],
+    skills: ['Constructive feedback', 'Progress measurement', 'Problem solving'],
+  },
+  3: {
+    title: 'Nunu Level 3 - Mentor',
+    description: 'Experienced mentor with diverse mentee base',
+    requirements: 'Mentor 5+ Vavas, 6+ months experience',
+    topics: ['Teaching Techniques', 'Learning Styles', 'Curriculum Design'],
+    skills: ['Adaptive teaching', 'Custom learning paths', 'Assessment design'],
+  },
+  4: {
+    title: 'Nunu Level 4 - Senior',
+    description: 'Senior mentor guiding other Nunus',
+    requirements: 'Mentor 10+ Vavas, 12+ months, train new Nunus',
+    topics: ['Nunu Leadership', 'Quality Standards', 'Community Building'],
+    skills: ['Leadership', 'Quality assurance', 'Mentor training'],
+  },
+  5: {
+    title: 'Nunu Level 5 - Master',
+    description: 'Master Nunu and community leader',
+    requirements: 'Mentor 20+ Vavas, outstanding contributions',
+    topics: ['Program Design', 'Community Leadership', 'Strategic Mentorship'],
+    skills: ['Program management', 'Community leadership', 'Strategic planning'],
+  },
+};
+
+// Nunu exam configurations
+export const NUNU_EXAM_CONFIGS: NunuExamInfo[] = [
+  // Rank exams (Levels 1-5)
+  {
+    id: 'nunu-rank-1',
+    type: 'rank',
+    rank: 1,
+    title: 'Nunu Level 1 Exam',
+    description: 'Entry-level Nunu certification exam',
+    topics: NUNU_RANK_DETAILS[1].topics,
+    skills: NUNU_RANK_DETAILS[1].skills,
+    durationMinutes: 15,
+    questionCount: 15,
+    passingScore: 60,
+  },
+  {
+    id: 'nunu-rank-2',
+    type: 'rank',
+    rank: 2,
+    title: 'Nunu Level 2 Exam',
+    description: 'Guide-level Nunu certification exam',
+    topics: NUNU_RANK_DETAILS[2].topics,
+    skills: NUNU_RANK_DETAILS[2].skills,
+    durationMinutes: 20,
+    questionCount: 20,
+    passingScore: 65,
+  },
+  {
+    id: 'nunu-rank-3',
+    type: 'rank',
+    rank: 3,
+    title: 'Nunu Level 3 Exam',
+    description: 'Mentor-level Nunu certification exam',
+    topics: NUNU_RANK_DETAILS[3].topics,
+    skills: NUNU_RANK_DETAILS[3].skills,
+    durationMinutes: 25,
+    questionCount: 25,
+    passingScore: 70,
+  },
+  {
+    id: 'nunu-rank-4',
+    type: 'rank',
+    rank: 4,
+    title: 'Nunu Level 4 Exam',
+    description: 'Senior Nunu certification exam',
+    topics: NUNU_RANK_DETAILS[4].topics,
+    skills: NUNU_RANK_DETAILS[4].skills,
+    durationMinutes: 30,
+    questionCount: 30,
+    passingScore: 75,
+  },
+  {
+    id: 'nunu-rank-5',
+    type: 'rank',
+    rank: 5,
+    title: 'Nunu Level 5 Exam',
+    description: 'Master Nunu certification exam',
+    topics: NUNU_RANK_DETAILS[5].topics,
+    skills: NUNU_RANK_DETAILS[5].skills,
+    durationMinutes: 45,
+    questionCount: 40,
+    passingScore: 80,
+  },
+  // Verified Nunu exam (separate from ranks)
+  {
+    id: 'nunu-verified',
+    type: 'verified',
+    title: 'Verified Nunu Exam',
+    description: 'Comprehensive exam for Verified Nunu certification. Requires completing all 5 Verified Required courses.',
+    topics: ['All Nunu Training Topics', 'Ethics & Standards', 'Professional Practice'],
+    skills: ['Complete mentorship competency', 'Professional conduct', 'Advanced teaching'],
+    durationMinutes: 60,
+    questionCount: 50,
+    passingScore: 75,
+  },
+];
+
+// Helper to get Nunu exam by ID
+export function getNunuExamById(id: string): NunuExamInfo | undefined {
+  return NUNU_EXAM_CONFIGS.find((exam) => exam.id === id);
+}
+
+// Helper to get Nunu rank exam
+export function getNunuRankExam(rank: NunuRank): NunuExamInfo | undefined {
+  return NUNU_EXAM_CONFIGS.find((exam) => exam.type === 'rank' && exam.rank === rank);
+}
+
+// Helper to get Verified Nunu exam
+export function getVerifiedNunuExam(): NunuExamInfo | undefined {
+  return NUNU_EXAM_CONFIGS.find((exam) => exam.type === 'verified');
+}
+
+// Nunu rank colors
+export const NUNU_RANK_COLORS: Record<NunuRank, string> = {
+  1: 'text-green-500',
+  2: 'text-blue-500',
+  3: 'text-purple-500',
+  4: 'text-amber-500',
+  5: 'text-red-500',
+};
+
+export const NUNU_RANK_BG_COLORS: Record<NunuRank, string> = {
+  1: 'bg-green-500/10 border-green-500/30',
+  2: 'bg-blue-500/10 border-blue-500/30',
+  3: 'bg-purple-500/10 border-purple-500/30',
+  4: 'bg-amber-500/10 border-amber-500/30',
+  5: 'bg-red-500/10 border-red-500/30',
+};
+
+// Format Nunu rank for display
+export function formatNunuRank(rank: NunuRank): string {
+  return `Nunu Level ${rank}`;
+}
+
+// Get Nunu rank color
+export function getNunuRankColor(rank: NunuRank): string {
+  return NUNU_RANK_COLORS[rank];
+}
+
+// Get Nunu rank background color
+export function getNunuRankBgColor(rank: NunuRank): string {
+  return NUNU_RANK_BG_COLORS[rank];
+}

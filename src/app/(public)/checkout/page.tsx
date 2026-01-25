@@ -6,7 +6,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/components/atoms';
 import { useCart } from '@/features/shop/components/cart';
 import { CheckoutProvider, useCheckout } from '@/features/checkout/context';
+import { useDuoEntitlement } from '@/features/shop/hooks/useDuoEntitlement';
+import { getDuoProductById } from '@/features/shop/data/duo';
 import type { CartItem } from '@/features/checkout/types';
+import type { DuoVariant } from '@/features/shop/types';
 
 // UI Components
 import { Stepper } from '@/features/checkout/components/ui/Stepper';
@@ -49,11 +52,22 @@ export default function CheckoutPage() {
   const { cart, clearCart } = useCart();
   const [isComplete, setIsComplete] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
+  const { grantEntitlement, upgradeEntitlement } = useDuoEntitlement();
 
   // Convert cart items
   const checkoutItems = convertCartToCheckoutItems(cart.items);
 
   const handlePlaceOrder = () => {
+    // Check for Duo products and grant entitlements
+    cart.items.forEach((item) => {
+      // Check if this is a Duo product
+      const duoProduct = getDuoProductById(item.productId);
+      if (duoProduct) {
+        // Grant or upgrade the Duo entitlement
+        upgradeEntitlement(duoProduct.duoVariant as DuoVariant);
+      }
+    });
+
     setOrderNumber(Math.random().toString(36).substring(2, 10).toUpperCase());
     setIsComplete(true);
     clearCart();

@@ -6,6 +6,7 @@ import { seedSpace } from './space.seed';
 import { seedSprint } from './sprint.seed';
 import { seedShop } from './shop.seed';
 import { seedTest } from './test.seed';
+import { seedDuo } from './duo.seed';
 
 /**
  * Seed all data in the correct order
@@ -26,19 +27,23 @@ export async function seedAll(db: MockDB): Promise<void> {
   await seedForum(db);
   console.log('[MockDB] ✓ Forum module seeded');
 
-  // 4. Space module (depends on users and duo tickets)
+  // 4. Duo module (depends on users)
+  await seedDuo(db);
+  console.log('[MockDB] ✓ Duo module seeded');
+
+  // 5. Space module (depends on users and duo tickets)
   await seedSpace(db);
   console.log('[MockDB] ✓ Space module seeded');
 
-  // 5. Sprint module (depends on users)
+  // 6. Sprint module (depends on users)
   await seedSprint(db);
   console.log('[MockDB] ✓ Sprint module seeded');
 
-  // 6. Shop module (depends on users for orders)
+  // 7. Shop module (depends on users for orders)
   await seedShop(db);
   console.log('[MockDB] ✓ Shop module seeded');
 
-  // 7. Test module (depends on users for progress)
+  // 8. Test module (depends on users for progress)
   await seedTest(db);
   console.log('[MockDB] ✓ Test module seeded');
 
@@ -46,4 +51,4 @@ export async function seedAll(db: MockDB): Promise<void> {
 }
 
 // Re-export individual seed functions for testing
-export { seedUsers, seedLearn, seedForum, seedSpace, seedSprint, seedShop, seedTest };
+export { seedUsers, seedLearn, seedForum, seedSpace, seedSprint, seedShop, seedTest, seedDuo };

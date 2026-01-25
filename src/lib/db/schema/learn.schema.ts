@@ -315,3 +315,31 @@ export interface CourseReviewRecord {
 
 // Unique Index: (userId, courseId) - one review per user per course
 // Index: courseId, rating
+
+// ==========================================
+// USER TRAILER PROGRESS TABLE
+// Tracks trailer watch progress separately from lessons
+// ==========================================
+export interface UserTrailerProgressRecord {
+  // Primary Key
+  id: string;
+
+  // Foreign Keys
+  userId: string; // FK -> users.id
+  courseId: string; // FK -> courses.id
+
+  // Progress Tracking
+  watchedSeconds: number; // How far they've watched
+  progressPercent: number; // 0-100
+
+  // Completion (>90% watched = completed)
+  isCompleted: boolean;
+  completedAt?: Date;
+
+  // Timestamps
+  lastWatchedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Unique Index: (userId, courseId)

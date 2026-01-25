@@ -61,7 +61,7 @@ const CONTENT_MAX_LENGTH = 10000;
 const MAX_TAGS = 5;
 const TAG_MAX_LENGTH = 20;
 
-const CATEGORIES: PostCategory[] = ['discussion', 'question', 'share', 'resource'];
+const CATEGORIES: PostCategory[] = ['question', 'resource', 'announcement', 'discussion'];
 
 // ==========================================
 // Validation

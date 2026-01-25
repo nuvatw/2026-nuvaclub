@@ -6,9 +6,10 @@ import {
   useState,
   useCallback,
   useEffect,
+  useMemo,
   type ReactNode,
 } from 'react';
-import type { IdentityType, User } from '@/features/auth/types';
+import type { IdentityType, User, UserRole } from '@/features/auth/types';
 import {
   hasPermission,
   hasAllPermissions,
@@ -16,91 +17,19 @@ import {
   type Permission,
 } from '@/features/auth/permissions';
 import { useDBContext } from '@/lib/db';
+import {
+  TEST_ACCOUNTS,
+  type TestAccount,
+} from '@/features/auth/data/test-accounts';
 
-/**
- * Test accounts available for selection
- * These map to the users seeded in the database
- *
- * Note: Duo identities have been removed in the marketplace model.
- * Space is now open to all logged-in users (Explorer+).
- */
-export interface TestAccount {
-  id: string;
-  name: string;
-  description: string;
-  identity: IdentityType;
-  isNunu?: boolean; // Whether this user is an approved Nunu
-}
-
-export const TEST_ACCOUNTS: TestAccount[] = [
-  {
-    id: 'guest',
-    name: 'Guest',
-    description: 'Unauthenticated Guest',
-    identity: 'guest',
-  },
-  {
-    id: 'user-5',
-    name: 'Kevin Lee',
-    description: 'Explorer - New user, asking questions',
-    identity: 'explorer',
-  },
-  {
-    id: 'user-7',
-    name: 'David Zhang',
-    description: 'Explorer - Casual user',
-    identity: 'explorer',
-  },
-  {
-    id: 'user-6',
-    name: 'Jessica Wu',
-    description: 'Explorer - Engaged learner',
-    identity: 'explorer',
-  },
-  {
-    id: 'user-8',
-    name: 'Lisa Chen',
-    description: 'Explorer - Active participant',
-    identity: 'explorer',
-  },
-  {
-    id: 'user-1',
-    name: 'Alex Chen',
-    description: 'Solo Traveler - Active community member',
-    identity: 'solo-traveler',
-  },
-  {
-    id: 'user-3',
-    name: 'Mike Wang',
-    description: 'Solo Traveler - Experienced learner',
-    identity: 'solo-traveler',
-  },
-  {
-    id: 'user-2',
-    name: 'Sarah Lin',
-    description: 'Solo Traveler - Nunu Mentor (N4)',
-    identity: 'solo-traveler',
-    isNunu: true,
-  },
-  {
-    id: 'user-4',
-    name: 'Emily Huang',
-    description: 'Solo Traveler - Nunu Mentor (N3)',
-    identity: 'solo-traveler',
-    isNunu: true,
-  },
-  {
-    id: 'user-10',
-    name: 'Amy Lin',
-    description: 'Solo Traveler - Nunu Mentor (N2)',
-    identity: 'solo-traveler',
-    isNunu: true,
-  },
-];
+// Re-export for backwards compatibility
+export { TEST_ACCOUNTS, TEST_ACCOUNT_TO_USER_ID, getEffectiveUserId } from '@/features/auth/data/test-accounts';
+export type { TestAccount } from '@/features/auth/data/test-accounts';
 
 interface AuthContextType {
   user: User | null;
   identity: IdentityType;
+  isAdmin: boolean;
   isLoading: boolean;
   currentAccountId: string;
   testAccounts: TestAccount[];
@@ -122,8 +51,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [identity, setIdentityState] = useState<IdentityType>('guest');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Load user from database when account changes
+  // Compute isAdmin from user role
+  const isAdmin = useMemo(() => user?.role === 'admin', [user?.role]);
+
+  // Load user from test account or database when account changes
   useEffect(() => {
+    if (currentAccountId === 'test-guest') {
+      setUser(null);
+      setIdentityState('guest');
+      return;
+    }
+
+    // For test accounts (IDs starting with 'test-'), use TestAccount data directly
+    const testAccount = TEST_ACCOUNTS.find((a) => a.id === currentAccountId);
+    if (testAccount && testAccount.id.startsWith('test-')) {
+      if (testAccount.identity === 'guest') {
+        setUser(null);
+        setIdentityState('guest');
+      } else {
+        const testUser: User = {
+          id: testAccount.id,
+          name: testAccount.name,
+          email: `${testAccount.id}@nuvaclub.test`,
+          identity: testAccount.identity,
+          role: 'user', // Test accounts are regular users by default
+          createdAt: new Date(),
+        };
+        setUser(testUser);
+        setIdentityState(testAccount.identity);
+      }
+      return;
+    }
+
+    // For database-backed users, load from DB
     if (!isReady || !db) return;
 
     if (currentAccountId === 'guest') {
@@ -134,12 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const userRecord = db.users.findById(currentAccountId);
     if (userRecord) {
-      // Map the identity type, defaulting non-existent duo types to explorer
-      let mappedIdentity = userRecord.identityType as IdentityType;
-      if (!['guest', 'explorer', 'solo-traveler'].includes(mappedIdentity)) {
-        // Legacy duo identities get mapped to solo-traveler
-        mappedIdentity = 'solo-traveler';
-      }
+      const mappedIdentity = userRecord.identityType as IdentityType;
 
       const mappedUser: User = {
         id: userRecord.id,
@@ -147,6 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: userRecord.email,
         avatar: userRecord.avatar,
         identity: mappedIdentity,
+        role: 'user',
         createdAt: userRecord.createdAt,
       };
 
@@ -177,13 +133,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(
     (name?: string) => {
       // Default to first explorer account
-      switchAccount('user-5');
+      switchAccount('test-explorer-solo-1');
     },
     [switchAccount]
   );
 
   const logout = useCallback(() => {
-    switchAccount('guest');
+    switchAccount('test-guest');
   }, [switchAccount]);
 
   const checkPermission = useCallback(
@@ -206,6 +162,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         identity,
+        isAdmin,
         isLoading,
         currentAccountId,
         testAccounts: TEST_ACCOUNTS,

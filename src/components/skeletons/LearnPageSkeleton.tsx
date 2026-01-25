@@ -101,7 +101,7 @@ function CourseRowSkeleton({ delay = 0, rowIndex }: { delay?: number; rowIndex: 
       }}
       className="mb-8"
     >
-      {/* Section header */}
+      {/* Section header - uses app gutter for consistent alignment */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -110,14 +110,18 @@ function CourseRowSkeleton({ delay = 0, rowIndex }: { delay?: number; rowIndex: 
           delay: delay + 0.1,
           ease: smoothEase,
         }}
-        className="flex items-center justify-between mb-4 px-4"
+        className="flex items-center justify-between mb-4"
+        style={{ paddingLeft: 'var(--app-gutter)', paddingRight: 'var(--app-gutter)' }}
       >
         <ShimmerText size="xl" width="1/4" />
         <ShimmerButton size="sm" />
       </motion.div>
 
-      {/* Course cards row */}
-      <div className="flex gap-4 overflow-hidden px-4">
+      {/* Course cards row - left padding with right-bleed */}
+      <div
+        className="flex gap-4 overflow-hidden pr-0"
+        style={{ paddingLeft: 'var(--app-gutter)' }}
+      >
         {[...Array(5)].map((_, index) => (
           <CourseCardSkeleton key={index} index={index + rowIndex * 5} />
         ))}
@@ -152,8 +156,11 @@ function HeroSkeleton() {
       <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/60 to-transparent z-10" />
       <div className="absolute inset-0 bg-gradient-to-r from-neutral-950/80 to-transparent z-10" />
 
-      {/* Content */}
-      <div className="absolute bottom-0 left-0 right-0 p-8 z-20">
+      {/* Content - uses app gutter for consistent alignment */}
+      <div
+        className="absolute bottom-0 left-0 right-0 py-8 z-20"
+        style={{ paddingLeft: 'var(--app-gutter)', paddingRight: 'var(--app-gutter)' }}
+      >
         {/* Badge */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}

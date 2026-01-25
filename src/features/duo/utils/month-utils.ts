@@ -73,6 +73,15 @@ export function formatMonthCompact(month: string): string {
 }
 
 /**
+ * Format month string as "Month Year"
+ * e.g., "2026-03" -> "Mar 2026"
+ */
+export function formatMonthYear(month: string): string {
+  const date = monthToDate(month);
+  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+}
+
+/**
  * Get the year from a month string
  */
 export function getYearFromMonth(month: string): number {

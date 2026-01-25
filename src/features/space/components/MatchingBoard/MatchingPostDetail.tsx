@@ -1,7 +1,7 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
-import { motion } from 'motion/react';
 import { Badge, Button, Modal } from '@/components/atoms';
 import { cn } from '@/lib/utils';
 import { formatTimeAgo } from '@/lib/utils/date';
@@ -22,27 +22,53 @@ interface MatchingPostDetailProps {
   post: MatchingPostWithRelations;
   comments: MatchingCommentWithRelations[];
   currentUserId?: string;
+  currentUserName?: string;
+  currentUserAvatar?: string;
   isOpen: boolean;
   onClose: () => void;
-  onRequestMatch?: () => void;
+  onSendRequest?: (message: string) => void;
   onAddComment: (content: string, isPrivate: boolean, parentId?: string) => void;
+  hidePrice?: boolean;
 }
 
 export function MatchingPostDetail({
   post,
   comments,
   currentUserId,
+  currentUserName,
+  currentUserAvatar,
   isOpen,
   onClose,
-  onRequestMatch,
+  onSendRequest,
   onAddComment,
+  hidePrice = false,
 }: MatchingPostDetailProps) {
+  const [showMessageForm, setShowMessageForm] = useState(false);
+  const [message, setMessage] = useState('');
+  const [isSending, setIsSending] = useState(false);
+
   const levelConfig = post.author?.nunuLevel
     ? getNunuLevelConfig(post.author.nunuLevel as NunuLevel)
     : null;
 
+  const handleSendRequest = async () => {
+    if (!message.trim() || !onSendRequest) return;
+    setIsSending(true);
+    onSendRequest(message.trim());
+    setIsSending(false);
+    setMessage('');
+    setShowMessageForm(false);
+    onClose();
+  };
+
+  const handleClose = () => {
+    setShowMessageForm(false);
+    setMessage('');
+    onClose();
+  };
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+    <Modal isOpen={isOpen} onClose={handleClose} size="lg">
       <div className="max-h-[80vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-neutral-900 border-b border-neutral-800 p-4 -mx-6 -mt-6 mb-6 px-6">
@@ -65,7 +91,7 @@ export function MatchingPostDetail({
             </div>
 
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="p-2 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,29 +149,41 @@ export function MatchingPostDetail({
           )}
         </div>
 
-        {/* Pricing & Availability */}
-        <div className="grid grid-cols-2 gap-4 mb-6 p-4 rounded-lg bg-neutral-800/30 border border-neutral-800">
-          <div>
-            <div className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Price</div>
-            <div className="text-lg font-semibold text-primary-400">
-              {formatPrice(post.priceType as PriceType, post.priceAmount, post.priceMin, post.priceMax, post.priceCurrency)}
+        {/* Pricing & Availability (only if not hidden) */}
+        {!hidePrice && (
+          <div className="grid grid-cols-2 gap-4 mb-6 p-4 rounded-lg bg-neutral-800/30 border border-neutral-800">
+            <div>
+              <div className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Price</div>
+              <div className="text-lg font-semibold text-primary-400">
+                {formatPrice(post.priceType as PriceType, post.priceAmount, post.priceMin, post.priceMax, post.priceCurrency)}
+              </div>
             </div>
+            <div>
+              <div className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Available</div>
+              <div className="text-sm text-white">
+                {formatAvailableMonths(post.availableMonths || [])}
+              </div>
+            </div>
+            {post.maxSlots !== undefined && post.type === 'nunu-looking-for-vava' && (
+              <div className="col-span-2">
+                <div className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Slots</div>
+                <div className="text-sm text-white">
+                  {(post.maxSlots ?? 0) - (post.currentSlots ?? 0)} of {post.maxSlots} available
+                </div>
+              </div>
+            )}
           </div>
-          <div>
+        )}
+
+        {/* Availability only (when price is hidden) */}
+        {hidePrice && (
+          <div className="mb-6 p-4 rounded-lg bg-neutral-800/30 border border-neutral-800">
             <div className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Available</div>
             <div className="text-sm text-white">
               {formatAvailableMonths(post.availableMonths || [])}
             </div>
           </div>
-          {post.maxSlots !== undefined && post.type === 'nunu-looking-for-vava' && (
-            <div className="col-span-2">
-              <div className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Slots</div>
-              <div className="text-sm text-white">
-                {(post.maxSlots ?? 0) - (post.currentSlots ?? 0)} of {post.maxSlots} available
-              </div>
-            </div>
-          )}
-        </div>
+        )}
 
         {/* Content */}
         <div className="prose prose-invert prose-sm max-w-none mb-6">
@@ -164,55 +202,70 @@ export function MatchingPostDetail({
           ))}
         </div>
 
-        {/* Stats */}
-        <div className="flex items-center gap-6 text-sm text-neutral-500 mb-6 pb-6 border-b border-neutral-800">
-          <span className="flex items-center gap-1">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-              />
-            </svg>
-            {post.viewCount} views
-          </span>
-          <span className="flex items-center gap-1">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-              />
-            </svg>
-            {post.commentCount} comments
-          </span>
-          <span>Posted {formatTimeAgo(post.createdAt, 'en-US')}</span>
-        </div>
-
-        {/* Action Button */}
-        {onRequestMatch && post.type === 'nunu-looking-for-vava' && (
-          <div className="mb-6">
-            <Button className="w-full" onClick={onRequestMatch}>
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              Purchase Mentorship
-            </Button>
+        {/* Mentored Months Badge */}
+        {post.author?.mentoredMonths !== undefined && post.author.mentoredMonths > 0 && (
+          <div className="mb-6 pb-6 border-b border-neutral-800">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {post.author.mentoredMonths} months mentored
+              </span>
+            </div>
           </div>
         )}
-        {post.type === 'vava-looking-for-nunu' && (
+
+        {/* Action Button / Message Form */}
+        {onSendRequest && (
           <div className="mb-6">
-            <p className="text-sm text-neutral-500 text-center">
-              This is a Vava looking for a Nunu. Comment below to connect!
-            </p>
+            {!showMessageForm ? (
+              <Button className="w-full" onClick={() => setShowMessageForm(true)}>
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                Send Request
+              </Button>
+            ) : (
+              <div className="space-y-4 p-4 rounded-xl bg-neutral-800/50 border border-neutral-700">
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">
+                    Write a message to {post.author?.name}
+                  </label>
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Introduce yourself and explain why you'd like to connect..."
+                    rows={4}
+                    className={cn(
+                      'w-full px-3 py-2 rounded-lg text-sm',
+                      'bg-neutral-900 border border-neutral-700 text-white placeholder-neutral-500',
+                      'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
+                      'resize-none'
+                    )}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="secondary"
+                    className="flex-1"
+                    onClick={() => {
+                      setShowMessageForm(false);
+                      setMessage('');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    className="flex-1"
+                    onClick={handleSendRequest}
+                    disabled={!message.trim() || isSending}
+                  >
+                    {isSending ? 'Sending...' : 'Send Request'}
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

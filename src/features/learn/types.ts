@@ -1,6 +1,12 @@
 // Course levels from 1 (beginner) to 10 (expert)
 export type CourseLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
+// Course types: Vava (learner courses) vs Nunu (mentor training courses)
+export type CourseType = 'vava' | 'nunu';
+
+// Legacy track type - kept for backward compatibility
+export type CourseTrack = 'nunu' | 'vava' | 'general';
+
 export interface Lesson {
   id: string;
   title: string;
@@ -41,6 +47,17 @@ export interface Course {
   lessonCount: number;
   isFeatured: boolean;
   createdAt: Date;
+  // Course type: 'vava' for learner courses, 'nunu' for mentor training
+  courseType: CourseType;
+  // Tool tags for Vava courses (e.g., ['ChatGPT', 'Zapier'])
+  // Used for grouping courses in Learn page. Nunu courses don't use this.
+  toolTags?: string[];
+  // Whether this course is free (hidden in UI, used for filtering/gating)
+  isFree?: boolean;
+  // Track for Nunu/Vava curriculum (optional, default: 'general') - legacy field
+  track?: CourseTrack;
+  // Whether this course is required for Verified Nunu certification
+  verifiedRequired?: boolean;
 }
 
 // Helper to get all lessons from a course (flattens chapters)
@@ -118,9 +135,25 @@ export const LEVEL_BADGE_VARIANTS: Record<CourseLevel, 'success' | 'primary' | '
   10: 'error',
 };
 
-// Helper to check if course is free (level 1)
+// Helper to check if course is free
+// Uses explicit isFree flag if set, otherwise falls back to level === 1
 export function isFreeCourse(course: Course): boolean {
-  return course.level === 1;
+  return course.isFree ?? course.level === 1;
+}
+
+// Helper to check if course is a Vava (learner) course
+export function isVavaCourse(course: Course): boolean {
+  return course.courseType === 'vava';
+}
+
+// Helper to check if course is a Nunu (mentor training) course
+export function isNunuCourse(course: Course): boolean {
+  return course.courseType === 'nunu';
+}
+
+// Get the primary tool tag for a course (first one in the array)
+export function getPrimaryToolTag(course: Course): string | undefined {
+  return course.toolTags?.[0];
 }
 
 // Legacy exports for backward compatibility

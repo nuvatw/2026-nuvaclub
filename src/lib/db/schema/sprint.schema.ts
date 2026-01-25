@@ -10,6 +10,7 @@
 export type SeasonStatus = 'upcoming' | 'active' | 'ended';
 export type SprintStatus = 'upcoming' | 'active' | 'voting' | 'ended';
 export type ProjectStatus = 'draft' | 'submitted' | 'approved' | 'rejected';
+export type ProjectVisibility = 'sprint-public' | 'nuvaclub-only' | 'public';
 
 // ==========================================
 // SEASONS TABLE
@@ -126,6 +127,12 @@ export interface ProjectRecord {
 
   // Submission Status
   status: ProjectStatus;
+
+  // Visibility Settings
+  visibility: ProjectVisibility;
+  visibilityChosenAt?: Date; // When user made post-sprint choice
+  visibilityAcknowledged: boolean; // User acknowledged public visibility at upload
+  acknowledgedAt?: Date;
 
   // Results (set after voting ends)
   rank?: number;

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 import { getMembershipDisplay } from '@/features/auth/types';
 import { cn } from '@/lib/utils';
+import { useKeyboardShortcuts } from '@/features/keyboard-shortcuts';
 
 interface MenuItem {
   label: string;
@@ -70,6 +71,7 @@ const MENU_ITEMS: MenuItem[] = [
 
 export function UserAvatarDropdown() {
   const { user, identity, logout } = useAuth();
+  const { openHelp } = useKeyboardShortcuts();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -210,6 +212,39 @@ export function UserAvatarDropdown() {
                   </svg>
                 </Link>
               ))}
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-neutral-800" />
+
+            {/* Keyboard Shortcuts */}
+            <div className="py-2">
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  openHelp();
+                }}
+                className={cn(
+                  'w-full flex items-center gap-3 px-4 py-3',
+                  'hover:bg-neutral-800/50 transition-colors',
+                  'group'
+                )}
+              >
+                <span className="text-neutral-400 group-hover:text-primary-400 transition-colors">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                  </svg>
+                </span>
+                <div className="flex-1 text-left">
+                  <p className="text-sm text-white font-medium group-hover:text-primary-400 transition-colors">
+                    Keyboard Shortcuts
+                  </p>
+                  <p className="text-xs text-neutral-500">View all shortcuts</p>
+                </div>
+                <kbd className="px-2 py-1 bg-neutral-800 border border-neutral-700 rounded text-xs text-neutral-400">
+                  ⌘/
+                </kbd>
+              </button>
             </div>
 
             {/* Divider */}
