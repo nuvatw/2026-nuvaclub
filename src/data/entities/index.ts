@@ -1,13 +1,13 @@
 /**
  * Entity Re-exports
  *
- * This file re-exports from @/mocks for backward compatibility.
- * New code should import directly from '@/mocks'.
+ * This file re-exports from @/Database for backward compatibility.
+ * New code should import directly from '@/Database'.
  *
- * @deprecated Import from '@/mocks' instead
+ * @deprecated Import from '@/Database' instead
  */
 
-// Courses - still in original location
+// Courses - still in original location (not yet migrated to Database)
 export {
   MOCK_COURSES,
   COURSE_CATEGORIES,
@@ -16,16 +16,17 @@ export {
   getCourseById,
 } from '@/features/learn/data/courses';
 
-// Forum - from mocks
-export { MOCK_POSTS, getPinnedPosts, getRecentPosts } from '@/mocks/entities/posts.mock';
+// Forum - from Database
+export { MOCK_POSTS, getPinnedPosts, getRecentPosts } from '@/Database';
 
-// Companions - from mocks
-export { MOCK_COMPANIONS } from '@/mocks/entities/companions.mock';
+// Companions - from Database
+export { MOCK_COMPANIONS } from '@/Database';
 
-// Seasons - from mocks
-export { MOCK_SEASONS } from '@/mocks/entities/seasons.mock';
+// Seasons - from Database
+export { MOCK_SEASONS } from '@/Database';
 
-// Shop - from mocks
-export { MOCK_PLANS, PLANS } from '@/mocks/entities/plans.mock';
-export { MOCK_MERCHANDISE, MERCHANDISE, getAllProducts } from '@/mocks/entities/products.mock';
-export { MOCK_EVENTS, EVENTS } from '@/mocks/entities/events.mock';
+// Shop - from Database
+export { MOCK_PLANS, PLANS } from '@/Database';
+export { MOCK_MERCHANDISE, MERCHANDISE } from '@/Database';
+export { getAllProducts } from '@/mocks/entities/products.mock';
+export { MOCK_EVENTS, EVENTS } from '@/Database';

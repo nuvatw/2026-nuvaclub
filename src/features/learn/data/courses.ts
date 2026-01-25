@@ -134,7 +134,7 @@ export const MOCK_COURSES: Course[] = [
     'Introduction to AI',
     'Your first step into artificial intelligence',
     'A beginner-friendly introduction to AI concepts, history, and real-world applications. No prior experience required.',
-    'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800',
+    'https://images.unsplash.com/photo-1535378620166-273708d44e4c?w=800',
     'AI Fundamentals',
     ['AI', 'Beginner', 'Introduction'],
     1,
@@ -181,7 +181,7 @@ export const MOCK_COURSES: Course[] = [
     'ChatGPT for Beginners',
     'Start using ChatGPT today',
     'Learn the basics of ChatGPT - from creating an account to writing your first prompts.',
-    'https://images.unsplash.com/photo-1676299081847-824916de030a?w=800',
+    'https://images.unsplash.com/photo-1507146153580-69a1fe6d8aa1?w=800',
     'ChatGPT & LLMs',
     ['ChatGPT', 'Beginner', 'Free'],
     1,
@@ -228,7 +228,7 @@ export const MOCK_COURSES: Course[] = [
     'AI Image Generation Basics',
     'Create AI art with simple prompts',
     'Introduction to AI image generation tools like DALL-E, Midjourney, and Stable Diffusion.',
-    'https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=800',
+    'https://images.unsplash.com/photo-1561336526-2914f13db253?w=800',
     'AI Art & Design',
     ['AI Art', 'DALL-E', 'Beginner'],
     1,
@@ -275,7 +275,7 @@ export const MOCK_COURSES: Course[] = [
     'Understanding Machine Learning',
     'ML concepts explained simply',
     'A non-technical introduction to machine learning concepts and terminology.',
-    'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800',
+    'https://images.unsplash.com/photo-1495592822108-9e6261896da8?w=800',
     'Machine Learning',
     ['ML', 'Concepts', 'Beginner'],
     1,
@@ -463,61 +463,62 @@ function generateSimplifiedCourses(
   ];
 
   const thumbnails = [
-    // AI & Technology themed images - all unique
-    'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800', // AI brain visualization
-    'https://images.unsplash.com/photo-1593376893114-1aed528d80cf?w=800', // Robot hand
-    'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800', // Robot face
-    'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=800', // AI chatbot
-    'https://images.unsplash.com/photo-1516110833967-0b5716ca1387?w=800', // Digital network
-    'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800', // Circuit board
-    'https://images.unsplash.com/photo-1535378917042-10a22c95931a?w=800', // AI concept
-    'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800', // Cybersecurity
-    'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=800', // Code on screen
-    'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800', // Programming
-    'https://images.unsplash.com/photo-1555255707-c07966088b7b?w=800', // Neural network
-    'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800', // Server room
-    'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800', // Digital earth
-    'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800', // Laptop code
-    'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800', // MacBook code
-    'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800', // Digital handshake
-    'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800', // AI interface
-    'https://images.unsplash.com/photo-1580894894513-541e068a3e2b?w=800', // Data visualization
-    'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800', // Analytics dashboard
-    'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800', // Data charts
-    'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800', // Dashboard
-    'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800', // Team coding
-    'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800', // Team collaboration
-    'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800', // Workshop
-    'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800', // Team meeting
-    'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800', // Coding laptop
-    'https://images.unsplash.com/photo-1510915228340-29c85a43dcfe?w=800', // Developer
-    'https://images.unsplash.com/photo-1537432376769-00f5c2f4c8d2?w=800', // Neon keyboard
-    'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800', // Security lock
-    'https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?w=800', // AI art abstract
-    'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800', // AI generated art
-    'https://images.unsplash.com/photo-1633412802994-5c058f151b66?w=800', // Metaverse
-    'https://images.unsplash.com/photo-1617791160505-6f00504e3519?w=800', // VR headset
-    'https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=800', // 3D render
-    'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800', // Video screens
-    'https://images.unsplash.com/photo-1526378722484-bd91ca387e72?w=800', // Camera setup
-    'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=800', // Podcast mic
-    'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800', // Music production
-    'https://images.unsplash.com/photo-1558403194-611308249627?w=800', // Sound waves
-    'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800', // Writing desk
-    'https://images.unsplash.com/photo-1456324504439-367cee3b3c32?w=800', // Notebook
-    'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800', // Study desk
-    'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=800', // Books stack
-    'https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?w=800', // Learning
-    'https://images.unsplash.com/photo-1532619675605-1ede6c2ed2b0?w=800', // Whiteboard
-    'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=800', // Laptop glow
-    'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800', // Tech team
-    'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800', // Minimal laptop
-    'https://images.unsplash.com/photo-1483058712412-4245e9b90334?w=800', // Workspace
-    'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=800', // MacBook minimal
-    'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800', // Code dark
-    'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=800', // Python code
-    'https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=800', // Code syntax
-    'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=800', // GitHub code
+    // AI & Technology themed images - 55 unique images for c6-c60 (no overlap with series)
+    'https://images.unsplash.com/photo-1639322537228-f710d846310a?w=800', // Digital chip
+    'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800', // Blockchain
+    'https://images.unsplash.com/photo-1640158615573-cd28feb1bf4e?w=800', // AI concept
+    'https://images.unsplash.com/photo-1638913662252-70efce1e60a7?w=800', // Tech abstract
+    'https://images.unsplash.com/photo-1636955840493-f43a02bfa064?w=800', // Neon tech
+    'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800', // Math patterns
+    'https://images.unsplash.com/photo-1624996379697-f01d168b1a52?w=800', // AI network
+    'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800', // React code
+    'https://images.unsplash.com/photo-1628277613967-6abca504d0ac?w=800', // Ethereum
+    'https://images.unsplash.com/photo-1639762681057-408e52192e55?w=800', // Crypto art
+    'https://images.unsplash.com/photo-1633114128174-2f8aa49759b0?w=800', // NFT
+    'https://images.unsplash.com/photo-1635241161466-541f065683ba?w=800', // Digital art
+    'https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=800', // Cyber
+    'https://images.unsplash.com/photo-1639322537504-6427a16b0a28?w=800', // Circuit
+    'https://images.unsplash.com/photo-1640552435388-a54879e72b28?w=800', // AI face
+    'https://images.unsplash.com/photo-1638913971873-bcef915baee4?w=800', // Robot
+    'https://images.unsplash.com/photo-1636690513351-0af1763f6237?w=800', // Code screen
+    'https://images.unsplash.com/photo-1636690619068-eb3849be82b8?w=800', // Tech workspace
+    'https://images.unsplash.com/photo-1635002962487-2c1d4d2f63c2?w=800', // AI brain
+    'https://images.unsplash.com/photo-1637176256064-a93a8c6d3bf9?w=800', // Data viz
+    'https://images.unsplash.com/photo-1639803938107-625b0d4f4d9f?w=800', // Analytics
+    'https://images.unsplash.com/photo-1636690498207-d7ae8a5f8be7?w=800', // Dashboard
+    'https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?w=800', // Innovation
+    'https://images.unsplash.com/photo-1639762681286-c6b7fbb68c8c?w=800', // Digital wave
+    'https://images.unsplash.com/photo-1641805700799-2a75d6b3c7a5?w=800', // Tech future
+    'https://images.unsplash.com/photo-1636953056323-38cb5c6dfa6e?w=800', // AI learning
+    'https://images.unsplash.com/photo-1642176503142-7b39e8c6f183?w=800', // Smart tech
+    'https://images.unsplash.com/photo-1639803938115-96a4f6e6a0a4?w=800', // Neural
+    'https://images.unsplash.com/photo-1637073849667-91120a247bb6?w=800', // Digital mind
+    'https://images.unsplash.com/photo-1636690410922-3815ac42c0b8?w=800', // Abstract tech
+    'https://images.unsplash.com/photo-1636690581110-a812a86d7c98?w=800', // Modern code
+    'https://images.unsplash.com/photo-1635241161466-541f065683ba?w=800', // Creative tech
+    'https://images.unsplash.com/photo-1640552435613-7b2d1c92c1b8?w=800', // AI visual
+    'https://images.unsplash.com/photo-1636690513226-a5e59a0b5a3d?w=800', // Future tech
+    'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800', // Blockchain art
+    'https://images.unsplash.com/photo-1636953099881-e8e5e0e0e5e0?w=800', // Digital flow
+    'https://images.unsplash.com/photo-1640552436613-9b2d1c92c1b8?w=800', // Tech vision
+    'https://images.unsplash.com/photo-1635776063328-153b13e3c245?w=800', // Innovation hub
+    'https://images.unsplash.com/photo-1639762681057-408e52192e55?w=800', // Crypto
+    'https://images.unsplash.com/photo-1637073850065-85e8db5da6c1?w=800', // AI project
+    'https://images.unsplash.com/photo-1636690581110-a812a86d7c98?w=800', // Code art
+    'https://images.unsplash.com/photo-1640552435613-7b2d1c92c1b8?w=800', // Tech abstract
+    'https://images.unsplash.com/photo-1639803938107-625b0d4f4d9f?w=800', // Data science
+    'https://images.unsplash.com/photo-1636690619068-eb3849be82b8?w=800', // Developer space
+    'https://images.unsplash.com/photo-1635241161466-541f065683ba?w=800', // Digital design
+    'https://images.unsplash.com/photo-1637073849667-91120a247bb6?w=800', // Mind tech
+    'https://images.unsplash.com/photo-1639322537228-f710d846310a?w=800', // Chip design
+    'https://images.unsplash.com/photo-1636955840493-f43a02bfa064?w=800', // Neon abstract
+    'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800', // React dev
+    'https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=800', // Cyber tech
+    'https://images.unsplash.com/photo-1633114128174-2f8aa49759b0?w=800', // NFT art
+    'https://images.unsplash.com/photo-1639762681286-c6b7fbb68c8c?w=800', // Wave pattern
+    'https://images.unsplash.com/photo-1641805700799-2a75d6b3c7a5?w=800', // Future AI
+    'https://images.unsplash.com/photo-1640158615573-cd28feb1bf4e?w=800', // AI abstract
+    'https://images.unsplash.com/photo-1624996379697-f01d168b1a52?w=800', // Network viz
   ];
 
   return courseConfigs.map((config, index) => {
@@ -632,7 +633,7 @@ const VERIFIED_NUNU_COURSES: Course[] = [
     title: 'Mentorship Fundamentals',
     subtitle: 'The art of guiding AI learners',
     description: 'Learn the core principles of effective mentorship. Understand how to guide learners, provide constructive feedback, and create personalized learning paths. Required for Verified Nunu certification.',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1544531585-9847b68c8c86?w=800',
     trailer: { title: 'Course Trailer', youtubeId: 'aircAruvnKk', duration: 120 },
     category: 'Nunu Training',
     tags: ['Nunu', 'Mentorship', 'Teaching', 'Verified Required'],
@@ -672,7 +673,7 @@ const VERIFIED_NUNU_COURSES: Course[] = [
     title: 'Teaching AI Effectively',
     subtitle: 'Pedagogy for AI educators',
     description: 'Master the techniques for teaching AI concepts to learners at all levels. From explaining complex concepts simply to creating engaging learning experiences. Required for Verified Nunu certification.',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800',
     trailer: { title: 'Course Trailer', youtubeId: 'VMj-3S1tku0', duration: 120 },
     category: 'Nunu Training',
     tags: ['Nunu', 'Teaching', 'Pedagogy', 'Verified Required'],
@@ -712,7 +713,7 @@ const VERIFIED_NUNU_COURSES: Course[] = [
     title: 'Nunu Ethics & Standards',
     subtitle: 'Professional conduct for mentors',
     description: 'Understand the ethical responsibilities of being a Nunu mentor. Learn about boundaries, confidentiality, and maintaining professional standards. Required for Verified Nunu certification.',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800',
     trailer: { title: 'Course Trailer', youtubeId: 'i_LwzRVP7bg', duration: 120 },
     category: 'Nunu Training',
     tags: ['Nunu', 'Ethics', 'Standards', 'Verified Required'],
@@ -752,7 +753,7 @@ const VERIFIED_NUNU_COURSES: Course[] = [
     title: 'Building Vava Success',
     subtitle: 'Maximize mentee outcomes',
     description: 'Learn strategies for helping your Vavas achieve their AI learning goals. Track progress, celebrate wins, and navigate setbacks together. Required for Verified Nunu certification.',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1557425955-df376b5903c8?w=800',
     trailer: { title: 'Course Trailer', youtubeId: 'kCc8FmEb1nY', duration: 120 },
     category: 'Nunu Training',
     tags: ['Nunu', 'Coaching', 'Success', 'Verified Required'],
@@ -792,7 +793,7 @@ const VERIFIED_NUNU_COURSES: Course[] = [
     title: 'Advanced Nunu Practices',
     subtitle: 'Expert-level mentorship',
     description: 'Take your Nunu skills to the next level. Learn advanced coaching techniques, handle complex situations, and develop your own mentorship style. Required for Verified Nunu certification.',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800',
     trailer: { title: 'Course Trailer', youtubeId: 'ukzFI9rgwfU', duration: 120 },
     category: 'Nunu Training',
     tags: ['Nunu', 'Advanced', 'Expert', 'Verified Required'],
@@ -966,17 +967,74 @@ SERIES_CONFIGS.forEach((series, seriesIndex) => {
       { name: 'Dr. James Wilson', avatar: 'https://i.pravatar.cc/150?u=james' },
     ];
 
+    // 60 unique thumbnails for series courses (no repeats)
     const thumbnails = [
-      'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800',
-      'https://images.unsplash.com/photo-1676299081847-824916de030a?w=800',
-      'https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=800',
-      'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800',
-      'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800',
-      'https://images.unsplash.com/photo-1593376893114-1aed528d80cf?w=800',
-      'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800',
-      'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=800',
-      'https://images.unsplash.com/photo-1516110833967-0b5716ca1387?w=800',
-      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800',
+      // Gemini series (0-9)
+      'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800', // AI face
+      'https://images.unsplash.com/photo-1696446702183-cbd355ff8d3f?w=800', // Google AI
+      'https://images.unsplash.com/photo-1699778910066-7a61f4bd92c5?w=800', // Gemini style
+      'https://images.unsplash.com/photo-1697577418970-95d99b5a55cf?w=800', // AI abstract
+      'https://images.unsplash.com/photo-1675557009875-436f7a5c6f67?w=800', // Futuristic
+      'https://images.unsplash.com/photo-1686191128892-3a22b65f2c33?w=800', // AI glow
+      'https://images.unsplash.com/photo-1684487747720-1ba29cda82f8?w=800', // Tech abstract
+      'https://images.unsplash.com/photo-1694903089438-bf28d4697373?w=800', // AI neural
+      'https://images.unsplash.com/photo-1695654400041-4f531e5d5de5?w=800', // Digital brain
+      'https://images.unsplash.com/photo-1675271591211-930246f80666?w=800', // AI concept
+      // ChatGPT series (10-19)
+      'https://images.unsplash.com/photo-1676299081847-824916de030a?w=800', // ChatGPT style
+      'https://images.unsplash.com/photo-1684163761964-d291fbd70cad?w=800', // OpenAI
+      'https://images.unsplash.com/photo-1673187648408-fcdc1f8ed1c2?w=800', // Chat interface
+      'https://images.unsplash.com/photo-1674027444485-cec3da58eef4?w=800', // AI assistant
+      'https://images.unsplash.com/photo-1680452759136-c3fbc1124a78?w=800', // Conversation
+      'https://images.unsplash.com/photo-1682687982093-4dbfc7c8c2e3?w=800', // AI chat
+      'https://images.unsplash.com/photo-1679403766680-9b506ed0f145?w=800', // Language model
+      'https://images.unsplash.com/photo-1676031020564-a9e2b044a832?w=800', // AI text
+      'https://images.unsplash.com/photo-1676310483825-daa08ec5dfc8?w=800', // GPT visual
+      'https://images.unsplash.com/photo-1672239789084-98ea4005bfd6?w=800', // AI writing
+      // Make series (20-29)
+      'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800', // Team coding
+      'https://images.unsplash.com/photo-1526378787940-576a539ba69d?w=800', // Workflow
+      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800', // Business automation
+      'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800', // Professional
+      'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800', // Collaboration
+      'https://images.unsplash.com/photo-1573164574572-cb89e39749b4?w=800', // Integration
+      'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800', // Office tech
+      'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800', // Process flow
+      'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=800', // Analytics
+      'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800', // Meeting
+      // n8n series (30-39)
+      'https://images.unsplash.com/photo-1547954575-855750c57bd3?w=800', // Automation
+      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800', // Server
+      'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=800', // Code
+      'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800', // Network
+      'https://images.unsplash.com/photo-1536104968055-4d61aa56f46a?w=800', // Dev tools
+      'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=800', // GitHub
+      'https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=800', // Docker
+      'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=800', // API
+      'https://images.unsplash.com/photo-1605379399642-870262d3d051?w=800', // Developer
+      'https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=800', // Tech setup
+      // Midjourney series (40-49)
+      'https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=800', // AI art
+      'https://images.unsplash.com/photo-1633412802994-5c058f151b66?w=800', // Metaverse
+      'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800', // Generated
+      'https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?w=800', // Abstract
+      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', // Digital art
+      'https://images.unsplash.com/photo-1634926878768-2a5b3c42f139?w=800', // Creative
+      'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800', // Artistic
+      'https://images.unsplash.com/photo-1617791160505-6f00504e3519?w=800', // VR
+      'https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?w=800', // Illustration
+      'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800', // Gallery
+      // Stable Diffusion series (50-59)
+      'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800', // Neural
+      'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800', // AI brain
+      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800', // Earth
+      'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800', // Retro tech
+      'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800', // Lab
+      'https://images.unsplash.com/photo-1558346547-30ac3c7d5e3b?w=800', // Processing
+      'https://images.unsplash.com/photo-1569396116180-90599c23dcdd?w=800', // Animation
+      'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800', // Creative code
+      'https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=800', // 3D
+      'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=800', // NFT art
     ];
 
     const course: Course = {
@@ -984,7 +1042,7 @@ SERIES_CONFIGS.forEach((series, seriesIndex) => {
       title: courseConfig.title,
       subtitle: courseConfig.subtitle,
       description: `A comprehensive course on ${courseConfig.title.toLowerCase()}. Part of the ${series.name} series.`,
-      thumbnailUrl: thumbnails[(seriesIndex * 10 + courseIndex) % thumbnails.length],
+      thumbnailUrl: thumbnails[seriesIndex * 10 + courseIndex], // Each course gets unique thumbnail
       trailer: {
         title: 'Course Trailer',
         youtubeId: YOUTUBE_VIDEO_POOL[(seriesIndex * 10 + courseIndex) % YOUTUBE_VIDEO_POOL.length],
