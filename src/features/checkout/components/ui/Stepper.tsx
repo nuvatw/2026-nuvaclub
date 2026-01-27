@@ -12,7 +12,28 @@ interface StepperProps {
 export function Stepper({ steps, currentStepIndex, completedSteps }: StepperProps) {
   return (
     <div className="w-full py-4 px-6">
-      <div className="flex items-center justify-center">
+      {/* Mobile/Tablet: Simple dots only */}
+      <div className="flex items-center justify-center gap-2 lg:hidden">
+        {steps.map((step, index) => {
+          const isCompleted = completedSteps.has(step.id);
+          const isActive = index === currentStepIndex;
+
+          return (
+            <div
+              key={step.id}
+              className={cn(
+                'w-2 h-2 rounded-full transition-all',
+                isCompleted && 'bg-blue-600',
+                isActive && !isCompleted && 'bg-blue-600 w-4',
+                !isCompleted && !isActive && 'bg-gray-300'
+              )}
+            />
+          );
+        })}
+      </div>
+
+      {/* Desktop: Full stepper with icons and labels */}
+      <div className="hidden lg:flex items-center justify-center">
         {steps.map((step, index) => {
           const isCompleted = completedSteps.has(step.id);
           const isActive = index === currentStepIndex;

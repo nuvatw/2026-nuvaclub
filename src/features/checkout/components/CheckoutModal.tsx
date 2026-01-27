@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { CheckoutProvider, useCheckout } from '../context/CheckoutContext';
@@ -55,8 +55,16 @@ function CheckoutModalContent({ onClose, onPlaceOrder }: CheckoutModalContentPro
     getCurrentStep,
   } = useCheckout();
 
+  const contentRef = useRef<HTMLDivElement>(null);
   const currentStep = getCurrentStep();
   const isValid = isCurrentStepValid();
+
+  // Scroll to top when step changes
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [state.currentStepIndex]);
 
   const handleContinue = () => {
     if (isLastStep()) {
@@ -145,7 +153,7 @@ function CheckoutModalContent({ onClose, onPlaceOrder }: CheckoutModalContentPro
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div ref={contentRef} className="flex-1 overflow-y-auto p-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Left Column - Form */}
               <div className="lg:col-span-2">
@@ -196,8 +204,8 @@ function CheckoutModalContent({ onClose, onPlaceOrder }: CheckoutModalContentPro
                 </div>
               </div>
 
-              {/* Right Column - Order Summary */}
-              <div className="lg:col-span-1">
+              {/* Right Column - Order Summary (hidden on mobile) */}
+              <div className="hidden lg:block lg:col-span-1">
                 <div className="sticky top-0">
                   <OrderSummary />
                 </div>

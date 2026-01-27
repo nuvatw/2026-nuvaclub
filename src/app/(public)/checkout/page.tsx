@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/components/atoms';
@@ -168,6 +168,7 @@ export default function CheckoutPage() {
 
 function CheckoutContent({ onPlaceOrder }: { onPlaceOrder: () => void }) {
   const router = useRouter();
+  const contentRef = useRef<HTMLDivElement>(null);
   const {
     state,
     goToNextStep,
@@ -180,6 +181,11 @@ function CheckoutContent({ onPlaceOrder }: { onPlaceOrder: () => void }) {
 
   const currentStep = getCurrentStep();
   const isValid = isCurrentStepValid();
+
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [state.currentStepIndex]);
 
   const handleContinue = () => {
     if (isLastStep()) {
@@ -301,8 +307,8 @@ function CheckoutContent({ onPlaceOrder }: { onPlaceOrder: () => void }) {
             </div>
           </div>
 
-          {/* Right Column - Order Summary */}
-          <div className="lg:col-span-1">
+          {/* Right Column - Order Summary (hidden on mobile) */}
+          <div className="hidden lg:block lg:col-span-1">
             <div className="sticky top-8">
               <OrderSummary />
             </div>
