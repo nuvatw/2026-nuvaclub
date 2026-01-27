@@ -148,6 +148,82 @@ export {
 } from './tables/duo';
 export type { DuoProduct, DuoVariant, NunuTier } from './tables/duo';
 
+// Courses
+export {
+  CoursesTable,
+  COURSE_CATEGORIES,
+  REQUIRED_SERIES_ORDER,
+  getCourseById,
+  getCoursesByCategory,
+  getCoursesByLevel,
+  getFreeCourses,
+  getFeaturedCourses,
+  getAllCourses,
+  getRecentCourses,
+  searchCourses,
+  getCourseLessons,
+  getSeriesCourses,
+  getCoursesBySeriesOrder,
+  getFreeCoursesBySeries,
+  getNunuCourses,
+  getVavaCourses,
+  getFreeVavaCourses,
+  getAllToolTags,
+  getVavaCoursesByToolTag,
+  getVerifiedRequiredCourses,
+  getCoursesByTrack,
+  MOCK_COURSES,
+  courses,
+} from './tables/courses';
+export type { Course, CourseCategory, CourseLevel, CourseType, CourseTrack, Chapter, Lesson, Trailer } from './tables/courses';
+
+// Sprints & Projects
+// Note: MOCK_SEASONS already exported from seasons.ts, Season type exported there too
+export {
+  SprintsTable,
+  ProjectsTable,
+  MOCK_SPRINTS,
+  MOCK_PROJECTS,
+  PROJECT_DATA,
+  getSprintById,
+  getSprintsBySeasonId,
+  getProjectById,
+  getProjectsBySprintId,
+  getProjectsBySeasonId,
+  getProjectsWithSeasonInfo,
+  getAllPastProjects,
+  formatSeasonDateRange,
+} from './tables/sprints';
+export type { Sprint, Project } from './tables/sprints';
+
+// Shop Products (Aggregator)
+// Note: EVENTS, MERCHANDISE, DUO_PRODUCTS already exported from their respective tables
+// Note: EventProduct, MerchandiseProduct, DuoProduct types already exported
+export {
+  getAllProducts,
+  getAllShopProducts,
+  toShopProduct,
+  getProductsByCategory,
+  getShopEventById,
+  getShopProductById,
+} from './tables/products';
+export type { Product, ShopProduct, ProductCategory } from './tables/products';
+
+// ============================================================
+// Config
+// ============================================================
+export * from './config';
+
+// ============================================================
+// Content
+// ============================================================
+export * from './content';
+
+// ============================================================
+// User State
+// ============================================================
+export * from './user-state';
+
 // ============================================================
 // Utilities
 // ============================================================

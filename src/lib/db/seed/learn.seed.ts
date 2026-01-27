@@ -11,14 +11,14 @@ export async function seedLearn(db: MockDB): Promise<void> {
   // INSTRUCTORS
   // ==========================================
   db.instructors.createMany([
-    { id: 'instructor-1', name: 'Luna', avatar: 'https://i.pravatar.cc/150?u=luna', bio: 'AI content specialist with 5 years experience', isActive: true, createdAt: now, updatedAt: now },
-    { id: 'instructor-2', name: 'Max', avatar: 'https://i.pravatar.cc/150?u=max', bio: 'Beginner-friendly AI educator', isActive: true, createdAt: now, updatedAt: now },
-    { id: 'instructor-3', name: 'Aria', avatar: 'https://i.pravatar.cc/150?u=aria', bio: 'Visual AI expert specializing in image generation', isActive: true, createdAt: now, updatedAt: now },
-    { id: 'instructor-4', name: 'Leo', avatar: 'https://i.pravatar.cc/150?u=leo', bio: 'Advanced prompt engineering specialist', isActive: true, createdAt: now, updatedAt: now },
-    { id: 'instructor-5', name: 'Nina', avatar: 'https://i.pravatar.cc/150?u=nina', bio: 'Automation workflow expert', isActive: true, createdAt: now, updatedAt: now },
-    { id: 'instructor-6', name: 'Sam', avatar: 'https://i.pravatar.cc/150?u=sam', bio: 'Data analysis and AI integration specialist', isActive: true, createdAt: now, updatedAt: now },
-    { id: 'instructor-7', name: 'Jake', avatar: 'https://i.pravatar.cc/150?u=jake', bio: 'Customer service AI implementation expert', isActive: true, createdAt: now, updatedAt: now },
-    { id: 'instructor-8', name: 'Mia', avatar: 'https://i.pravatar.cc/150?u=mia', bio: 'Content creation and hands-on project specialist', isActive: true, createdAt: now, updatedAt: now },
+    { id: 'instructor-1', name: 'Luna', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=luna&top=longHairStraight', bio: 'AI content specialist with 5 years experience', isActive: true, createdAt: now, updatedAt: now },
+    { id: 'instructor-2', name: 'Max', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=max&top=shortHairShortFlat', bio: 'Beginner-friendly AI educator', isActive: true, createdAt: now, updatedAt: now },
+    { id: 'instructor-3', name: 'Aria', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=aria&top=longHairBob', bio: 'Visual AI expert specializing in image generation', isActive: true, createdAt: now, updatedAt: now },
+    { id: 'instructor-4', name: 'Leo', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=leo&top=shortHairShortCurly', bio: 'Advanced prompt engineering specialist', isActive: true, createdAt: now, updatedAt: now },
+    { id: 'instructor-5', name: 'Nina', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=nina&top=longHairCurly', bio: 'Automation workflow expert', isActive: true, createdAt: now, updatedAt: now },
+    { id: 'instructor-6', name: 'Sam', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=sam&top=shortHairShortWaved', bio: 'Data analysis and AI integration specialist', isActive: true, createdAt: now, updatedAt: now },
+    { id: 'instructor-7', name: 'Jake', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=jake&top=shortHairTheCaesar', bio: 'Customer service AI implementation expert', isActive: true, createdAt: now, updatedAt: now },
+    { id: 'instructor-8', name: 'Mia', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=mia&top=longHairMiaWallace', bio: 'Content creation and hands-on project specialist', isActive: true, createdAt: now, updatedAt: now },
   ]);
 
   // ==========================================

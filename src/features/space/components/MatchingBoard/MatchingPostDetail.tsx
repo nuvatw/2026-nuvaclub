@@ -114,7 +114,7 @@ export function MatchingPostDetail({
           {post.author && (
             <>
               <Image
-                src={post.author.avatar || 'https://i.pravatar.cc/150?u=default'}
+                src={post.author.avatar || 'https://api.dicebear.com/9.x/avataaars/png?seed=default'}
                 alt={post.author.name}
                 width={48}
                 height={48}

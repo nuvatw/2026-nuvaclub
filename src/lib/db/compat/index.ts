@@ -150,7 +150,7 @@ export function dbPostToLegacy(post: PostWithRelations): Post {
     author: {
       id: post.author?.id ?? '',
       name: post.author?.name ?? 'Unknown',
-      avatar: post.author?.avatar,
+      avatar: post.author?.avatar ?? '',
       identity: (post.author?.identityType ?? 'guest') as Post['author']['identity'],
     },
     category: post.category,
@@ -177,7 +177,7 @@ export function dbCommentToLegacy(comment: CommentWithAuthor): Comment {
     author: {
       id: comment.author?.id ?? '',
       name: comment.author?.name ?? 'Unknown',
-      avatar: comment.author?.avatar,
+      avatar: comment.author?.avatar ?? '',
     },
     score: comment.stats?.score ?? 0,
     parentId: comment.parentId,

@@ -5,7 +5,7 @@ export const MOCK_COMPANIONS: Companion[] = [
   {
     id: 'companion-1',
     name: 'Amy',
-    avatar: 'https://i.pravatar.cc/150?u=amy-nunu',
+    avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=amy-nunu&top=longHairStraight',
     type: 'nunu',
     bio: 'Loves helping beginners get started with AI tools, skilled at explaining complex concepts in simple ways.',
     expertise: ['ChatGPT', 'Beginner Tutorial', 'Copywriting'],
@@ -17,7 +17,7 @@ export const MOCK_COMPANIONS: Companion[] = [
   {
     id: 'companion-2',
     name: 'Ben',
-    avatar: 'https://i.pravatar.cc/150?u=ben-nunu',
+    avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=ben-nunu&top=shortHairShortFlat',
     type: 'nunu',
     bio: 'Focused on AI automation, can help you build workflows.',
     expertise: ['Make.com', 'Zapier', 'Automation'],
@@ -29,7 +29,7 @@ export const MOCK_COMPANIONS: Companion[] = [
   {
     id: 'companion-3',
     name: 'Carol',
-    avatar: 'https://i.pravatar.cc/150?u=carol-nunu',
+    avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=carol-nunu&top=longHairBob',
     type: 'nunu',
     bio: 'Content creator, skilled at using AI to boost creative efficiency.',
     expertise: ['Content Creation', 'SEO', 'Social Media Management'],
@@ -42,7 +42,7 @@ export const MOCK_COMPANIONS: Companion[] = [
   {
     id: 'companion-4',
     name: 'David',
-    avatar: 'https://i.pravatar.cc/150?u=david-certified',
+    avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=david-certified&top=shortHairShortWaved',
     type: 'certified-nunu',
     bio: 'Senior AI engineer, specializing in Prompt Engineering and AI application development.',
     expertise: ['Prompt Engineering', 'API Integration', 'Python'],
@@ -54,7 +54,7 @@ export const MOCK_COMPANIONS: Companion[] = [
   {
     id: 'companion-5',
     name: 'Eva',
-    avatar: 'https://i.pravatar.cc/150?u=eva-certified',
+    avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=eva-certified&top=longHairMiaWallace',
     type: 'certified-nunu',
     bio: 'AI Product Manager, helping you go from idea to execution.',
     expertise: ['Product Planning', 'Project Management', 'AI Strategy'],
@@ -67,7 +67,7 @@ export const MOCK_COMPANIONS: Companion[] = [
   {
     id: 'companion-6',
     name: 'Shangzhe',
-    avatar: 'https://i.pravatar.cc/150?u=shangzhe',
+    avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=shangzhe&top=shortHairShortCurly',
     type: 'shangzhe',
     bio: 'nuvaClub founder, AI education expert, providing one-on-one in-depth consultation.',
     expertise: ['AI Strategy', 'Business Application', 'Career Development'],

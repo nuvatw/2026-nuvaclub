@@ -8,6 +8,9 @@ export { VotingCountdown } from './VotingCountdown';
 export { MyVotesSection } from './MyVotesSection';
 export { VotableProjectCard } from './VotableProjectCard';
 
+// Modal
+export { ProjectDetailModal } from './ProjectDetailModal';
+
 // Visibility components
 export { VisibilityNotice } from './VisibilityNotice';
 export { VisibilitySelector } from './VisibilitySelector';

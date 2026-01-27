@@ -97,7 +97,7 @@ export function PurchaseModal({ isOpen, onClose, post, onConfirm }: PurchaseModa
             {post.author && (
               <>
                 <Image
-                  src={post.author.avatar || 'https://i.pravatar.cc/150?u=default'}
+                  src={post.author.avatar || 'https://api.dicebear.com/9.x/avataaars/png?seed=default'}
                   alt={post.author.name}
                   width={56}
                   height={56}
@@ -215,7 +215,7 @@ export function PurchaseModal({ isOpen, onClose, post, onConfirm }: PurchaseModa
               {post.author && (
                 <>
                   <Image
-                    src={post.author.avatar || 'https://i.pravatar.cc/150?u=default'}
+                    src={post.author.avatar || 'https://api.dicebear.com/9.x/avataaars/png?seed=default'}
                     alt={post.author.name}
                     width={40}
                     height={40}

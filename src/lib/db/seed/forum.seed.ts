@@ -768,38 +768,39 @@ Bot invite link in comments. Feedback welcome!`,
 
   // ==========================================
   // FORUM POST STATS (30 posts)
+  // Comment counts must match actual seeded comments
   // ==========================================
   db.forumPostStats.createMany([
     { postId: 'post-1', upvotes: 48, downvotes: 6, score: 42, viewCount: 328, commentCount: 8, bookmarkCount: 12, shareCount: 5, reportCount: 0, uniqueViewCount24h: 45, postPoints: 520, trendingScore: 8.5, trendingUpdatedAt: now, lastUpdatedAt: now },
     { postId: 'post-2', upvotes: 92, downvotes: 6, score: 86, viewCount: 512, commentCount: 12, bookmarkCount: 28, shareCount: 15, reportCount: 0, uniqueViewCount24h: 85, postPoints: 1180, trendingScore: 12.2, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-3', upvotes: 38, downvotes: 4, score: 34, viewCount: 245, commentCount: 10, bookmarkCount: 8, shareCount: 3, reportCount: 0, uniqueViewCount24h: 32, postPoints: 410, trendingScore: 6.8, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-4', upvotes: 162, downvotes: 6, score: 156, viewCount: 1024, commentCount: 15, bookmarkCount: 45, shareCount: 22, reportCount: 0, uniqueViewCount24h: 120, postPoints: 1920, trendingScore: 9.5, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-3', upvotes: 38, downvotes: 4, score: 34, viewCount: 245, commentCount: 6, bookmarkCount: 8, shareCount: 3, reportCount: 0, uniqueViewCount24h: 32, postPoints: 410, trendingScore: 6.8, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-4', upvotes: 162, downvotes: 6, score: 156, viewCount: 1024, commentCount: 8, bookmarkCount: 45, shareCount: 22, reportCount: 0, uniqueViewCount24h: 120, postPoints: 1920, trendingScore: 9.5, trendingUpdatedAt: now, lastUpdatedAt: now },
     { postId: 'post-5', upvotes: 22, downvotes: 4, score: 18, viewCount: 156, commentCount: 7, bookmarkCount: 5, shareCount: 2, reportCount: 0, uniqueViewCount24h: 28, postPoints: 232, trendingScore: 7.2, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-6', upvotes: 67, downvotes: 3, score: 64, viewCount: 389, commentCount: 9, bookmarkCount: 18, shareCount: 8, reportCount: 0, uniqueViewCount24h: 52, postPoints: 780, trendingScore: 7.9, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-7', upvotes: 89, downvotes: 12, score: 77, viewCount: 567, commentCount: 23, bookmarkCount: 14, shareCount: 11, reportCount: 0, uniqueViewCount24h: 78, postPoints: 920, trendingScore: 6.5, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-8', upvotes: 54, downvotes: 2, score: 52, viewCount: 298, commentCount: 11, bookmarkCount: 22, shareCount: 6, reportCount: 0, uniqueViewCount24h: 41, postPoints: 640, trendingScore: 9.1, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-9', upvotes: 118, downvotes: 5, score: 113, viewCount: 876, commentCount: 14, bookmarkCount: 52, shareCount: 19, reportCount: 0, uniqueViewCount24h: 95, postPoints: 1450, trendingScore: 8.3, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-10', upvotes: 45, downvotes: 1, score: 44, viewCount: 234, commentCount: 6, bookmarkCount: 8, shareCount: 4, reportCount: 0, uniqueViewCount24h: 67, postPoints: 510, trendingScore: 10.8, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-11', upvotes: 76, downvotes: 8, score: 68, viewCount: 445, commentCount: 18, bookmarkCount: 21, shareCount: 9, reportCount: 0, uniqueViewCount24h: 58, postPoints: 850, trendingScore: 7.4, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-12', upvotes: 83, downvotes: 4, score: 79, viewCount: 512, commentCount: 14, bookmarkCount: 31, shareCount: 12, reportCount: 0, uniqueViewCount24h: 89, postPoints: 990, trendingScore: 11.5, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-13', upvotes: 134, downvotes: 7, score: 127, viewCount: 892, commentCount: 16, bookmarkCount: 67, shareCount: 24, reportCount: 0, uniqueViewCount24h: 76, postPoints: 1680, trendingScore: 8.1, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-14', upvotes: 61, downvotes: 3, score: 58, viewCount: 367, commentCount: 13, bookmarkCount: 19, shareCount: 7, reportCount: 0, uniqueViewCount24h: 49, postPoints: 720, trendingScore: 8.8, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-15', upvotes: 56, downvotes: 2, score: 54, viewCount: 298, commentCount: 11, bookmarkCount: 15, shareCount: 8, reportCount: 0, uniqueViewCount24h: 62, postPoints: 650, trendingScore: 9.7, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-16', upvotes: 94, downvotes: 15, score: 79, viewCount: 623, commentCount: 28, bookmarkCount: 16, shareCount: 13, reportCount: 0, uniqueViewCount24h: 71, postPoints: 980, trendingScore: 7.1, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-17', upvotes: 87, downvotes: 3, score: 84, viewCount: 534, commentCount: 12, bookmarkCount: 42, shareCount: 16, reportCount: 0, uniqueViewCount24h: 64, postPoints: 1080, trendingScore: 7.8, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-18', upvotes: 71, downvotes: 4, score: 67, viewCount: 412, commentCount: 15, bookmarkCount: 24, shareCount: 9, reportCount: 0, uniqueViewCount24h: 55, postPoints: 830, trendingScore: 7.6, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-19', upvotes: 145, downvotes: 8, score: 137, viewCount: 956, commentCount: 19, bookmarkCount: 58, shareCount: 27, reportCount: 0, uniqueViewCount24h: 82, postPoints: 1780, trendingScore: 8.4, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-20', upvotes: 29, downvotes: 2, score: 27, viewCount: 178, commentCount: 8, bookmarkCount: 6, shareCount: 3, reportCount: 0, uniqueViewCount24h: 43, postPoints: 320, trendingScore: 8.9, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-21', upvotes: 98, downvotes: 4, score: 94, viewCount: 645, commentCount: 11, bookmarkCount: 48, shareCount: 18, reportCount: 0, uniqueViewCount24h: 59, postPoints: 1220, trendingScore: 7.3, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-22', upvotes: 82, downvotes: 9, score: 73, viewCount: 489, commentCount: 21, bookmarkCount: 17, shareCount: 10, reportCount: 0, uniqueViewCount24h: 66, postPoints: 890, trendingScore: 8.7, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-23', upvotes: 63, downvotes: 3, score: 60, viewCount: 356, commentCount: 9, bookmarkCount: 14, shareCount: 7, reportCount: 0, uniqueViewCount24h: 78, postPoints: 720, trendingScore: 10.2, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-24', upvotes: 112, downvotes: 5, score: 107, viewCount: 723, commentCount: 13, bookmarkCount: 54, shareCount: 21, reportCount: 0, uniqueViewCount24h: 91, postPoints: 1380, trendingScore: 10.6, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-25', upvotes: 43, downvotes: 2, score: 41, viewCount: 267, commentCount: 12, bookmarkCount: 11, shareCount: 4, reportCount: 0, uniqueViewCount24h: 38, postPoints: 510, trendingScore: 7.5, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-26', upvotes: 67, downvotes: 6, score: 61, viewCount: 398, commentCount: 16, bookmarkCount: 13, shareCount: 6, reportCount: 0, uniqueViewCount24h: 47, postPoints: 740, trendingScore: 7.9, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-27', upvotes: 89, downvotes: 4, score: 85, viewCount: 534, commentCount: 14, bookmarkCount: 38, shareCount: 15, reportCount: 0, uniqueViewCount24h: 72, postPoints: 1050, trendingScore: 9.3, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-28', upvotes: 156, downvotes: 6, score: 150, viewCount: 1123, commentCount: 18, bookmarkCount: 72, shareCount: 31, reportCount: 0, uniqueViewCount24h: 98, postPoints: 1950, trendingScore: 8.6, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-29', upvotes: 78, downvotes: 5, score: 73, viewCount: 445, commentCount: 24, bookmarkCount: 12, shareCount: 9, reportCount: 0, uniqueViewCount24h: 85, postPoints: 880, trendingScore: 11.2, trendingUpdatedAt: now, lastUpdatedAt: now },
-    { postId: 'post-30', upvotes: 52, downvotes: 3, score: 49, viewCount: 312, commentCount: 10, bookmarkCount: 16, shareCount: 8, reportCount: 0, uniqueViewCount24h: 45, postPoints: 610, trendingScore: 7.0, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-6', upvotes: 67, downvotes: 3, score: 64, viewCount: 389, commentCount: 5, bookmarkCount: 18, shareCount: 8, reportCount: 0, uniqueViewCount24h: 52, postPoints: 780, trendingScore: 7.9, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-7', upvotes: 89, downvotes: 12, score: 77, viewCount: 567, commentCount: 6, bookmarkCount: 14, shareCount: 11, reportCount: 0, uniqueViewCount24h: 78, postPoints: 920, trendingScore: 6.5, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-8', upvotes: 54, downvotes: 2, score: 52, viewCount: 298, commentCount: 5, bookmarkCount: 22, shareCount: 6, reportCount: 0, uniqueViewCount24h: 41, postPoints: 640, trendingScore: 9.1, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-9', upvotes: 118, downvotes: 5, score: 113, viewCount: 876, commentCount: 6, bookmarkCount: 52, shareCount: 19, reportCount: 0, uniqueViewCount24h: 95, postPoints: 1450, trendingScore: 8.3, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-10', upvotes: 45, downvotes: 1, score: 44, viewCount: 234, commentCount: 4, bookmarkCount: 8, shareCount: 4, reportCount: 0, uniqueViewCount24h: 67, postPoints: 510, trendingScore: 10.8, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-11', upvotes: 76, downvotes: 8, score: 68, viewCount: 445, commentCount: 5, bookmarkCount: 21, shareCount: 9, reportCount: 0, uniqueViewCount24h: 58, postPoints: 850, trendingScore: 7.4, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-12', upvotes: 83, downvotes: 4, score: 79, viewCount: 512, commentCount: 6, bookmarkCount: 31, shareCount: 12, reportCount: 0, uniqueViewCount24h: 89, postPoints: 990, trendingScore: 11.5, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-13', upvotes: 134, downvotes: 7, score: 127, viewCount: 892, commentCount: 5, bookmarkCount: 67, shareCount: 24, reportCount: 0, uniqueViewCount24h: 76, postPoints: 1680, trendingScore: 8.1, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-14', upvotes: 61, downvotes: 3, score: 58, viewCount: 367, commentCount: 5, bookmarkCount: 19, shareCount: 7, reportCount: 0, uniqueViewCount24h: 49, postPoints: 720, trendingScore: 8.8, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-15', upvotes: 56, downvotes: 2, score: 54, viewCount: 298, commentCount: 5, bookmarkCount: 15, shareCount: 8, reportCount: 0, uniqueViewCount24h: 62, postPoints: 650, trendingScore: 9.7, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-16', upvotes: 94, downvotes: 15, score: 79, viewCount: 623, commentCount: 6, bookmarkCount: 16, shareCount: 13, reportCount: 0, uniqueViewCount24h: 71, postPoints: 980, trendingScore: 7.1, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-17', upvotes: 87, downvotes: 3, score: 84, viewCount: 534, commentCount: 5, bookmarkCount: 42, shareCount: 16, reportCount: 0, uniqueViewCount24h: 64, postPoints: 1080, trendingScore: 7.8, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-18', upvotes: 71, downvotes: 4, score: 67, viewCount: 412, commentCount: 5, bookmarkCount: 24, shareCount: 9, reportCount: 0, uniqueViewCount24h: 55, postPoints: 830, trendingScore: 7.6, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-19', upvotes: 145, downvotes: 8, score: 137, viewCount: 956, commentCount: 6, bookmarkCount: 58, shareCount: 27, reportCount: 0, uniqueViewCount24h: 82, postPoints: 1780, trendingScore: 8.4, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-20', upvotes: 29, downvotes: 2, score: 27, viewCount: 178, commentCount: 4, bookmarkCount: 6, shareCount: 3, reportCount: 0, uniqueViewCount24h: 43, postPoints: 320, trendingScore: 8.9, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-21', upvotes: 98, downvotes: 4, score: 94, viewCount: 645, commentCount: 5, bookmarkCount: 48, shareCount: 18, reportCount: 0, uniqueViewCount24h: 59, postPoints: 1220, trendingScore: 7.3, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-22', upvotes: 82, downvotes: 9, score: 73, viewCount: 489, commentCount: 5, bookmarkCount: 17, shareCount: 10, reportCount: 0, uniqueViewCount24h: 66, postPoints: 890, trendingScore: 8.7, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-23', upvotes: 63, downvotes: 3, score: 60, viewCount: 356, commentCount: 5, bookmarkCount: 14, shareCount: 7, reportCount: 0, uniqueViewCount24h: 78, postPoints: 720, trendingScore: 10.2, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-24', upvotes: 112, downvotes: 5, score: 107, viewCount: 723, commentCount: 5, bookmarkCount: 54, shareCount: 21, reportCount: 0, uniqueViewCount24h: 91, postPoints: 1380, trendingScore: 10.6, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-25', upvotes: 43, downvotes: 2, score: 41, viewCount: 267, commentCount: 5, bookmarkCount: 11, shareCount: 4, reportCount: 0, uniqueViewCount24h: 38, postPoints: 510, trendingScore: 7.5, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-26', upvotes: 67, downvotes: 6, score: 61, viewCount: 398, commentCount: 5, bookmarkCount: 13, shareCount: 6, reportCount: 0, uniqueViewCount24h: 47, postPoints: 740, trendingScore: 7.9, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-27', upvotes: 89, downvotes: 4, score: 85, viewCount: 534, commentCount: 5, bookmarkCount: 38, shareCount: 15, reportCount: 0, uniqueViewCount24h: 72, postPoints: 1050, trendingScore: 9.3, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-28', upvotes: 156, downvotes: 6, score: 150, viewCount: 1123, commentCount: 6, bookmarkCount: 72, shareCount: 31, reportCount: 0, uniqueViewCount24h: 98, postPoints: 1950, trendingScore: 8.6, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-29', upvotes: 78, downvotes: 5, score: 73, viewCount: 445, commentCount: 6, bookmarkCount: 12, shareCount: 9, reportCount: 0, uniqueViewCount24h: 85, postPoints: 880, trendingScore: 11.2, trendingUpdatedAt: now, lastUpdatedAt: now },
+    { postId: 'post-30', upvotes: 52, downvotes: 3, score: 49, viewCount: 312, commentCount: 5, bookmarkCount: 16, shareCount: 8, reportCount: 0, uniqueViewCount24h: 45, postPoints: 610, trendingScore: 7.0, trendingUpdatedAt: now, lastUpdatedAt: now },
   ]);
 
   // ==========================================
@@ -929,7 +930,7 @@ Bot invite link in comments. Feedback welcome!`,
   ]);
 
   // ==========================================
-  // FORUM COMMENTS (sample for first 5 posts)
+  // FORUM COMMENTS (all posts with matching counts)
   // ==========================================
   db.forumComments.createMany([
     // Post 1 Comments (8 total)
@@ -956,6 +957,24 @@ Bot invite link in comments. Feedback welcome!`,
     { id: 'comment-2-11', postId: 'post-2', authorId: 'user-4', content: 'Great work Sarah! Let me know if you want to collaborate on the tutorial.', isDeleted: false, createdAt: new Date('2026-01-20T12:00:00'), updatedAt: now },
     { id: 'comment-2-12', postId: 'post-2', authorId: 'user-9', content: 'Bookmarked! This is exactly the kind of project I want to build next.', isDeleted: false, createdAt: new Date('2026-01-20T14:00:00'), updatedAt: now },
 
+    // Post 3 Comments (6 total) - Midjourney v6 Discussion
+    { id: 'comment-3-1', postId: 'post-3', authorId: 'user-1', content: 'Yes! The text generation improvement is huge. Finally can add proper text to images without weird characters.', isDeleted: false, createdAt: new Date('2026-01-18T10:00:00'), updatedAt: now },
+    { id: 'comment-3-2', postId: 'post-3', authorId: 'user-2', content: 'The finger issue fix is such a relief! My character designs look so much more natural now.', isDeleted: false, createdAt: new Date('2026-01-18T10:30:00'), updatedAt: now },
+    { id: 'comment-3-3', postId: 'post-3', authorId: 'user-4', content: 'I noticed the slower generation too. Worth it for the quality though!', isDeleted: false, createdAt: new Date('2026-01-18T11:00:00'), updatedAt: now },
+    { id: 'comment-3-4', postId: 'post-3', authorId: 'user-6', content: 'The lighting improvements are incredible for product photography mockups.', isDeleted: false, createdAt: new Date('2026-01-18T12:00:00'), updatedAt: now },
+    { id: 'comment-3-5', postId: 'post-3', authorId: 'user-8', content: 'Has anyone tried the new --style raw parameter? Results are much more photorealistic.', isDeleted: false, createdAt: new Date('2026-01-18T13:00:00'), updatedAt: now },
+    { id: 'comment-3-6', postId: 'post-3', parentId: 'comment-3-5', authorId: 'user-3', content: 'Just tried it! The raw style is perfect for architectural renders.', isDeleted: false, createdAt: new Date('2026-01-18T14:00:00'), updatedAt: now },
+
+    // Post 4 Comments (8 total) - AI Tools Collection
+    { id: 'comment-4-1', postId: 'post-4', authorId: 'user-1', content: 'This list is incredibly comprehensive! Adding to my bookmarks.', isDeleted: false, createdAt: new Date('2026-01-15T15:00:00'), updatedAt: now },
+    { id: 'comment-4-2', postId: 'post-4', authorId: 'user-2', content: 'You might want to add Perplexity AI to the text generation section - it\'s great for research.', isDeleted: false, createdAt: new Date('2026-01-15T16:00:00'), updatedAt: now },
+    { id: 'comment-4-3', postId: 'post-4', authorId: 'user-3', content: 'Great compilation! I would also suggest adding Cursor for AI-assisted coding.', isDeleted: false, createdAt: new Date('2026-01-15T17:00:00'), updatedAt: now },
+    { id: 'comment-4-4', postId: 'post-4', parentId: 'comment-4-2', authorId: 'user-4', content: 'Good suggestion! Added Perplexity to the list.', isDeleted: false, createdAt: new Date('2026-01-15T18:00:00'), updatedAt: now },
+    { id: 'comment-4-5', postId: 'post-4', authorId: 'user-5', content: 'This is so helpful for beginners like me. Thank you!', isDeleted: false, createdAt: new Date('2026-01-16T09:00:00'), updatedAt: now },
+    { id: 'comment-4-6', postId: 'post-4', authorId: 'user-7', content: 'Don\'t forget ElevenLabs for voice generation - game changer for content creators.', isDeleted: false, createdAt: new Date('2026-01-16T10:00:00'), updatedAt: now },
+    { id: 'comment-4-7', postId: 'post-4', authorId: 'user-9', content: 'The automation tools section could use Bardeen as well - great for browser automation.', isDeleted: false, createdAt: new Date('2026-01-16T11:00:00'), updatedAt: now },
+    { id: 'comment-4-8', postId: 'post-4', authorId: 'user-10', content: 'Pinning this post! Essential resource for the community.', isDeleted: false, createdAt: new Date('2026-01-16T12:00:00'), updatedAt: now },
+
     // Post 5 Comments (7 total)
     { id: 'comment-5-1', postId: 'post-5', authorId: 'user-2', content: 'You don\'t need much prerequisite knowledge. I recommend starting with the free courses here!', isDeleted: false, createdAt: new Date('2026-01-21T09:00:00'), updatedAt: now },
     { id: 'comment-5-2', postId: 'post-5', authorId: 'user-4', content: 'The basics can be learned in a weekend, but mastery takes continuous practice.', isDeleted: false, createdAt: new Date('2026-01-21T10:00:00'), updatedAt: now },
@@ -965,23 +984,192 @@ Bot invite link in comments. Feedback welcome!`,
     { id: 'comment-5-6', postId: 'post-5', authorId: 'user-6', content: 'Join the community Discord too! We have weekly prompt challenges.', isDeleted: false, createdAt: new Date('2026-01-21T13:00:00'), updatedAt: now },
     { id: 'comment-5-7', postId: 'post-5', authorId: 'user-9', content: 'The most important thing is just to start experimenting!', isDeleted: false, createdAt: new Date('2026-01-21T14:00:00'), updatedAt: now },
 
-    // Post 12 Comments (sample)
+    // Post 6 Comments (5 total) - AI Art Challenge
+    { id: 'comment-6-1', postId: 'post-6', authorId: 'user-1', content: 'Love the consistency in your portfolio! The seed value tip is gold.', isDeleted: false, createdAt: new Date('2026-01-17T17:00:00'), updatedAt: now },
+    { id: 'comment-6-2', postId: 'post-6', authorId: 'user-3', content: 'Would you mind sharing some of your prompt templates?', isDeleted: false, createdAt: new Date('2026-01-17T18:00:00'), updatedAt: now },
+    { id: 'comment-6-3', postId: 'post-6', parentId: 'comment-6-2', authorId: 'user-6', content: 'Sure! I\'ll post them in the resources channel.', isDeleted: false, createdAt: new Date('2026-01-17T19:00:00'), updatedAt: now },
+    { id: 'comment-6-4', postId: 'post-6', authorId: 'user-8', content: 'This inspires me to try a similar challenge. 30 days seems achievable!', isDeleted: false, createdAt: new Date('2026-01-17T20:00:00'), updatedAt: now },
+    { id: 'comment-6-5', postId: 'post-6', authorId: 'user-10', content: 'Great work! You should submit some of these to our weekly challenge.', isDeleted: false, createdAt: new Date('2026-01-17T21:00:00'), updatedAt: now },
+
+    // Post 7 Comments (6 total) - AI replacing developers
+    { id: 'comment-7-1', postId: 'post-7', authorId: 'user-2', content: 'I see AI as a force multiplier. A good developer with AI is 10x more productive.', isDeleted: false, createdAt: new Date('2026-01-16T12:00:00'), updatedAt: now },
+    { id: 'comment-7-2', postId: 'post-7', authorId: 'user-4', content: 'The creative problem-solving aspect is hard to automate. That\'s where humans excel.', isDeleted: false, createdAt: new Date('2026-01-16T13:00:00'), updatedAt: now },
+    { id: 'comment-7-3', postId: 'post-7', authorId: 'user-5', content: 'As a beginner, AI actually helps me learn faster by explaining code.', isDeleted: false, createdAt: new Date('2026-01-16T14:00:00'), updatedAt: now },
+    { id: 'comment-7-4', postId: 'post-7', authorId: 'user-8', content: 'I think the roles will shift, not disappear. We\'ll be more like AI orchestrators.', isDeleted: false, createdAt: new Date('2026-01-16T15:00:00'), updatedAt: now },
+    { id: 'comment-7-5', postId: 'post-7', authorId: 'user-9', content: 'History shows that automation creates new jobs. Same will happen here.', isDeleted: false, createdAt: new Date('2026-01-16T16:00:00'), updatedAt: now },
+    { id: 'comment-7-6', postId: 'post-7', parentId: 'comment-7-1', authorId: 'user-7', content: 'Totally agree with the force multiplier analogy. Well said!', isDeleted: false, createdAt: new Date('2026-01-16T17:00:00'), updatedAt: now },
+
+    // Post 8 Comments (5 total) - API Cost Optimization
+    { id: 'comment-8-1', postId: 'post-8', authorId: 'user-2', content: 'Caching is key! I use Redis for common queries and saved 40% on costs.', isDeleted: false, createdAt: new Date('2026-01-19T10:00:00'), updatedAt: now },
+    { id: 'comment-8-2', postId: 'post-8', authorId: 'user-4', content: 'Try using GPT-3.5 for classification tasks and GPT-4 only for complex generation.', isDeleted: false, createdAt: new Date('2026-01-19T11:00:00'), updatedAt: now },
+    { id: 'comment-8-3', postId: 'post-8', authorId: 'user-9', content: 'Prompt compression can reduce tokens by 30-50%. Look into semantic compression techniques.', isDeleted: false, createdAt: new Date('2026-01-19T12:00:00'), updatedAt: now },
+    { id: 'comment-8-4', postId: 'post-8', parentId: 'comment-8-1', authorId: 'user-8', content: 'Thanks! Redis caching sounds promising. Any tutorial recommendations?', isDeleted: false, createdAt: new Date('2026-01-19T13:00:00'), updatedAt: now },
+    { id: 'comment-8-5', postId: 'post-8', authorId: 'user-10', content: 'Also consider batch processing requests during off-peak hours for better rates.', isDeleted: false, createdAt: new Date('2026-01-19T14:00:00'), updatedAt: now },
+
+    // Post 9 Comments (6 total) - Local LLM Guide
+    { id: 'comment-9-1', postId: 'post-9', authorId: 'user-1', content: 'This is exactly what I needed! Running Ollama on my Mac M2 now.', isDeleted: false, createdAt: new Date('2026-01-14T21:00:00'), updatedAt: now },
+    { id: 'comment-9-2', postId: 'post-9', authorId: 'user-3', content: 'How does CodeLlama compare to GitHub Copilot for coding tasks?', isDeleted: false, createdAt: new Date('2026-01-14T22:00:00'), updatedAt: now },
+    { id: 'comment-9-3', postId: 'post-9', parentId: 'comment-9-2', authorId: 'user-9', content: 'It\'s close for simpler tasks, but Copilot still edges out for context-aware completions.', isDeleted: false, createdAt: new Date('2026-01-14T23:00:00'), updatedAt: now },
+    { id: 'comment-9-4', postId: 'post-9', authorId: 'user-5', content: 'The privacy aspect is huge for enterprise use cases. Great guide!', isDeleted: false, createdAt: new Date('2026-01-15T08:00:00'), updatedAt: now },
+    { id: 'comment-9-5', postId: 'post-9', authorId: 'user-7', content: 'What about memory usage? My 16GB Mac struggles with larger models.', isDeleted: false, createdAt: new Date('2026-01-15T09:00:00'), updatedAt: now },
+    { id: 'comment-9-6', postId: 'post-9', authorId: 'user-10', content: 'Try quantized models (Q4) - they use much less RAM with minimal quality loss.', isDeleted: false, createdAt: new Date('2026-01-15T10:00:00'), updatedAt: now },
+
+    // Post 10 Comments (4 total) - Weekly Challenge
+    { id: 'comment-10-1', postId: 'post-10', authorId: 'user-2', content: 'Congrats to all winners! The pixel art entries were amazing.', isDeleted: false, createdAt: new Date('2026-01-20T19:00:00'), updatedAt: now },
+    { id: 'comment-10-2', postId: 'post-10', authorId: 'user-3', content: 'Thanks for organizing these challenges! Already working on my futuristic city.', isDeleted: false, createdAt: new Date('2026-01-20T20:00:00'), updatedAt: now },
+    { id: 'comment-10-3', postId: 'post-10', authorId: 'user-6', content: 'So honored to place! Can\'t wait for the next theme.', isDeleted: false, createdAt: new Date('2026-01-20T21:00:00'), updatedAt: now },
+    { id: 'comment-10-4', postId: 'post-10', authorId: 'user-8', content: 'These weekly challenges are my favorite part of the community!', isDeleted: false, createdAt: new Date('2026-01-20T22:00:00'), updatedAt: now },
+
+    // Post 11 Comments (5 total) - Claude vs ChatGPT
+    { id: 'comment-11-1', postId: 'post-11', authorId: 'user-1', content: 'Great comparison! I\'ve noticed Claude is better for longer documents too.', isDeleted: false, createdAt: new Date('2026-01-18T15:00:00'), updatedAt: now },
+    { id: 'comment-11-2', postId: 'post-11', authorId: 'user-3', content: 'The reasoning explanation from Claude is indeed more thorough.', isDeleted: false, createdAt: new Date('2026-01-18T16:00:00'), updatedAt: now },
+    { id: 'comment-11-3', postId: 'post-11', authorId: 'user-5', content: 'As a beginner, which would you recommend starting with?', isDeleted: false, createdAt: new Date('2026-01-18T17:00:00'), updatedAt: now },
+    { id: 'comment-11-4', postId: 'post-11', parentId: 'comment-11-3', authorId: 'user-2', content: 'Start with ChatGPT - larger community means more resources to learn from.', isDeleted: false, createdAt: new Date('2026-01-18T18:00:00'), updatedAt: now },
+    { id: 'comment-11-5', postId: 'post-11', authorId: 'user-9', content: 'I use both depending on the task. Having options is great!', isDeleted: false, createdAt: new Date('2026-01-18T19:00:00'), updatedAt: now },
+
+    // Post 12 Comments (6 total) - Chrome Extension
     { id: 'comment-12-1', postId: 'post-12', authorId: 'user-1', content: 'This is incredible! 2 hours for a working extension is amazing.', isDeleted: false, createdAt: new Date('2026-01-21T12:00:00'), updatedAt: now },
     { id: 'comment-12-2', postId: 'post-12', authorId: 'user-5', content: 'Please share the source code! I\'d love to learn from it.', isDeleted: false, createdAt: new Date('2026-01-21T12:30:00'), updatedAt: now },
     { id: 'comment-12-3', postId: 'post-12', authorId: 'user-3', content: 'What API are you using for the summarization? OpenAI or something else?', isDeleted: false, createdAt: new Date('2026-01-21T13:00:00'), updatedAt: now },
     { id: 'comment-12-4', postId: 'post-12', parentId: 'comment-12-3', authorId: 'user-4', content: 'I used GPT-4 Turbo for the best quality summaries.', isDeleted: false, createdAt: new Date('2026-01-21T13:30:00'), updatedAt: now },
+    { id: 'comment-12-5', postId: 'post-12', authorId: 'user-7', content: 'Does it handle paywalled content or just public pages?', isDeleted: false, createdAt: new Date('2026-01-21T14:00:00'), updatedAt: now },
+    { id: 'comment-12-6', postId: 'post-12', authorId: 'user-9', content: 'This could be a great product! Have you considered monetizing it?', isDeleted: false, createdAt: new Date('2026-01-21T14:30:00'), updatedAt: now },
 
-    // Post 29 Comments (sample for discussion post)
+    // Post 13 Comments (5 total) - ChatGPT Prompts Cheat Sheet
+    { id: 'comment-13-1', postId: 'post-13', authorId: 'user-2', content: 'The debugging prompts are gold! Saved me hours yesterday.', isDeleted: false, createdAt: new Date('2026-01-17T09:00:00'), updatedAt: now },
+    { id: 'comment-13-2', postId: 'post-13', authorId: 'user-4', content: 'Bookmarked! The documentation prompts are exactly what I needed.', isDeleted: false, createdAt: new Date('2026-01-17T10:00:00'), updatedAt: now },
+    { id: 'comment-13-3', postId: 'post-13', authorId: 'user-6', content: 'Any prompts specifically for React/TypeScript development?', isDeleted: false, createdAt: new Date('2026-01-17T11:00:00'), updatedAt: now },
+    { id: 'comment-13-4', postId: 'post-13', parentId: 'comment-13-3', authorId: 'user-1', content: 'I\'ll add a React-specific section in the update!', isDeleted: false, createdAt: new Date('2026-01-17T12:00:00'), updatedAt: now },
+    { id: 'comment-13-5', postId: 'post-13', authorId: 'user-10', content: 'The learning prompts are great for junior devs. Sharing with my team!', isDeleted: false, createdAt: new Date('2026-01-17T13:00:00'), updatedAt: now },
+
+    // Post 14 Comments (5 total) - AI Hallucinations
+    { id: 'comment-14-1', postId: 'post-14', authorId: 'user-2', content: 'We use a verification layer that cross-checks responses against our knowledge base.', isDeleted: false, createdAt: new Date('2026-01-19T17:00:00'), updatedAt: now },
+    { id: 'comment-14-2', postId: 'post-14', authorId: 'user-4', content: 'Try adding "Only respond based on the provided context" to your system prompt.', isDeleted: false, createdAt: new Date('2026-01-19T18:00:00'), updatedAt: now },
+    { id: 'comment-14-3', postId: 'post-14', authorId: 'user-9', content: 'Guardrails AI is a good library for this. We use it in production.', isDeleted: false, createdAt: new Date('2026-01-19T19:00:00'), updatedAt: now },
+    { id: 'comment-14-4', postId: 'post-14', parentId: 'comment-14-3', authorId: 'user-3', content: 'Thanks for the recommendation! Will check it out.', isDeleted: false, createdAt: new Date('2026-01-19T20:00:00'), updatedAt: now },
+    { id: 'comment-14-5', postId: 'post-14', authorId: 'user-10', content: 'Also consider having a human review step for critical responses.', isDeleted: false, createdAt: new Date('2026-01-19T21:00:00'), updatedAt: now },
+
+    // Post 15 Comments (5 total) - First AI App Journey
+    { id: 'comment-15-1', postId: 'post-15', authorId: 'user-2', content: 'Congrats on shipping! The recipe generator sounds really useful.', isDeleted: false, createdAt: new Date('2026-01-20T16:00:00'), updatedAt: now },
+    { id: 'comment-15-2', postId: 'post-15', authorId: 'user-4', content: 'A month to your first app is impressive! Took me much longer.', isDeleted: false, createdAt: new Date('2026-01-20T17:00:00'), updatedAt: now },
+    { id: 'comment-15-3', postId: 'post-15', authorId: 'user-6', content: 'Would love to try it! Is there a link?', isDeleted: false, createdAt: new Date('2026-01-20T18:00:00'), updatedAt: now },
+    { id: 'comment-15-4', postId: 'post-15', authorId: 'user-10', content: 'So proud of your progress! Keep building and sharing.', isDeleted: false, createdAt: new Date('2026-01-20T19:00:00'), updatedAt: now },
+    { id: 'comment-15-5', postId: 'post-15', parentId: 'comment-15-4', authorId: 'user-5', content: 'Thank you for all the mentorship! Couldn\'t have done it without this community.', isDeleted: false, createdAt: new Date('2026-01-20T20:00:00'), updatedAt: now },
+
+    // Post 16 Comments (6 total) - Ethics of AI Art
+    { id: 'comment-16-1', postId: 'post-16', authorId: 'user-1', content: 'This is such an important discussion. I lean towards disclosure being essential.', isDeleted: false, createdAt: new Date('2026-01-16T20:00:00'), updatedAt: now },
+    { id: 'comment-16-2', postId: 'post-16', authorId: 'user-2', content: 'I think it depends on the use case. Personal projects vs commercial are different.', isDeleted: false, createdAt: new Date('2026-01-16T21:00:00'), updatedAt: now },
+    { id: 'comment-16-3', postId: 'post-16', authorId: 'user-4', content: 'We need better attribution systems for training data. It\'s a complex problem.', isDeleted: false, createdAt: new Date('2026-01-16T22:00:00'), updatedAt: now },
+    { id: 'comment-16-4', postId: 'post-16', authorId: 'user-7', content: 'Some artists are using AI as a tool, not a replacement. That feels ethical to me.', isDeleted: false, createdAt: new Date('2026-01-16T23:00:00'), updatedAt: now },
+    { id: 'comment-16-5', postId: 'post-16', authorId: 'user-9', content: 'The technology is moving faster than regulation. We need community standards.', isDeleted: false, createdAt: new Date('2026-01-17T08:00:00'), updatedAt: now },
+    { id: 'comment-16-6', postId: 'post-16', parentId: 'comment-16-3', authorId: 'user-6', content: 'Agreed. Adobe\'s Content Credentials is a step in the right direction.', isDeleted: false, createdAt: new Date('2026-01-17T09:00:00'), updatedAt: now },
+
+    // Post 17 Comments (5 total) - Notion Template
+    { id: 'comment-17-1', postId: 'post-17', authorId: 'user-1', content: 'The cost calculator alone is worth it! Thanks for sharing.', isDeleted: false, createdAt: new Date('2026-01-15T11:00:00'), updatedAt: now },
+    { id: 'comment-17-2', postId: 'post-17', authorId: 'user-3', content: 'How do you track prompt versions? Manual entries or automated?', isDeleted: false, createdAt: new Date('2026-01-15T12:00:00'), updatedAt: now },
+    { id: 'comment-17-3', postId: 'post-17', parentId: 'comment-17-2', authorId: 'user-8', content: 'I use a combination - manual for major changes, automated for timestamps.', isDeleted: false, createdAt: new Date('2026-01-15T13:00:00'), updatedAt: now },
+    { id: 'comment-17-4', postId: 'post-17', authorId: 'user-5', content: 'This will help me stay organized. Currently my prompts are all over the place!', isDeleted: false, createdAt: new Date('2026-01-15T14:00:00'), updatedAt: now },
+    { id: 'comment-17-5', postId: 'post-17', authorId: 'user-10', content: 'Feature request: integration with LangSmith for experiment tracking.', isDeleted: false, createdAt: new Date('2026-01-15T15:00:00'), updatedAt: now },
+
+    // Post 18 Comments (5 total) - RAG vs Fine-tuning
+    { id: 'comment-18-1', postId: 'post-18', authorId: 'user-2', content: 'For legal documents, I\'d strongly recommend RAG for the citation accuracy.', isDeleted: false, createdAt: new Date('2026-01-18T22:00:00'), updatedAt: now },
+    { id: 'comment-18-2', postId: 'post-18', authorId: 'user-4', content: 'We use a hybrid approach - RAG for retrieval, fine-tuned model for response generation.', isDeleted: false, createdAt: new Date('2026-01-18T23:00:00'), updatedAt: now },
+    { id: 'comment-18-3', postId: 'post-18', authorId: 'user-6', content: 'Fine-tuning is expensive and hard to update. RAG is more flexible.', isDeleted: false, createdAt: new Date('2026-01-19T08:00:00'), updatedAt: now },
+    { id: 'comment-18-4', postId: 'post-18', parentId: 'comment-18-2', authorId: 'user-9', content: 'Interesting hybrid approach! Can you share more about your architecture?', isDeleted: false, createdAt: new Date('2026-01-19T09:00:00'), updatedAt: now },
+    { id: 'comment-18-5', postId: 'post-18', authorId: 'user-10', content: 'For 10k documents, RAG is definitely the way to go. Fine-tuning at that scale is overkill.', isDeleted: false, createdAt: new Date('2026-01-19T10:00:00'), updatedAt: now },
+
+    // Post 19 Comments (6 total) - 80% Automation
+    { id: 'comment-19-1', postId: 'post-19', authorId: 'user-1', content: 'The failed experiments section is so honest and helpful. Thanks for sharing that!', isDeleted: false, createdAt: new Date('2026-01-17T14:00:00'), updatedAt: now },
+    { id: 'comment-19-2', postId: 'post-19', authorId: 'user-3', content: 'What tools do you use for meeting summaries? I\'m still doing that manually.', isDeleted: false, createdAt: new Date('2026-01-17T15:00:00'), updatedAt: now },
+    { id: 'comment-19-3', postId: 'post-19', parentId: 'comment-19-2', authorId: 'user-10', content: 'I use Otter.ai for transcription then GPT for summarization. Works great!', isDeleted: false, createdAt: new Date('2026-01-17T16:00:00'), updatedAt: now },
+    { id: 'comment-19-4', postId: 'post-19', authorId: 'user-5', content: '80% automation sounds like a dream. What\'s your biggest time saver?', isDeleted: false, createdAt: new Date('2026-01-17T17:00:00'), updatedAt: now },
+    { id: 'comment-19-5', postId: 'post-19', authorId: 'user-7', content: 'The email sorting automation alone would change my life. Tutorial please!', isDeleted: false, createdAt: new Date('2026-01-17T18:00:00'), updatedAt: now },
+    { id: 'comment-19-6', postId: 'post-19', authorId: 'user-9', content: 'Love the realistic perspective. Not everything should be automated.', isDeleted: false, createdAt: new Date('2026-01-17T19:00:00'), updatedAt: now },
+
+    // Post 20 Comments (4 total) - Stable Diffusion Local
+    { id: 'comment-20-1', postId: 'post-20', authorId: 'user-2', content: 'M2 can run SD with MPS acceleration. Give it a try with AUTOMATIC1111.', isDeleted: false, createdAt: new Date('2026-01-21T10:00:00'), updatedAt: now },
+    { id: 'comment-20-2', postId: 'post-20', authorId: 'user-4', content: 'For cloud options, check out RunPod - pay by the minute and quite affordable.', isDeleted: false, createdAt: new Date('2026-01-21T11:00:00'), updatedAt: now },
+    { id: 'comment-20-3', postId: 'post-20', authorId: 'user-9', content: 'ComfyUI runs well on M2. Lower VRAM usage than AUTOMATIC1111.', isDeleted: false, createdAt: new Date('2026-01-21T12:00:00'), updatedAt: now },
+    { id: 'comment-20-4', postId: 'post-20', parentId: 'comment-20-1', authorId: 'user-7', content: 'Thanks! Will try AUTOMATIC1111 this weekend.', isDeleted: false, createdAt: new Date('2026-01-21T13:00:00'), updatedAt: now },
+
+    // Post 21 Comments (5 total) - Course Notes
+    { id: 'comment-21-1', postId: 'post-21', authorId: 'user-1', content: 'These notes are incredible! Saving hours of video watching.', isDeleted: false, createdAt: new Date('2026-01-16T09:00:00'), updatedAt: now },
+    { id: 'comment-21-2', postId: 'post-21', authorId: 'user-3', content: 'The few-shot learning section clarified so much for me. Thank you!', isDeleted: false, createdAt: new Date('2026-01-16T10:00:00'), updatedAt: now },
+    { id: 'comment-21-3', postId: 'post-21', authorId: 'user-5', content: 'Is there a notes version for the basic course too?', isDeleted: false, createdAt: new Date('2026-01-16T11:00:00'), updatedAt: now },
+    { id: 'comment-21-4', postId: 'post-21', parentId: 'comment-21-3', authorId: 'user-2', content: 'Working on it! Should be ready next week.', isDeleted: false, createdAt: new Date('2026-01-16T12:00:00'), updatedAt: now },
+    { id: 'comment-21-5', postId: 'post-21', authorId: 'user-10', content: 'Great resource! Pinning this for the community.', isDeleted: false, createdAt: new Date('2026-01-16T13:00:00'), updatedAt: now },
+
+    // Post 22 Comments (5 total) - Future of Creative Work
+    { id: 'comment-22-1', postId: 'post-22', authorId: 'user-1', content: 'The prediction about AI directors is spot on. Already seeing this role emerge.', isDeleted: false, createdAt: new Date('2026-01-19T13:00:00'), updatedAt: now },
+    { id: 'comment-22-2', postId: 'post-22', authorId: 'user-3', content: 'Authenticity as a premium feature is an interesting angle. Makes sense though!', isDeleted: false, createdAt: new Date('2026-01-19T14:00:00'), updatedAt: now },
+    { id: 'comment-22-3', postId: 'post-22', authorId: 'user-6', content: 'I\'m focusing more on ideation and less on execution now. The shift is real.', isDeleted: false, createdAt: new Date('2026-01-19T15:00:00'), updatedAt: now },
+    { id: 'comment-22-4', postId: 'post-22', authorId: 'user-8', content: 'Strategic thinking will always be valuable. AI can\'t replace vision.', isDeleted: false, createdAt: new Date('2026-01-19T16:00:00'), updatedAt: now },
+    { id: 'comment-22-5', postId: 'post-22', parentId: 'comment-22-1', authorId: 'user-4', content: 'Prompt artist is basically what I do now. Never thought I\'d have this job title!', isDeleted: false, createdAt: new Date('2026-01-19T17:00:00'), updatedAt: now },
+
+    // Post 23 Comments (5 total) - Portfolio Weekend Build
+    { id: 'comment-23-1', postId: 'post-23', authorId: 'user-2', content: 'The hero images from Midjourney look fantastic! Great combination of tools.', isDeleted: false, createdAt: new Date('2026-01-21T15:00:00'), updatedAt: now },
+    { id: 'comment-23-2', postId: 'post-23', authorId: 'user-3', content: 'Next.js 14 with AI assistance is my new favorite workflow too.', isDeleted: false, createdAt: new Date('2026-01-21T16:00:00'), updatedAt: now },
+    { id: 'comment-23-3', postId: 'post-23', authorId: 'user-5', content: 'Inspiring! Maybe I can finally update my portfolio this weekend.', isDeleted: false, createdAt: new Date('2026-01-21T17:00:00'), updatedAt: now },
+    { id: 'comment-23-4', postId: 'post-23', authorId: 'user-7', content: 'The Framer Motion animations look smooth. Any tips for learning it?', isDeleted: false, createdAt: new Date('2026-01-21T18:00:00'), updatedAt: now },
+    { id: 'comment-23-5', postId: 'post-23', parentId: 'comment-23-4', authorId: 'user-1', content: 'I actually had Claude explain each animation! Great way to learn.', isDeleted: false, createdAt: new Date('2026-01-21T19:00:00'), updatedAt: now },
+
+    // Post 24 Comments (5 total) - Vector Database Comparison
+    { id: 'comment-24-1', postId: 'post-24', authorId: 'user-2', content: 'Great comparison! We moved from Pinecone to Qdrant for cost reasons.', isDeleted: false, createdAt: new Date('2026-01-20T10:00:00'), updatedAt: now },
+    { id: 'comment-24-2', postId: 'post-24', authorId: 'user-4', content: 'Chroma for local dev is a game changer. So easy to set up.', isDeleted: false, createdAt: new Date('2026-01-20T11:00:00'), updatedAt: now },
+    { id: 'comment-24-3', postId: 'post-24', authorId: 'user-6', content: 'What about pgvector? It\'s great if you\'re already using Postgres.', isDeleted: false, createdAt: new Date('2026-01-20T12:00:00'), updatedAt: now },
+    { id: 'comment-24-4', postId: 'post-24', parentId: 'comment-24-3', authorId: 'user-3', content: 'Good point! I\'ll add pgvector to the comparison in the next update.', isDeleted: false, createdAt: new Date('2026-01-20T13:00:00'), updatedAt: now },
+    { id: 'comment-24-5', postId: 'post-24', authorId: 'user-9', content: 'The benchmarks would be super helpful. Looking forward to those!', isDeleted: false, createdAt: new Date('2026-01-20T14:00:00'), updatedAt: now },
+
+    // Post 25 Comments (5 total) - Character Consistency
+    { id: 'comment-25-1', postId: 'post-25', authorId: 'user-2', content: 'Have you tried using character sheets as reference images? Works well for me.', isDeleted: false, createdAt: new Date('2026-01-18T17:00:00'), updatedAt: now },
+    { id: 'comment-25-2', postId: 'post-25', authorId: 'user-4', content: 'LoRA training might be overkill but it gives perfect consistency.', isDeleted: false, createdAt: new Date('2026-01-18T18:00:00'), updatedAt: now },
+    { id: 'comment-25-3', postId: 'post-25', authorId: 'user-8', content: 'I use a very detailed character description and strict negative prompts.', isDeleted: false, createdAt: new Date('2026-01-18T19:00:00'), updatedAt: now },
+    { id: 'comment-25-4', postId: 'post-25', parentId: 'comment-25-1', authorId: 'user-6', content: 'Character sheets helped a lot! Thanks for the suggestion.', isDeleted: false, createdAt: new Date('2026-01-18T20:00:00'), updatedAt: now },
+    { id: 'comment-25-5', postId: 'post-25', authorId: 'user-10', content: 'For children\'s books, maybe consider a simpler art style that\'s easier to maintain.', isDeleted: false, createdAt: new Date('2026-01-18T21:00:00'), updatedAt: now },
+
+    // Post 26 Comments (5 total) - Salary Discussion
+    { id: 'comment-26-1', postId: 'post-26', authorId: 'user-2', content: 'With your background, I\'d say $110-130k is reasonable for AI-adjacent roles.', isDeleted: false, createdAt: new Date('2026-01-17T21:00:00'), updatedAt: now },
+    { id: 'comment-26-2', postId: 'post-26', authorId: 'user-4', content: 'Location matters a lot. SF vs remote can be a 30-40% difference.', isDeleted: false, createdAt: new Date('2026-01-17T22:00:00'), updatedAt: now },
+    { id: 'comment-26-3', postId: 'post-26', authorId: 'user-7', content: 'The startup offer might have better learning opportunities though.', isDeleted: false, createdAt: new Date('2026-01-17T23:00:00'), updatedAt: now },
+    { id: 'comment-26-4', postId: 'post-26', authorId: 'user-9', content: 'Don\'t undervalue yourself! The market for ML skills is hot right now.', isDeleted: false, createdAt: new Date('2026-01-18T08:00:00'), updatedAt: now },
+    { id: 'comment-26-5', postId: 'post-26', parentId: 'comment-26-3', authorId: 'user-8', content: 'That\'s my thinking too. More AI-focused work at the startup.', isDeleted: false, createdAt: new Date('2026-01-18T09:00:00'), updatedAt: now },
+
+    // Post 27 Comments (5 total) - Open Source Writing Assistant
+    { id: 'comment-27-1', postId: 'post-27', authorId: 'user-1', content: 'This looks amazing! Starred the repo. Will try it this weekend.', isDeleted: false, createdAt: new Date('2026-01-19T20:00:00'), updatedAt: now },
+    { id: 'comment-27-2', postId: 'post-27', authorId: 'user-3', content: 'Multiple LLM support is exactly what I\'ve been looking for. Thank you!', isDeleted: false, createdAt: new Date('2026-01-19T21:00:00'), updatedAt: now },
+    { id: 'comment-27-3', postId: 'post-27', authorId: 'user-5', content: 'Would love to contribute! Any good first issues for beginners?', isDeleted: false, createdAt: new Date('2026-01-19T22:00:00'), updatedAt: now },
+    { id: 'comment-27-4', postId: 'post-27', parentId: 'comment-27-3', authorId: 'user-9', content: 'Yes! Check the "good first issue" label. Documentation PRs welcome too!', isDeleted: false, createdAt: new Date('2026-01-19T23:00:00'), updatedAt: now },
+    { id: 'comment-27-5', postId: 'post-27', authorId: 'user-10', content: 'The style matching feature is clever. How does it work under the hood?', isDeleted: false, createdAt: new Date('2026-01-20T08:00:00'), updatedAt: now },
+
+    // Post 28 Comments (6 total) - Workshop Materials
+    { id: 'comment-28-1', postId: 'post-28', authorId: 'user-1', content: 'This is graduate-level content for free. Incredible resource!', isDeleted: false, createdAt: new Date('2026-01-14T16:00:00'), updatedAt: now },
+    { id: 'comment-28-2', postId: 'post-28', authorId: 'user-2', content: 'The prompt management section alone is worth bookmarking.', isDeleted: false, createdAt: new Date('2026-01-14T17:00:00'), updatedAt: now },
+    { id: 'comment-28-3', postId: 'post-28', authorId: 'user-3', content: 'Are there video recordings to go with the slides?', isDeleted: false, createdAt: new Date('2026-01-14T18:00:00'), updatedAt: now },
+    { id: 'comment-28-4', postId: 'post-28', parentId: 'comment-28-3', authorId: 'user-10', content: 'Working on editing them! Should be up in a few weeks.', isDeleted: false, createdAt: new Date('2026-01-14T19:00:00'), updatedAt: now },
+    { id: 'comment-28-5', postId: 'post-28', authorId: 'user-6', content: 'The monitoring section helped me set up proper observability. Thanks!', isDeleted: false, createdAt: new Date('2026-01-14T20:00:00'), updatedAt: now },
+    { id: 'comment-28-6', postId: 'post-28', authorId: 'user-8', content: 'Best production AI guide I\'ve seen. Sharing with my team.', isDeleted: false, createdAt: new Date('2026-01-14T21:00:00'), updatedAt: now },
+
+    // Post 29 Comments (6 total) - Imposter Syndrome
     { id: 'comment-29-1', postId: 'post-29', authorId: 'user-10', content: 'You\'re not alone! Many of us feel this way. The key is: AI is a tool, and knowing how to use tools well IS a skill.', isDeleted: false, createdAt: new Date('2026-01-21T17:00:00'), updatedAt: now },
     { id: 'comment-29-2', postId: 'post-29', authorId: 'user-2', content: 'Think of it like using a calculator - nobody calls mathematicians frauds for using calculators!', isDeleted: false, createdAt: new Date('2026-01-21T17:30:00'), updatedAt: now },
     { id: 'comment-29-3', postId: 'post-29', authorId: 'user-4', content: 'The fact that you\'re reflecting on this shows you care about your craft. That\'s what matters.', isDeleted: false, createdAt: new Date('2026-01-21T18:00:00'), updatedAt: now },
     { id: 'comment-29-4', postId: 'post-29', authorId: 'user-6', content: 'I had the same feelings! But remember - you still need to understand the code to modify it and make it work.', isDeleted: false, createdAt: new Date('2026-01-21T18:30:00'), updatedAt: now },
+    { id: 'comment-29-5', postId: 'post-29', authorId: 'user-8', content: 'Knowing what to ask AI is a skill. Problem decomposition is still on you!', isDeleted: false, createdAt: new Date('2026-01-21T19:00:00'), updatedAt: now },
+    { id: 'comment-29-6', postId: 'post-29', parentId: 'comment-29-2', authorId: 'user-5', content: 'The calculator analogy really helps. Thank you all for the support!', isDeleted: false, createdAt: new Date('2026-01-21T19:30:00'), updatedAt: now },
+
+    // Post 30 Comments (5 total) - Discord Bot
+    { id: 'comment-30-1', postId: 'post-30', authorId: 'user-1', content: 'Just added it to our server! The explanations are really clear.', isDeleted: false, createdAt: new Date('2026-01-15T18:00:00'), updatedAt: now },
+    { id: 'comment-30-2', postId: 'post-30', authorId: 'user-2', content: 'This is perfect for our study group. Thanks for making it free!', isDeleted: false, createdAt: new Date('2026-01-15T19:00:00'), updatedAt: now },
+    { id: 'comment-30-3', postId: 'post-30', authorId: 'user-5', content: 'The follow-up question feature is brilliant. Super helpful for learning.', isDeleted: false, createdAt: new Date('2026-01-15T20:00:00'), updatedAt: now },
+    { id: 'comment-30-4', postId: 'post-30', authorId: 'user-8', content: 'Would you consider adding support for explaining error messages too?', isDeleted: false, createdAt: new Date('2026-01-15T21:00:00'), updatedAt: now },
+    { id: 'comment-30-5', postId: 'post-30', parentId: 'comment-30-4', authorId: 'user-7', content: 'Great idea! Added it to the roadmap. Should be ready soon.', isDeleted: false, createdAt: new Date('2026-01-15T22:00:00'), updatedAt: now },
   ]);
 
   // ==========================================
-  // FORUM COMMENT STATS
+  // FORUM COMMENT STATS (all comments)
   // ==========================================
   db.forumCommentStats.createMany([
+    // Post 1
     { commentId: 'comment-1-1', upvotes: 18, downvotes: 3, score: 15, lastUpdatedAt: now },
     { commentId: 'comment-1-2', upvotes: 14, downvotes: 2, score: 12, lastUpdatedAt: now },
     { commentId: 'comment-1-3', upvotes: 5, downvotes: 0, score: 5, lastUpdatedAt: now },
@@ -990,6 +1178,7 @@ Bot invite link in comments. Feedback welcome!`,
     { commentId: 'comment-1-6', upvotes: 6, downvotes: 1, score: 5, lastUpdatedAt: now },
     { commentId: 'comment-1-7', upvotes: 7, downvotes: 0, score: 7, lastUpdatedAt: now },
     { commentId: 'comment-1-8', upvotes: 12, downvotes: 1, score: 11, lastUpdatedAt: now },
+    // Post 2
     { commentId: 'comment-2-1', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
     { commentId: 'comment-2-2', upvotes: 10, downvotes: 0, score: 10, lastUpdatedAt: now },
     { commentId: 'comment-2-3', upvotes: 6, downvotes: 0, score: 6, lastUpdatedAt: now },
@@ -1002,6 +1191,23 @@ Bot invite link in comments. Feedback welcome!`,
     { commentId: 'comment-2-10', upvotes: 5, downvotes: 0, score: 5, lastUpdatedAt: now },
     { commentId: 'comment-2-11', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
     { commentId: 'comment-2-12', upvotes: 6, downvotes: 0, score: 6, lastUpdatedAt: now },
+    // Post 3
+    { commentId: 'comment-3-1', upvotes: 11, downvotes: 0, score: 11, lastUpdatedAt: now },
+    { commentId: 'comment-3-2', upvotes: 15, downvotes: 0, score: 15, lastUpdatedAt: now },
+    { commentId: 'comment-3-3', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    { commentId: 'comment-3-4', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    { commentId: 'comment-3-5', upvotes: 7, downvotes: 0, score: 7, lastUpdatedAt: now },
+    { commentId: 'comment-3-6', upvotes: 5, downvotes: 0, score: 5, lastUpdatedAt: now },
+    // Post 4
+    { commentId: 'comment-4-1', upvotes: 12, downvotes: 0, score: 12, lastUpdatedAt: now },
+    { commentId: 'comment-4-2', upvotes: 17, downvotes: 0, score: 17, lastUpdatedAt: now },
+    { commentId: 'comment-4-3', upvotes: 10, downvotes: 0, score: 10, lastUpdatedAt: now },
+    { commentId: 'comment-4-4', upvotes: 6, downvotes: 0, score: 6, lastUpdatedAt: now },
+    { commentId: 'comment-4-5', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    { commentId: 'comment-4-6', upvotes: 14, downvotes: 0, score: 14, lastUpdatedAt: now },
+    { commentId: 'comment-4-7', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    { commentId: 'comment-4-8', upvotes: 11, downvotes: 0, score: 11, lastUpdatedAt: now },
+    // Post 5
     { commentId: 'comment-5-1', upvotes: 10, downvotes: 1, score: 9, lastUpdatedAt: now },
     { commentId: 'comment-5-2', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
     { commentId: 'comment-5-3', upvotes: 15, downvotes: 0, score: 15, lastUpdatedAt: now },
@@ -1009,14 +1215,161 @@ Bot invite link in comments. Feedback welcome!`,
     { commentId: 'comment-5-5', upvotes: 7, downvotes: 0, score: 7, lastUpdatedAt: now },
     { commentId: 'comment-5-6', upvotes: 6, downvotes: 0, score: 6, lastUpdatedAt: now },
     { commentId: 'comment-5-7', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    // Post 6
+    { commentId: 'comment-6-1', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    { commentId: 'comment-6-2', upvotes: 6, downvotes: 0, score: 6, lastUpdatedAt: now },
+    { commentId: 'comment-6-3', upvotes: 4, downvotes: 0, score: 4, lastUpdatedAt: now },
+    { commentId: 'comment-6-4', upvotes: 7, downvotes: 0, score: 7, lastUpdatedAt: now },
+    { commentId: 'comment-6-5', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    // Post 7
+    { commentId: 'comment-7-1', upvotes: 15, downvotes: 1, score: 14, lastUpdatedAt: now },
+    { commentId: 'comment-7-2', upvotes: 12, downvotes: 0, score: 12, lastUpdatedAt: now },
+    { commentId: 'comment-7-3', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    { commentId: 'comment-7-4', upvotes: 10, downvotes: 0, score: 10, lastUpdatedAt: now },
+    { commentId: 'comment-7-5', upvotes: 11, downvotes: 0, score: 11, lastUpdatedAt: now },
+    { commentId: 'comment-7-6', upvotes: 6, downvotes: 0, score: 6, lastUpdatedAt: now },
+    // Post 8
+    { commentId: 'comment-8-1', upvotes: 14, downvotes: 0, score: 14, lastUpdatedAt: now },
+    { commentId: 'comment-8-2', upvotes: 11, downvotes: 0, score: 11, lastUpdatedAt: now },
+    { commentId: 'comment-8-3', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    { commentId: 'comment-8-4', upvotes: 5, downvotes: 0, score: 5, lastUpdatedAt: now },
+    { commentId: 'comment-8-5', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    // Post 9
+    { commentId: 'comment-9-1', upvotes: 10, downvotes: 0, score: 10, lastUpdatedAt: now },
+    { commentId: 'comment-9-2', upvotes: 7, downvotes: 0, score: 7, lastUpdatedAt: now },
+    { commentId: 'comment-9-3', upvotes: 12, downvotes: 0, score: 12, lastUpdatedAt: now },
+    { commentId: 'comment-9-4', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    { commentId: 'comment-9-5', upvotes: 6, downvotes: 0, score: 6, lastUpdatedAt: now },
+    { commentId: 'comment-9-6', upvotes: 11, downvotes: 0, score: 11, lastUpdatedAt: now },
+    // Post 10
+    { commentId: 'comment-10-1', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    { commentId: 'comment-10-2', upvotes: 6, downvotes: 0, score: 6, lastUpdatedAt: now },
+    { commentId: 'comment-10-3', upvotes: 7, downvotes: 0, score: 7, lastUpdatedAt: now },
+    { commentId: 'comment-10-4', upvotes: 5, downvotes: 0, score: 5, lastUpdatedAt: now },
+    // Post 11
+    { commentId: 'comment-11-1', upvotes: 10, downvotes: 0, score: 10, lastUpdatedAt: now },
+    { commentId: 'comment-11-2', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    { commentId: 'comment-11-3', upvotes: 5, downvotes: 0, score: 5, lastUpdatedAt: now },
+    { commentId: 'comment-11-4', upvotes: 12, downvotes: 0, score: 12, lastUpdatedAt: now },
+    { commentId: 'comment-11-5', upvotes: 7, downvotes: 0, score: 7, lastUpdatedAt: now },
+    // Post 12
     { commentId: 'comment-12-1', upvotes: 11, downvotes: 0, score: 11, lastUpdatedAt: now },
     { commentId: 'comment-12-2', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
     { commentId: 'comment-12-3', upvotes: 5, downvotes: 0, score: 5, lastUpdatedAt: now },
     { commentId: 'comment-12-4', upvotes: 7, downvotes: 0, score: 7, lastUpdatedAt: now },
+    { commentId: 'comment-12-5', upvotes: 6, downvotes: 0, score: 6, lastUpdatedAt: now },
+    { commentId: 'comment-12-6', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    // Post 13
+    { commentId: 'comment-13-1', upvotes: 14, downvotes: 0, score: 14, lastUpdatedAt: now },
+    { commentId: 'comment-13-2', upvotes: 11, downvotes: 0, score: 11, lastUpdatedAt: now },
+    { commentId: 'comment-13-3', upvotes: 6, downvotes: 0, score: 6, lastUpdatedAt: now },
+    { commentId: 'comment-13-4', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    { commentId: 'comment-13-5', upvotes: 10, downvotes: 0, score: 10, lastUpdatedAt: now },
+    // Post 14
+    { commentId: 'comment-14-1', upvotes: 12, downvotes: 0, score: 12, lastUpdatedAt: now },
+    { commentId: 'comment-14-2', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    { commentId: 'comment-14-3', upvotes: 15, downvotes: 0, score: 15, lastUpdatedAt: now },
+    { commentId: 'comment-14-4', upvotes: 5, downvotes: 0, score: 5, lastUpdatedAt: now },
+    { commentId: 'comment-14-5', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    // Post 15
+    { commentId: 'comment-15-1', upvotes: 10, downvotes: 0, score: 10, lastUpdatedAt: now },
+    { commentId: 'comment-15-2', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    { commentId: 'comment-15-3', upvotes: 6, downvotes: 0, score: 6, lastUpdatedAt: now },
+    { commentId: 'comment-15-4', upvotes: 12, downvotes: 0, score: 12, lastUpdatedAt: now },
+    { commentId: 'comment-15-5', upvotes: 7, downvotes: 0, score: 7, lastUpdatedAt: now },
+    // Post 16
+    { commentId: 'comment-16-1', upvotes: 11, downvotes: 1, score: 10, lastUpdatedAt: now },
+    { commentId: 'comment-16-2', upvotes: 14, downvotes: 2, score: 12, lastUpdatedAt: now },
+    { commentId: 'comment-16-3', upvotes: 16, downvotes: 1, score: 15, lastUpdatedAt: now },
+    { commentId: 'comment-16-4', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    { commentId: 'comment-16-5', upvotes: 13, downvotes: 0, score: 13, lastUpdatedAt: now },
+    { commentId: 'comment-16-6', upvotes: 7, downvotes: 0, score: 7, lastUpdatedAt: now },
+    // Post 17
+    { commentId: 'comment-17-1', upvotes: 12, downvotes: 0, score: 12, lastUpdatedAt: now },
+    { commentId: 'comment-17-2', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    { commentId: 'comment-17-3', upvotes: 10, downvotes: 0, score: 10, lastUpdatedAt: now },
+    { commentId: 'comment-17-4', upvotes: 6, downvotes: 0, score: 6, lastUpdatedAt: now },
+    { commentId: 'comment-17-5', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    // Post 18
+    { commentId: 'comment-18-1', upvotes: 14, downvotes: 0, score: 14, lastUpdatedAt: now },
+    { commentId: 'comment-18-2', upvotes: 11, downvotes: 0, score: 11, lastUpdatedAt: now },
+    { commentId: 'comment-18-3', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    { commentId: 'comment-18-4', upvotes: 6, downvotes: 0, score: 6, lastUpdatedAt: now },
+    { commentId: 'comment-18-5', upvotes: 13, downvotes: 0, score: 13, lastUpdatedAt: now },
+    // Post 19
+    { commentId: 'comment-19-1', upvotes: 15, downvotes: 0, score: 15, lastUpdatedAt: now },
+    { commentId: 'comment-19-2', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    { commentId: 'comment-19-3', upvotes: 12, downvotes: 0, score: 12, lastUpdatedAt: now },
+    { commentId: 'comment-19-4', upvotes: 7, downvotes: 0, score: 7, lastUpdatedAt: now },
+    { commentId: 'comment-19-5', upvotes: 10, downvotes: 0, score: 10, lastUpdatedAt: now },
+    { commentId: 'comment-19-6', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    // Post 20
+    { commentId: 'comment-20-1', upvotes: 11, downvotes: 0, score: 11, lastUpdatedAt: now },
+    { commentId: 'comment-20-2', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    { commentId: 'comment-20-3', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    { commentId: 'comment-20-4', upvotes: 5, downvotes: 0, score: 5, lastUpdatedAt: now },
+    // Post 21
+    { commentId: 'comment-21-1', upvotes: 14, downvotes: 0, score: 14, lastUpdatedAt: now },
+    { commentId: 'comment-21-2', upvotes: 10, downvotes: 0, score: 10, lastUpdatedAt: now },
+    { commentId: 'comment-21-3', upvotes: 6, downvotes: 0, score: 6, lastUpdatedAt: now },
+    { commentId: 'comment-21-4', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    { commentId: 'comment-21-5', upvotes: 11, downvotes: 0, score: 11, lastUpdatedAt: now },
+    // Post 22
+    { commentId: 'comment-22-1', upvotes: 12, downvotes: 0, score: 12, lastUpdatedAt: now },
+    { commentId: 'comment-22-2', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    { commentId: 'comment-22-3', upvotes: 10, downvotes: 0, score: 10, lastUpdatedAt: now },
+    { commentId: 'comment-22-4', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    { commentId: 'comment-22-5', upvotes: 7, downvotes: 0, score: 7, lastUpdatedAt: now },
+    // Post 23
+    { commentId: 'comment-23-1', upvotes: 11, downvotes: 0, score: 11, lastUpdatedAt: now },
+    { commentId: 'comment-23-2', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    { commentId: 'comment-23-3', upvotes: 7, downvotes: 0, score: 7, lastUpdatedAt: now },
+    { commentId: 'comment-23-4', upvotes: 6, downvotes: 0, score: 6, lastUpdatedAt: now },
+    { commentId: 'comment-23-5', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    // Post 24
+    { commentId: 'comment-24-1', upvotes: 13, downvotes: 0, score: 13, lastUpdatedAt: now },
+    { commentId: 'comment-24-2', upvotes: 10, downvotes: 0, score: 10, lastUpdatedAt: now },
+    { commentId: 'comment-24-3', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    { commentId: 'comment-24-4', upvotes: 6, downvotes: 0, score: 6, lastUpdatedAt: now },
+    { commentId: 'comment-24-5', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    // Post 25
+    { commentId: 'comment-25-1', upvotes: 11, downvotes: 0, score: 11, lastUpdatedAt: now },
+    { commentId: 'comment-25-2', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    { commentId: 'comment-25-3', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    { commentId: 'comment-25-4', upvotes: 5, downvotes: 0, score: 5, lastUpdatedAt: now },
+    { commentId: 'comment-25-5', upvotes: 10, downvotes: 0, score: 10, lastUpdatedAt: now },
+    // Post 26
+    { commentId: 'comment-26-1', upvotes: 14, downvotes: 0, score: 14, lastUpdatedAt: now },
+    { commentId: 'comment-26-2', upvotes: 11, downvotes: 0, score: 11, lastUpdatedAt: now },
+    { commentId: 'comment-26-3', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    { commentId: 'comment-26-4', upvotes: 12, downvotes: 0, score: 12, lastUpdatedAt: now },
+    { commentId: 'comment-26-5', upvotes: 6, downvotes: 0, score: 6, lastUpdatedAt: now },
+    // Post 27
+    { commentId: 'comment-27-1', upvotes: 15, downvotes: 0, score: 15, lastUpdatedAt: now },
+    { commentId: 'comment-27-2', upvotes: 10, downvotes: 0, score: 10, lastUpdatedAt: now },
+    { commentId: 'comment-27-3', upvotes: 7, downvotes: 0, score: 7, lastUpdatedAt: now },
+    { commentId: 'comment-27-4', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    { commentId: 'comment-27-5', upvotes: 11, downvotes: 0, score: 11, lastUpdatedAt: now },
+    // Post 28
+    { commentId: 'comment-28-1', upvotes: 18, downvotes: 0, score: 18, lastUpdatedAt: now },
+    { commentId: 'comment-28-2', upvotes: 14, downvotes: 0, score: 14, lastUpdatedAt: now },
+    { commentId: 'comment-28-3', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    { commentId: 'comment-28-4', upvotes: 10, downvotes: 0, score: 10, lastUpdatedAt: now },
+    { commentId: 'comment-28-5', upvotes: 12, downvotes: 0, score: 12, lastUpdatedAt: now },
+    { commentId: 'comment-28-6', upvotes: 15, downvotes: 0, score: 15, lastUpdatedAt: now },
+    // Post 29
     { commentId: 'comment-29-1', upvotes: 23, downvotes: 1, score: 22, lastUpdatedAt: now },
     { commentId: 'comment-29-2', upvotes: 18, downvotes: 2, score: 16, lastUpdatedAt: now },
     { commentId: 'comment-29-3', upvotes: 14, downvotes: 0, score: 14, lastUpdatedAt: now },
     { commentId: 'comment-29-4', upvotes: 11, downvotes: 0, score: 11, lastUpdatedAt: now },
+    { commentId: 'comment-29-5', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
+    { commentId: 'comment-29-6', upvotes: 7, downvotes: 0, score: 7, lastUpdatedAt: now },
+    // Post 30
+    { commentId: 'comment-30-1', upvotes: 12, downvotes: 0, score: 12, lastUpdatedAt: now },
+    { commentId: 'comment-30-2', upvotes: 10, downvotes: 0, score: 10, lastUpdatedAt: now },
+    { commentId: 'comment-30-3', upvotes: 8, downvotes: 0, score: 8, lastUpdatedAt: now },
+    { commentId: 'comment-30-4', upvotes: 6, downvotes: 0, score: 6, lastUpdatedAt: now },
+    { commentId: 'comment-30-5', upvotes: 9, downvotes: 0, score: 9, lastUpdatedAt: now },
   ]);
 
   // ==========================================

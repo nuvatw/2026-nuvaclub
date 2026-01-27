@@ -144,8 +144,10 @@ export function PostCard({ post, index = 0, isFirst = false }: PostCardProps) {
                 </span>
                 <span className="flex items-center gap-1 text-[#d7dadc] font-medium">
                   u/{post.author.name}
-                  <span className={cn('w-1.5 h-1.5 rounded-full', IDENTITY_COLORS[post.author.identity])}
-                        title={IDENTITY_LABELS[post.author.identity]} />
+                  {post.author.identity && (
+                    <span className={cn('w-1.5 h-1.5 rounded-full', IDENTITY_COLORS[post.author.identity])}
+                          title={IDENTITY_LABELS[post.author.identity]} />
+                  )}
                 </span>
                 <span className="text-[#818384]">
                   {formatTimeAgo(post.createdAt, 'en-US')}

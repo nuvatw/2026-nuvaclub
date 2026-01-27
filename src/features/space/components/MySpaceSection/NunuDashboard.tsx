@@ -175,7 +175,7 @@ export function NunuDashboard({
                 onClick={() => onViewVava?.(vava.id)}
               >
                 <Image
-                  src={vava.avatar || 'https://i.pravatar.cc/150?u=default'}
+                  src={vava.avatar || 'https://api.dicebear.com/9.x/avataaars/png?seed=default'}
                   alt={vava.name}
                   width={40}
                   height={40}

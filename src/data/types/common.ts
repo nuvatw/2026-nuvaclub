@@ -1,19 +1,8 @@
-// Re-export core types from the canonical source
-export type { BaseEntity, Timestamps } from '@/lib/db/core/types';
+/**
+ * @deprecated Import from '@/Database/user-state/types' instead.
+ *
+ * This file is a compatibility re-export.
+ */
 
-export interface Authored {
-  author: {
-    id: string;
-    name: string;
-    avatar?: string;
-  };
-}
-
-export interface Categorized {
-  category: string;
-  tags: string[];
-}
-
-export type ModuleType = 'learn' | 'forum' | 'space' | 'sprint' | 'shop';
-
-export type ItemType = 'course' | 'lesson' | 'post' | 'project' | 'companion' | 'product';
+export type { BaseEntity, Timestamps } from '@/Database/user-state/types';
+export type { Authored, Categorized, ModuleType, ItemType } from '@/Database/user-state/types';

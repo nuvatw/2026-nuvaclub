@@ -37,7 +37,7 @@ function CommentItem({
     >
       <div className="flex gap-3">
         <Image
-          src={comment.author?.avatar || 'https://i.pravatar.cc/150?u=default'}
+          src={comment.author?.avatar || 'https://api.dicebear.com/9.x/avataaars/png?seed=default'}
           alt={comment.author?.name || 'User'}
           width={36}
           height={36}

@@ -11,7 +11,7 @@ import {
   getSeriesCourses,
   getVerifiedRequiredCourses,
   REQUIRED_SERIES_ORDER,
-} from '@/features/learn/data/courses';
+} from '@/Database';
 import type { Course } from '@/features/learn/types';
 
 /**

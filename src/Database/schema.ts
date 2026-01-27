@@ -14,6 +14,9 @@ export type { User, UserIdentity, MockUser } from './tables/users';
 // Seasons
 export type { Season } from './tables/seasons';
 
+// Sprints & Projects
+export type { Sprint, Project } from './tables/sprints';
+
 // Companions
 export type { Companion, CompanionType } from './tables/companions';
 

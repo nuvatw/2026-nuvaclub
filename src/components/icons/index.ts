@@ -16,10 +16,6 @@
  * - lg: 24px
  */
 
-// Legacy exports for backward compatibility
-export { CloseIcon } from './CloseIcon';
-
-// New unified icon system
 export {
   // Types
   type IconProps,
@@ -108,6 +104,7 @@ export {
   ThumbDownIcon,
   FireIcon,
   TrendingUpIcon,
+  ChartBarIcon,
 
   // Info
   InformationCircleIcon,

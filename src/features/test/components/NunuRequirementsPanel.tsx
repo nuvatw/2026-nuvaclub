@@ -10,20 +10,22 @@ import {
   SparklesIcon,
   ClockIcon,
   BookOpenIcon,
+  TrendingUpIcon,
 } from '@/components/icons';
 import {
-  NUNU_REQUIREMENTS,
+  NUNU_LEVEL_CONFIGS,
+  NUNU_APPLICATION_REQUIREMENTS,
   NUNU_LEVEL_PROGRESSION,
   SPRINT_SPECIAL_MONTHS,
   MISSION_STREAK_REQUIRED,
   calculateEligibility,
+  calculateMissionProgress,
   checkVerifiedEligibility,
   formatDiscount,
   getNunuLevelColor,
   getNunuLevelBgColor,
   type NunuLevel,
   type NunuUserStats,
-  type NunuLevelRequirements,
 } from '../data/nunu-rules';
 
 interface NunuRequirementsPanelProps {
@@ -36,7 +38,7 @@ interface NunuRequirementsPanelProps {
 }
 
 /**
- * Requirements table + eligibility panel for Nunu levels
+ * Panel showing Monthly Missions and Application Requirements for Nunu levels
  */
 export function NunuRequirementsPanel({
   selectedLevel,
@@ -71,18 +73,29 @@ function LevelPanel({
   userStats: NunuUserStats | null;
   onStartExam?: () => void;
 }) {
-  const requirements = NUNU_REQUIREMENTS[level];
-  const nextLevel = NUNU_LEVEL_PROGRESSION[level];
+  const levelConfig = NUNU_LEVEL_CONFIGS[level];
+  // Application requirements for THIS level (not next level)
+  const appReqs = NUNU_APPLICATION_REQUIREMENTS[level];
 
-  // Calculate eligibility if user is logged in
+  // Calculate eligibility for next level if user is logged in
   const eligibility = useMemo(() => {
     if (!userStats) return null;
-    // Only calculate if this is the next level user would apply for
+    // Only calculate if this is the current level or the next level user would apply for
     const targetLevel = userStats.currentNunuLevel
       ? NUNU_LEVEL_PROGRESSION[userStats.currentNunuLevel]
-      : 'N-Test';
-    if (targetLevel === level) {
+      : 'Nx';
+    if (targetLevel === level || userStats.currentNunuLevel === level) {
       return calculateEligibility(userStats);
+    }
+    return null;
+  }, [userStats, level]);
+
+  // Calculate monthly mission progress
+  const missionProgress = useMemo(() => {
+    if (!userStats) return null;
+    // Show mission progress for the user's current level
+    if (userStats.currentNunuLevel === level) {
+      return calculateMissionProgress(userStats, level);
     }
     return null;
   }, [userStats, level]);
@@ -90,7 +103,6 @@ function LevelPanel({
   const isCurrentLevel = userStats?.currentNunuLevel === level;
   const isPastLevel =
     userStats?.currentNunuLevel &&
-    NUNU_REQUIREMENTS[userStats.currentNunuLevel] &&
     compareLevels(userStats.currentNunuLevel, level) > 0;
 
   return (
@@ -120,28 +132,52 @@ function LevelPanel({
         </div>
       </div>
 
-      {/* Requirements Table */}
+      {/* 1. Application Requirements Section (for THIS level) */}
+      {appReqs && (
+        <div className="bg-neutral-800/50 rounded-xl p-5 mb-6">
+          <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+            <TrendingUpIcon size="md" className="text-purple-400" />
+            Application Requirements for {level}
+          </h3>
+          <p className="text-sm text-neutral-400 mb-4">
+            Eligibility gates to apply for {level}. Meet these to unlock the certification exam.
+          </p>
+          <ApplicationRequirementsTable
+            requirements={appReqs}
+            userStats={userStats}
+          />
+        </div>
+      )}
+
+      {/* 2. Monthly Missions Section */}
       <div className="bg-neutral-800/50 rounded-xl p-5 mb-6">
         <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
-          <InformationCircleIcon size="md" className="text-neutral-400" />
-          Requirements for {level}
+          <ClockIcon size="md" className="text-blue-400" />
+          Monthly Missions for {level}
         </h3>
-        <RequirementsTable requirements={requirements} userStats={userStats} />
+        <p className="text-sm text-neutral-400 mb-4">
+          Tasks you must complete each month while at this level.
+        </p>
+        <MonthlyMissionsTable
+          missions={levelConfig.monthlyMissions}
+          userStats={userStats}
+          missionProgress={missionProgress}
+        />
       </div>
 
-      {/* Benefits Section */}
+      {/* 3. Benefits Section */}
       <div className="bg-neutral-800/50 rounded-xl p-5 mb-6">
         <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
           <SparklesIcon size="md" className="text-amber-400" />
           Benefits at {level}
         </h3>
-        <BenefitsGrid requirements={requirements} />
+        <BenefitsGrid config={levelConfig} />
       </div>
 
-      {/* Mission Rules */}
+      {/* Sprint Mission Info */}
       <div className="bg-neutral-800/50 rounded-xl p-5 mb-6">
         <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
-          <ClockIcon size="md" className="text-blue-400" />
+          <InformationCircleIcon size="md" className="text-neutral-400" />
           Sprint Mission Requirements
         </h3>
         <div className="text-sm text-neutral-300 space-y-2">
@@ -163,15 +199,15 @@ function LevelPanel({
       </div>
 
       {/* Eligibility Check (if logged in) */}
-      {eligibility && (
-        <EligibilityPanel eligibility={eligibility} />
+      {eligibility && appReqs && (
+        <EligibilityPanel eligibility={eligibility} level={level} />
       )}
 
       {/* Not logged in message */}
       {!userStats && (
         <div className="bg-neutral-800/50 rounded-xl p-5 mb-6">
           <p className="text-neutral-400 text-center">
-            Log in to see your eligibility status for this level.
+            Log in to see your progress and eligibility status.
           </p>
         </div>
       )}
@@ -236,14 +272,18 @@ function VerifiedPanel({
       <div className="bg-neutral-800/50 rounded-xl p-5 mb-6">
         <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
           <BookOpenIcon size="md" className="text-amber-400" />
-          Required Courses (5 total)
+          Verification Requirements
         </h3>
+        <p className="text-sm text-neutral-400 mb-4">
+          Complete all required Verified courses to unlock the Verified exam. This is separate from
+          N-level monthly missions and application requirements.
+        </p>
         <div className="text-sm text-neutral-300 space-y-2">
-          <p>Complete all 5 Verified Required courses in the Nunu Training series:</p>
+          <p><strong>Requirement:</strong> Complete all 5 Verified Required courses in the Nunu Training series:</p>
           <ol className="list-decimal list-inside space-y-1 text-neutral-400 ml-2">
             <li>Mentorship Fundamentals</li>
             <li>Teaching AI Effectively</li>
-            <li>Nunu Ethics & Standards</li>
+            <li>Nunu Ethics &amp; Standards</li>
             <li>Building Vava Success</li>
             <li>Advanced Nunu Practices</li>
           </ol>
@@ -318,21 +358,167 @@ function VerifiedPanel({
 
 // ==================== SUB-COMPONENTS ====================
 
-function RequirementsTable({
+/**
+ * Table showing monthly missions with "Per Month" column header
+ */
+function MonthlyMissionsTable({
+  missions,
+  userStats,
+  missionProgress,
+}: {
+  missions: {
+    coursesPerMonth: number;
+    forumPostsPerMonth: number;
+    forumCommentsPerMonth: number;
+    mentoredActiveMin: number;
+    mentoredActiveMax: number;
+  };
+  userStats: NunuUserStats | null;
+  missionProgress: ReturnType<typeof calculateMissionProgress> | null;
+}) {
+  const rows = [
+    {
+      key: 'courses',
+      label: 'Courses completed',
+      target: missions.coursesPerMonth,
+      current: userStats?.coursesCompletedThisMonth,
+      tooltip: null,
+    },
+    {
+      key: 'forumPosts',
+      label: 'Forum posts',
+      target: missions.forumPostsPerMonth,
+      current: userStats?.forumPostsThisMonth,
+      tooltip: null,
+    },
+    {
+      key: 'forumComments',
+      label: 'Forum comments',
+      target: missions.forumCommentsPerMonth,
+      current: userStats?.forumCommentsThisMonth,
+      tooltip: null,
+    },
+    {
+      key: 'mentoredMin',
+      label: 'Active mentees (min)',
+      target: missions.mentoredActiveMin,
+      current: userStats?.activeMenteesCount,
+      tooltip: 'Minimum number of active mentees you must be mentoring each month',
+    },
+    {
+      key: 'mentoredMax',
+      label: 'Active mentees (max)',
+      target: missions.mentoredActiveMax,
+      current: userStats?.activeMenteesCount,
+      tooltip: 'Capacity cap: maximum number of active mentees allowed each month',
+      isCapacity: true,
+    },
+  ];
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-neutral-700">
+            <th className="text-left text-neutral-400 font-medium py-2 pr-4">Mission</th>
+            <th className="text-center text-neutral-400 font-medium py-2 px-4">Per Month</th>
+            {userStats && (
+              <th className="text-center text-neutral-400 font-medium py-2 px-4">Your Progress</th>
+            )}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => {
+            const progressItem = missionProgress?.missions.find((m) => m.key === row.key);
+            const met = progressItem?.completed ?? false;
+
+            return (
+              <tr key={row.key} className="border-b border-neutral-700/50">
+                <td className="text-neutral-300 py-3 pr-4">
+                  <span className="flex items-center gap-2">
+                    {row.label}
+                    {row.tooltip && (
+                      <span
+                        className="text-neutral-500 cursor-help"
+                        title={row.tooltip}
+                        aria-label={row.tooltip}
+                      >
+                        <InformationCircleIcon size="sm" />
+                      </span>
+                    )}
+                  </span>
+                </td>
+                <td className="text-center text-white font-medium py-3 px-4">
+                  {row.isCapacity ? `≤ ${row.target}` : row.target}
+                </td>
+                {userStats && (
+                  <td className="text-center py-3 px-4">
+                    {row.current !== undefined ? (
+                      <span className={cn(
+                        'font-medium',
+                        row.isCapacity
+                          ? 'text-neutral-400'
+                          : met
+                            ? 'text-green-400'
+                            : 'text-amber-400'
+                      )}>
+                        {row.current}
+                        {!row.isCapacity && (met ? ' ✓' : '')}
+                      </span>
+                    ) : (
+                      <span className="text-neutral-500">-</span>
+                    )}
+                  </td>
+                )}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      {missionProgress && (
+        <div className="mt-4 text-sm">
+          <span className={cn(
+            'font-medium',
+            missionProgress.allCompleted ? 'text-green-400' : 'text-amber-400'
+          )}>
+            {missionProgress.allCompleted
+              ? '✓ All missions completed this month!'
+              : `${missionProgress.missions.filter((m) => m.completed && !m.isCapacity).length} of ${missionProgress.missions.filter((m) => !m.isCapacity).length} missions completed`}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Table showing application requirements for next level
+ */
+function ApplicationRequirementsTable({
   requirements,
   userStats,
 }: {
-  requirements: NunuLevelRequirements;
+  requirements: {
+    minVavaLevel: number;
+    totalMentoredMin?: number;
+  };
   userStats: NunuUserStats | null;
 }) {
   const rows = [
-    { label: 'Vava Level', required: requirements.minimalLevel, current: userStats?.vavaLevel },
-    { label: 'Courses Completed', required: requirements.coursesCompleted, current: userStats?.coursesCompleted },
-    { label: 'Forum Posts', required: requirements.forumPosts, current: userStats?.forumPosts },
-    { label: 'Forum Comments', required: requirements.forumComments, current: userStats?.forumComments },
-    { label: 'Vavas Mentored (min)', required: requirements.spaceMinVava, current: userStats?.spaceVavaCount },
-    { label: 'Vavas Mentored (max)', required: requirements.spaceMaxVava, current: null, isMax: true },
+    {
+      label: 'Minimum Vava Level',
+      required: requirements.minVavaLevel,
+      current: userStats?.vavaLevel,
+    },
   ];
+
+  if (requirements.totalMentoredMin !== undefined) {
+    rows.push({
+      label: 'Total Vavas Mentored (lifetime)',
+      required: requirements.totalMentoredMin,
+      current: userStats?.totalMentored,
+    });
+  }
 
   return (
     <div className="overflow-x-auto">
@@ -348,25 +534,23 @@ function RequirementsTable({
         </thead>
         <tbody>
           {rows.map((row) => {
-            const met = row.isMax
-              ? true // Max is just info, not a requirement
-              : row.current !== undefined && row.current !== null && row.current >= row.required;
+            const met = row.current !== undefined && row.current >= row.required;
             return (
               <tr key={row.label} className="border-b border-neutral-700/50">
                 <td className="text-neutral-300 py-3 pr-4">{row.label}</td>
                 <td className="text-center text-white font-medium py-3 px-4">{row.required}</td>
                 {userStats && (
                   <td className="text-center py-3 px-4">
-                    {row.current !== null && row.current !== undefined ? (
+                    {row.current !== undefined ? (
                       <span className={cn(
                         'font-medium',
-                        row.isMax ? 'text-neutral-400' : met ? 'text-green-400' : 'text-red-400'
+                        met ? 'text-green-400' : 'text-red-400'
                       )}>
                         {row.current}
-                        {!row.isMax && (met ? ' ✓' : ' ✗')}
+                        {met ? ' ✓' : ' ✗'}
                       </span>
                     ) : (
-                      <span className="text-neutral-500">—</span>
+                      <span className="text-neutral-500">-</span>
                     )}
                   </td>
                 )}
@@ -379,14 +563,14 @@ function RequirementsTable({
   );
 }
 
-function BenefitsGrid({ requirements }: { requirements: NunuLevelRequirements }) {
+function BenefitsGrid({ config }: { config: { shopPlanDiscount: number; shopEventDiscount: number; merchDiscount: number; testUpgradeLevel: number | null } }) {
   const benefits = [
-    { label: 'Shop Plan', value: formatDiscount(requirements.shopPlanDiscount) },
-    { label: 'Shop Event', value: formatDiscount(requirements.shopEventDiscount) },
-    { label: 'Merchandise', value: formatDiscount(requirements.merchDiscount) },
+    { label: 'Shop Plan', value: formatDiscount(config.shopPlanDiscount) },
+    { label: 'Shop Event', value: formatDiscount(config.shopEventDiscount) },
+    { label: 'Merchandise', value: formatDiscount(config.merchDiscount) },
     {
       label: 'Test Bonus',
-      value: requirements.testUpgradeLevel ? `+${requirements.testUpgradeLevel} level` : '—',
+      value: config.testUpgradeLevel ? `+${config.testUpgradeLevel} level` : '-',
     },
   ];
 
@@ -404,8 +588,10 @@ function BenefitsGrid({ requirements }: { requirements: NunuLevelRequirements })
 
 function EligibilityPanel({
   eligibility,
+  level,
 }: {
   eligibility: ReturnType<typeof calculateEligibility>;
+  level: NunuLevel;
 }) {
   return (
     <div className={cn(
@@ -426,8 +612,8 @@ function EligibilityPanel({
             eligibility.eligible ? 'text-green-400' : 'text-red-400'
           )}>
             {eligibility.eligible
-              ? `Eligible to apply for ${eligibility.nextLevel}`
-              : `Not yet eligible for ${eligibility.nextLevel}`}
+              ? `Eligible to apply for ${level}`
+              : `Not yet eligible for ${level}`}
           </h4>
           {!eligibility.eligible && eligibility.missingRequirements.length > 0 && (
             <ul className="text-sm text-neutral-300 space-y-1">
@@ -451,7 +637,7 @@ function EligibilityPanel({
 
 function getLevelTitle(level: NunuLevel): string {
   const titles: Record<NunuLevel, string> = {
-    'N-Test': 'Entry Level Certification',
+    'Nx': 'Entry Level Certification',
     'N-5': 'Junior Nunu',
     'N-4': 'Intermediate Nunu',
     'N-3': 'Experienced Nunu',
@@ -463,7 +649,7 @@ function getLevelTitle(level: NunuLevel): string {
 
 function getLevelDescription(level: NunuLevel): string {
   const descriptions: Record<NunuLevel, string> = {
-    'N-Test': 'Begin your journey as a Nunu mentor. Complete this exam to start mentoring.',
+    'Nx': 'Begin your journey as a Nunu mentor. Complete this exam to start mentoring.',
     'N-5': 'Build your foundation as a mentor with basic Vava guidance skills.',
     'N-4': 'Expand your mentoring capabilities and support more learners.',
     'N-3': 'Lead by example with proven mentorship track record.',
@@ -479,6 +665,6 @@ function getMonthName(month: number): string {
 }
 
 function compareLevels(a: NunuLevel, b: NunuLevel): number {
-  const order: NunuLevel[] = ['N-Test', 'N-5', 'N-4', 'N-3', 'N-2', 'N-1'];
+  const order: NunuLevel[] = ['Nx', 'N-5', 'N-4', 'N-3', 'N-2', 'N-1'];
   return order.indexOf(a) - order.indexOf(b);
 }

@@ -11,7 +11,7 @@ import { MatchingPostDetail } from './MatchingPostDetail';
 import { cn } from '@/lib/utils';
 import { useInvitations } from '../../hooks/useInvitations';
 import { useDuoEntitlement } from '@/features/shop/hooks/useDuoEntitlement';
-import { DUO_VARIANT_LABELS, NUNU_TIER_LABELS } from '@/features/shop/data/duo';
+import { DUO_VARIANT_LABELS, NUNU_TIER_LABELS } from '@/Database';
 import type { MatchingPostSortBy, MatchingPostWithRelations } from '@/lib/db/hooks/useMatchingPosts';
 import type { MatchingPostType } from '@/features/space/types';
 import type { NunuTier } from '@/features/shop/types';
@@ -324,7 +324,6 @@ export function MatchingBoardSection() {
               <MatchingPostCard
                 post={post}
                 onClick={() => handlePostClick(post.id)}
-                hidePrice
               />
             </motion.div>
           ))}

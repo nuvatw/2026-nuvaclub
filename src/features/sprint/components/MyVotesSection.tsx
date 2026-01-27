@@ -34,11 +34,11 @@ export function MyVotesSection({
   return (
     <section className={cn('mb-12', className)}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <h2 className="text-xl font-bold text-white">我的投票</h2>
+        <h2 className="text-xl font-bold text-white">My Stars</h2>
 
         {/* 5-Star Meter */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1" role="meter" aria-label={`已投 ${totalVotes} 票，剩餘 ${remainingVotes} 票`}>
+          <div className="flex items-center gap-1" role="meter" aria-label={`${totalVotes} stars given, ${remainingVotes} remaining`}>
             {Array.from({ length: MAX_VOTES_PER_SPRINT }).map((_, i) => (
               <span key={i} className="text-lg">
                 {i < totalVotes ? (
@@ -50,7 +50,7 @@ export function MyVotesSection({
             ))}
           </div>
           <span className="text-sm text-neutral-400">
-            剩下 <span className="text-white font-semibold">{remainingVotes}</span> 個星星
+            <span className="text-white font-semibold">{remainingVotes}</span> stars remaining
           </span>
         </div>
       </div>
@@ -61,9 +61,9 @@ export function MyVotesSection({
             <div className="flex justify-center mb-3">
               <StarIcon size="lg" className="text-neutral-600" />
             </div>
-            <p className="text-neutral-400 mb-2">你還沒有投票</p>
+            <p className="text-neutral-400 mb-2">You haven&apos;t given any stars yet</p>
             <p className="text-sm text-neutral-500">
-              瀏覽下方專案，點擊星星為喜歡的專案投票
+              Browse projects below and click &quot;Give a star&quot; on your favorites
             </p>
           </CardContent>
         </Card>
@@ -79,11 +79,11 @@ export function MyVotesSection({
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent to-transparent" />
-                {/* Voted Badge */}
+                {/* Starred Badge */}
                 <div className="absolute top-2 right-2">
                   <div className="flex items-center gap-1 bg-amber-500/90 text-black px-2 py-0.5 rounded-full text-xs font-medium">
                     <StarSolidIcon size="sm" className="w-3 h-3" />
-                    已投票
+                    Starred
                   </div>
                 </div>
               </div>
@@ -93,15 +93,15 @@ export function MyVotesSection({
                 </h3>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-neutral-500">
-                    {project.author?.name ?? '匿名'}
+                    {project.author?.name ?? 'Anonymous'}
                   </span>
                   {isVotingEnabled && onUnvote && (
                     <button
                       onClick={() => onUnvote(project.id)}
                       className="text-xs text-neutral-400 hover:text-red-400 transition-colors"
-                      aria-label={`取消對 ${project.title} 的投票`}
+                      aria-label={`Remove star from ${project.title}`}
                     >
-                      取消投票
+                      Remove Star
                     </button>
                   )}
                 </div>

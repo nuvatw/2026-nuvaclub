@@ -1,107 +1,52 @@
+/**
+ * Shop Feature Types
+ *
+ * Re-exports entity types from Database (canonical source)
+ * and defines feature-specific types and UI helpers.
+ */
+
+// Import types for local use
+import type { EventProduct as _EventProduct } from '@/Database/tables/events';
+import type { PlanProduct as _PlanProduct } from '@/Database/tables/plans';
+import type { MerchandiseProduct as _MerchandiseProduct } from '@/Database/tables/merchandise';
+import type { DuoProduct as _DuoProduct } from '@/Database/tables/duo';
+
+// Re-export entity types from Database (canonical source)
+export type {
+  EventProduct,
+  EventType,
+  EventAgendaItem,
+  EventFAQItem,
+  EventSortBy,
+} from '@/Database/tables/events';
+
+export type {
+  PlanProduct,
+  PlanType,
+  BillingCycle,
+} from '@/Database/tables/plans';
+
+export type {
+  MerchandiseProduct,
+  MerchandiseVariant,
+} from '@/Database/tables/merchandise';
+
+export type {
+  DuoProduct,
+  DuoVariant,
+  NunuTier,
+} from '@/Database/tables/duo';
+
 // Product type discriminators
 export type ProductType = 'plan' | 'event' | 'merchandise' | 'duo';
 export type ProductCategory = 'plan' | 'event' | 'merchant' | 'duo';
 
-// Nunu tier types for Duo ticket matching access
-export type NunuTier = 'nunu' | 'verified_nunu' | 'super_nunu';
-
-// Duo ticket variants
-export type DuoVariant = 'go' | 'run' | 'fly';
-
-// Plan product (Explorer, Traveler, Voyager, Enterprise)
-export interface PlanProduct {
-  id: string;
-  type: 'plan';
-  planType: 'explorer' | 'traveler' | 'voyager' | 'enterprise';
-  name: string;
-  description: string;
-  price: number; // Monthly price
-  yearlyPrice: number; // Yearly price (pay 10 months, get 12 - 17% discount)
-  billingCycle: 'monthly' | 'yearly';
-  features: string[];
-  imageUrl: string;
-  rating: number;
-  reviewCount: number;
-  isPopular?: boolean;
-  badge?: string; // e.g., "Most Recommended", "Popular"
-  promoted?: boolean; // Visual emphasis (Voyager = true)
-  ctaText?: string; // Custom CTA button text
-  ctaLink?: string; // External link (Enterprise LINE)
-  ctaExternal?: boolean; // Open in new tab
-}
-
-// Agenda item for events
-export interface AgendaItem {
-  time: string;
-  title: string;
-  description?: string;
-}
-
-// FAQ item for events
-export interface FAQ {
-  question: string;
-  answer: string;
-}
-
-// Event product (workshops, meetups, webinars)
-export interface EventProduct {
-  id: string;
-  type: 'event';
-  eventType: 'in-person' | 'online';
-  name: string;
-  description: string;
-  date: Date;
-  endDate?: Date;
-  location: string;
-  price: number;
-  capacity: number;
-  remainingSeats: number;
-  imageUrl: string;
-  rating: number;
-  reviewCount: number;
-  hotScore?: number; // For hot/trending sorting
-  // Detail page fields
-  overview: string;
-  whatYouWillLearn: string[];
-  whoIsItFor: string[];
-  agenda: AgendaItem[];
-  faqs?: FAQ[];
-  isLiveQA?: boolean;
-}
-
-// Merchandise product (hats, shirts, etc.)
-export interface MerchandiseProduct {
-  id: string;
-  type: 'merchandise';
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-  rating: number;
-  reviewCount: number;
-  variants?: { name: string; stock: number }[];
-}
-
-// Duo ticket product (Go, Run, Fly)
-export interface DuoProduct {
-  id: string;
-  type: 'duo';
-  duoVariant: DuoVariant;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-  rating: number;
-  reviewCount: number;
-  // Tiers this ticket grants matching access to
-  matchAccess: NunuTier[];
-  features: string[];
-  badge?: string;
-  isPopular?: boolean;
-}
+// Legacy aliases for backward compatibility
+export type AgendaItem = import('@/Database/tables/events').EventAgendaItem;
+export type FAQ = import('@/Database/tables/events').EventFAQItem;
 
 // Union type for all products
-export type Product = PlanProduct | EventProduct | MerchandiseProduct | DuoProduct;
+export type Product = _PlanProduct | _EventProduct | _MerchandiseProduct | _DuoProduct;
 
 // Unified shop product interface for display purposes
 export interface ShopProduct {
@@ -182,4 +127,4 @@ export interface PlanFeature {
   voyager: boolean | string;
 }
 
-export type PlanType = 'explorer' | 'traveler' | 'voyager' | 'enterprise';
+// PlanType is re-exported from Database above

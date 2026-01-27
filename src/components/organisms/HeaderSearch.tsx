@@ -8,9 +8,7 @@ import { cn } from '@/lib/utils';
 import { useKeyboardShortcuts } from '@/features/keyboard-shortcuts';
 
 // Import data sources for each scope
-import { getAllCourses } from '@/features/learn/data/courses';
-import { getAllShopProducts } from '@/mocks';
-import { getProjectsWithSeasonInfo } from '@/mocks';
+import { getAllCourses, getAllShopProducts, getProjectsWithSeasonInfo } from '@/Database';
 import { usePosts } from '@/lib/db/hooks';
 import { useMatchingPosts } from '@/lib/db/hooks/useMatchingPosts';
 

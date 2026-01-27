@@ -73,9 +73,16 @@ export function PlanComparisonSection() {
   }
 
   function getButtonVariant(planType: PlanType): 'primary' | 'secondary' | 'ghost' {
-    // Current plan is gray (secondary), all others are blue (primary)
+    // Current plan is gray (secondary)
     if (isCurrent(planType)) return 'secondary';
+    // For guests: Explorer is primary (green), others are secondary (gray)
+    if (isGuest && planType !== 'explorer') return 'secondary';
     return 'primary';
+  }
+
+  function isButtonDisabledForGuest(planType: PlanType): boolean {
+    // For guests, disable all non-Explorer buttons to encourage free sign-up first
+    return isGuest && planType !== 'explorer';
   }
 
   function handleCtaClick(planType: PlanType) {
@@ -96,6 +103,7 @@ export function PlanComparisonSection() {
     const isEnterprise = planType === 'enterprise';
     const isPromoted = plan.promoted;
     const yearlySavings = getYearlySavings(plan);
+    const isExplorerForGuest = isGuest && planType === 'explorer';
 
     return (
       <motion.div
@@ -108,7 +116,11 @@ export function PlanComparisonSection() {
           isCurrent(planType)
             ? `${PLAN_STYLES[planType].border} ${PLAN_STYLES[planType].gradient}`
             : 'border-neutral-700/50 hover:border-neutral-600',
-          isPromoted && !isCurrent(planType) && 'border-purple-500/60 shadow-lg shadow-purple-500/10'
+          isPromoted && !isCurrent(planType) && !isGuest && 'border-purple-500/60 shadow-lg shadow-purple-500/10',
+          // Special glowing effect for Explorer when guest
+          isExplorerForGuest && 'animate-glow-pulse border-green-500 bg-gradient-to-b from-green-500/15 to-transparent scale-[1.02]',
+          // Dim other cards when guest to draw attention to Explorer
+          isGuest && planType !== 'explorer' && 'opacity-60'
         )}
       >
         {/* Badges */}
@@ -117,14 +129,22 @@ export function PlanComparisonSection() {
             <Badge variant="primary">Current</Badge>
           </div>
         )}
-        {!isCurrent(planType) && isPromoted && (
+        {/* Special "Start Here" badge for Explorer when guest */}
+        {isExplorerForGuest && (
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+            <Badge variant="default" className="bg-green-500 text-white font-bold">
+              ✨ Start Here - FREE
+            </Badge>
+          </div>
+        )}
+        {!isCurrent(planType) && !isExplorerForGuest && isPromoted && !isGuest && (
           <div className="absolute -top-3 left-1/2 -translate-x-1/2">
             <Badge variant="default" className="bg-purple-600 text-white">
               <span className="mr-1">⚡</span>Most Recommended
             </Badge>
           </div>
         )}
-        {!isCurrent(planType) && plan.isPopular && !isPromoted && (
+        {!isCurrent(planType) && !isExplorerForGuest && plan.isPopular && !isPromoted && (
           <div className="absolute -top-3 left-1/2 -translate-x-1/2">
             <Badge variant="warning">Popular</Badge>
           </div>
@@ -146,12 +166,11 @@ export function PlanComparisonSection() {
           ) : isEnterprise ? (
             <>
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-white">
-                  {formatPrice(plan.price)}
+                <span className="text-3xl font-bold text-white">
+                  Custom Pricing
                 </span>
-                <span className="text-neutral-400">/mo</span>
               </div>
-              <div className="text-sm text-neutral-500">Custom yearly billing available</div>
+              <div className="text-sm text-neutral-500">Contact us for a quote</div>
             </>
           ) : billingCycle === 'yearly' ? (
             <>
@@ -192,8 +211,12 @@ export function PlanComparisonSection() {
         <Button
           variant={getButtonVariant(planType)}
           size="lg"
-          className="w-full"
-          disabled={isCurrent(planType)}
+          className={cn(
+            'w-full',
+            // Special green styling for Explorer when guest
+            isExplorerForGuest && 'bg-green-500 hover:bg-green-600 text-white font-bold'
+          )}
+          disabled={isCurrent(planType) || isButtonDisabledForGuest(planType)}
           onClick={() => handleCtaClick(planType)}
           aria-label={`${getButtonText(planType)} - ${info.name} plan`}
         >

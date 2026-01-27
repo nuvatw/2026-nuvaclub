@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import Image from 'next/image';
 import { Button, Card, CardContent } from '@/components/atoms';
 import { Gate } from '@/features/auth/components/Gate';
-import { MERCHANDISE } from '@/mocks';
+import { MERCHANDISE } from '@/Database';
 import {
   InformationCircleIcon,
   QuestionMarkCircleIcon,

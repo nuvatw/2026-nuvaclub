@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { DuoVariant, NunuTier } from '@/features/shop/types';
-import { getMatchAccessForVariant } from '@/features/shop/data/duo';
+import { getMatchAccessForVariant } from '@/Database';
 
 const DUO_ENTITLEMENT_KEY = 'nuvaclub_duo_entitlement';
 

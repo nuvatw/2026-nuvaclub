@@ -1,8 +1,10 @@
 'use client';
 
 import { cn } from '@/lib/utils';
+import type { BillingCycle } from '@/Database/tables/plans';
 
-export type BillingCycle = 'monthly' | 'yearly';
+// Re-export for backward compatibility
+export type { BillingCycle } from '@/Database/tables/plans';
 
 interface BillingToggleProps {
   value: BillingCycle;

@@ -31,7 +31,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-2',
       name: 'Sarah Lin',
-      avatar: 'https://i.pravatar.cc/150?u=sarah',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=sarah&top=longHairStraight'
     },
     score: 15,
     createdAt: new Date('2026-01-20T11:00:00'),
@@ -44,7 +44,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-3',
       name: 'Mike Wang',
-      avatar: 'https://i.pravatar.cc/150?u=mike',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=mike&top=shortHairShortFlat'
     },
     score: 12,
     createdAt: new Date('2026-01-20T12:30:00'),
@@ -57,7 +57,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-1',
       name: 'Alex Chen',
-      avatar: 'https://i.pravatar.cc/150?u=alex',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=alex&top=shortHairShortFlat'
     },
     score: 5,
     createdAt: new Date('2026-01-20T13:00:00'),
@@ -70,7 +70,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-4',
       name: 'Emily Huang',
-      avatar: 'https://i.pravatar.cc/150?u=emily',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=emily&top=longHairStraight'
     },
     score: 9,
     createdAt: new Date('2026-01-20T14:15:00'),
@@ -83,7 +83,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-6',
       name: 'Jessica Wu',
-      avatar: 'https://i.pravatar.cc/150?u=jessica',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=jessica&top=longHairStraight'
     },
     score: 8,
     createdAt: new Date('2026-01-20T15:30:00'),
@@ -96,7 +96,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-8',
       name: 'Lisa Chen',
-      avatar: 'https://i.pravatar.cc/150?u=lisa',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=lisa&top=longHairStraight'
     },
     score: 5,
     createdAt: new Date('2026-01-20T16:00:00'),
@@ -109,7 +109,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-9',
       name: 'Tom Huang',
-      avatar: 'https://i.pravatar.cc/150?u=tom',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=tom&top=shortHairShortFlat'
     },
     score: 7,
     createdAt: new Date('2026-01-20T17:20:00'),
@@ -122,7 +122,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-10',
       name: 'Amy Lin',
-      avatar: 'https://i.pravatar.cc/150?u=amy',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=amy&top=longHairStraight'
     },
     score: 11,
     createdAt: new Date('2026-01-20T18:00:00'),
@@ -136,7 +136,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-1',
       name: 'Alex Chen',
-      avatar: 'https://i.pravatar.cc/150?u=alex',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=alex&top=shortHairShortFlat'
     },
     score: 8,
     createdAt: new Date('2026-01-19T16:00:00'),
@@ -150,7 +150,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-2',
       name: 'Sarah Lin',
-      avatar: 'https://i.pravatar.cc/150?u=sarah',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=sarah&top=longHairStraight'
     },
     score: 10,
     createdAt: new Date('2026-01-19T16:30:00'),
@@ -163,7 +163,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-3',
       name: 'Mike Wang',
-      avatar: 'https://i.pravatar.cc/150?u=mike',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=mike&top=shortHairShortFlat'
     },
     score: 6,
     createdAt: new Date('2026-01-19T17:00:00'),
@@ -177,7 +177,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-2',
       name: 'Sarah Lin',
-      avatar: 'https://i.pravatar.cc/150?u=sarah',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=sarah&top=longHairStraight'
     },
     score: 8,
     createdAt: new Date('2026-01-19T17:30:00'),
@@ -190,7 +190,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-4',
       name: 'Emily Huang',
-      avatar: 'https://i.pravatar.cc/150?u=emily',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=emily&top=longHairStraight'
     },
     score: 7,
     createdAt: new Date('2026-01-19T18:00:00'),
@@ -203,7 +203,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-5',
       name: 'Kevin Lee',
-      avatar: 'https://i.pravatar.cc/150?u=kevin',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=kevin&top=shortHairShortFlat'
     },
     score: 4,
     createdAt: new Date('2026-01-19T19:00:00'),
@@ -216,7 +216,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-6',
       name: 'Jessica Wu',
-      avatar: 'https://i.pravatar.cc/150?u=jessica',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=jessica&top=longHairStraight'
     },
     score: 11,
     createdAt: new Date('2026-01-19T19:30:00'),
@@ -230,7 +230,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-2',
       name: 'Sarah Lin',
-      avatar: 'https://i.pravatar.cc/150?u=sarah',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=sarah&top=longHairStraight'
     },
     score: 15,
     createdAt: new Date('2026-01-19T20:00:00'),
@@ -243,7 +243,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-7',
       name: 'David Zhang',
-      avatar: 'https://i.pravatar.cc/150?u=david',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=david&top=shortHairShortFlat'
     },
     score: 8,
     createdAt: new Date('2026-01-19T21:00:00'),
@@ -256,7 +256,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-8',
       name: 'Lisa Chen',
-      avatar: 'https://i.pravatar.cc/150?u=lisa',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=lisa&top=longHairStraight'
     },
     score: 5,
     createdAt: new Date('2026-01-19T22:00:00'),
@@ -269,7 +269,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-9',
       name: 'Tom Huang',
-      avatar: 'https://i.pravatar.cc/150?u=tom',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=tom&top=shortHairShortFlat'
     },
     score: 6,
     createdAt: new Date('2026-01-19T23:00:00'),
@@ -282,7 +282,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-10',
       name: 'Amy Lin',
-      avatar: 'https://i.pravatar.cc/150?u=amy',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=amy&top=longHairStraight'
     },
     score: 9,
     createdAt: new Date('2026-01-20T08:00:00'),
@@ -296,7 +296,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-1',
       name: 'Alex Chen',
-      avatar: 'https://i.pravatar.cc/150?u=alex',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=alex&top=shortHairShortFlat'
     },
     score: 11,
     createdAt: new Date('2026-01-18T10:00:00'),
@@ -309,7 +309,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-2',
       name: 'Sarah Lin',
-      avatar: 'https://i.pravatar.cc/150?u=sarah',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=sarah&top=longHairStraight'
     },
     score: 15,
     createdAt: new Date('2026-01-18T10:30:00'),
@@ -322,7 +322,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-1',
       name: 'Alex Chen',
-      avatar: 'https://i.pravatar.cc/150?u=alex',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=alex&top=shortHairShortFlat'
     },
     score: 12,
     createdAt: new Date('2026-01-15T15:00:00'),
@@ -335,7 +335,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-2',
       name: 'Sarah Lin',
-      avatar: 'https://i.pravatar.cc/150?u=sarah',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=sarah&top=longHairStraight'
     },
     score: 17,
     createdAt: new Date('2026-01-15T16:00:00'),
@@ -349,7 +349,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-2',
       name: 'Sarah Lin',
-      avatar: 'https://i.pravatar.cc/150?u=sarah',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=sarah&top=longHairStraight'
     },
     score: 9,
     createdAt: new Date('2026-01-21T09:00:00'),
@@ -362,7 +362,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-4',
       name: 'Emily Huang',
-      avatar: 'https://i.pravatar.cc/150?u=emily',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=emily&top=longHairStraight'
     },
     score: 8,
     createdAt: new Date('2026-01-21T10:00:00'),
@@ -375,7 +375,7 @@ export const CommentsTable: Comment[] = [
     author: {
       id: 'user-10',
       name: 'Amy Lin',
-      avatar: 'https://i.pravatar.cc/150?u=amy',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=amy&top=longHairStraight'
     },
     score: 15,
     createdAt: new Date('2026-01-21T11:00:00'),

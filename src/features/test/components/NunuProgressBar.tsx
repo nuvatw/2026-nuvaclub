@@ -22,7 +22,7 @@ interface NunuProgressBarProps {
 
 /**
  * Nunu certification progress bar
- * Shows: N-Test → N-5 → N-4 → N-3 → N-2 → N-1 + Verified badge
+ * Shows: Nx → N-5 → N-4 → N-3 → N-2 → N-1 + Verified badge
  */
 export function NunuProgressBar({
   currentLevel,
@@ -136,22 +136,6 @@ export function NunuProgressBar({
               <span>V</span>
             )}
           </button>
-        </div>
-      </div>
-
-      {/* Level Labels */}
-      <div className="flex mt-6">
-        <div className="flex-1 flex justify-around items-end">
-          {NUNU_LEVELS.map((level) => (
-            <div key={level} className="text-center min-w-[48px]">
-              <span className={cn('text-xs font-medium', getNunuLevelColor(level))}>
-                {level}
-              </span>
-            </div>
-          ))}
-        </div>
-        <div className="ml-4 pl-4 border-l border-neutral-700 min-w-[48px] text-center">
-          <span className="text-xs font-medium text-amber-400">Verified</span>
         </div>
       </div>
 

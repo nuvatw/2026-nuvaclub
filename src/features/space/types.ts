@@ -1,3 +1,16 @@
+/**
+ * Space Feature Types
+ *
+ * Re-exports entity types from Database (canonical source)
+ * and defines feature-specific types and UI constants.
+ */
+
+// Re-export entity types from Database (canonical source)
+export type { Companion, CompanionType } from '@/Database/schema';
+
+// Import for use in constants below
+import type { CompanionType } from '@/Database/schema';
+
 // ==========================================
 // Status Badge Types
 // ==========================================
@@ -20,24 +33,6 @@ export function getStatusBadge(status: string): StatusBadge {
   const badge = STATUS_BADGES[status as StatusType];
   if (badge) return badge;
   return { ...DEFAULT_STATUS_BADGE, label: status };
-}
-
-// ==========================================
-// Companion Types (existing)
-// ==========================================
-export type CompanionType = 'nunu' | 'certified-nunu' | 'shangzhe';
-
-export interface Companion {
-  id: string;
-  name: string;
-  avatar: string;
-  type: CompanionType;
-  bio: string;
-  expertise: string[];
-  discordId: string;
-  isAvailable: boolean;
-  matchCount: number;
-  rating: number;
 }
 
 export interface Match {
@@ -70,6 +65,7 @@ export interface NunuLevelConfig {
   level: NunuLevel;
   name: string;
   maxVavas: number;
+  minVavas: number;
   color: string;
   description: string;
 }
@@ -99,6 +95,7 @@ export const NUNU_LEVEL_CONFIGS: NunuLevelConfig[] = [
     level: 'N5',
     name: 'Beginner Nunu',
     maxVavas: 3,
+    minVavas: 1,
     color: 'bg-gray-600/20 text-gray-400 border-gray-600/30',
     description: 'Entry Level',
   },
@@ -106,6 +103,7 @@ export const NUNU_LEVEL_CONFIGS: NunuLevelConfig[] = [
     level: 'N4',
     name: 'Intermediate Nunu',
     maxVavas: 5,
+    minVavas: 2,
     color: 'bg-green-600/20 text-green-400 border-green-600/30',
     description: 'Mid-level Mentor',
   },
@@ -113,6 +111,7 @@ export const NUNU_LEVEL_CONFIGS: NunuLevelConfig[] = [
     level: 'N3',
     name: 'Senior Nunu',
     maxVavas: 10,
+    minVavas: 3,
     color: 'bg-blue-600/20 text-blue-400 border-blue-600/30',
     description: 'Advanced Mentor',
   },
@@ -120,6 +119,7 @@ export const NUNU_LEVEL_CONFIGS: NunuLevelConfig[] = [
     level: 'N2',
     name: 'Expert Nunu',
     maxVavas: 30,
+    minVavas: 5,
     color: 'bg-purple-600/20 text-purple-400 border-purple-600/30',
     description: 'Expert Level',
   },
@@ -127,6 +127,7 @@ export const NUNU_LEVEL_CONFIGS: NunuLevelConfig[] = [
     level: 'N1',
     name: 'Master Nunu',
     maxVavas: 50,
+    minVavas: 10,
     color: 'bg-amber-600/20 text-amber-400 border-amber-600/30',
     description: 'Highest Level',
   },
@@ -242,13 +243,40 @@ export function formatPrice(
 }
 
 /**
- * Format available months for display
+ * Format available months for display.
+ * Converts YYYY-MM format to readable date range.
+ * Examples:
+ * - ['2026-02', '2026-03', '2026-04'] -> "Feb – Apr 2026"
+ * - ['2026-02'] -> "Feb 2026"
+ * - [] -> "—"
  */
 export function formatAvailableMonths(months: string[]): string {
-  if (!months || months.length === 0) return 'No months available';
-  if (months.length === 1) return months[0];
-  if (months.length === 2) return `${months[0]} & ${months[1]}`;
-  return `${months[0]} - ${months[months.length - 1]}`;
+  if (!months || months.length === 0) return '—';
+
+  // Sort months to ensure correct order
+  const sortedMonths = [...months].sort();
+
+  const formatMonth = (monthStr: string, includeYear: boolean = true) => {
+    const [year, month] = monthStr.split('-');
+    const date = new Date(Number(year), Number(month) - 1);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      ...(includeYear ? { year: 'numeric' } : {}),
+    });
+  };
+
+  if (sortedMonths.length === 1) {
+    return formatMonth(sortedMonths[0]);
+  }
+
+  const firstMonth = sortedMonths[0];
+  const lastMonth = sortedMonths[sortedMonths.length - 1];
+  const sameYear = firstMonth.split('-')[0] === lastMonth.split('-')[0];
+
+  const startStr = formatMonth(firstMonth, !sameYear);
+  const endStr = formatMonth(lastMonth, true);
+
+  return `${startStr} – ${endStr}`;
 }
 
 export interface MatchingPost {

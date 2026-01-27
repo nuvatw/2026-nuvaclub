@@ -48,7 +48,7 @@ export function VotingCountdown({ className }: VotingCountdownProps) {
   if (timeRemaining.isExpired) {
     return (
       <div className={className}>
-        <Badge variant="error">投票已截止</Badge>
+        <Badge variant="error">Voting Ended</Badge>
       </div>
     );
   }
@@ -56,14 +56,14 @@ export function VotingCountdown({ className }: VotingCountdownProps) {
   return (
     <div className={className}>
       <div className="flex items-center gap-3">
-        <Badge variant="warning">開投票中</Badge>
+        <Badge variant="warning">Voting Open</Badge>
         <div className="flex items-center gap-2 text-sm text-neutral-400">
-          <span>截止：</span>
+          <span>Ends in:</span>
           <div className="flex items-center gap-1 font-mono">
             {timeRemaining.days > 0 && (
               <>
                 <span className="text-white font-semibold">{timeRemaining.days}</span>
-                <span className="text-xs">天</span>
+                <span className="text-xs">d</span>
               </>
             )}
             <span className="text-white font-semibold">
@@ -81,7 +81,7 @@ export function VotingCountdown({ className }: VotingCountdownProps) {
         </div>
       </div>
       <p className="text-xs text-neutral-500 mt-1">
-        投票截止日期：2026/2/28 23:59
+        Voting deadline: Feb 28, 2026 at 11:59 PM
       </p>
     </div>
   );

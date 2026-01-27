@@ -1,0 +1,1224 @@
+/**
+ * Courses Table
+ *
+ * Single source of truth for all course data.
+ * Migrated from features/learn/data/courses.ts
+ */
+
+import type { Course, CourseCategory, CourseLevel, CourseType, CourseTrack, Chapter, Lesson, Trailer } from '@/features/learn/types';
+
+export const COURSE_CATEGORIES: CourseCategory[] = [
+  { id: 'cat-1', name: 'AI Fundamentals', slug: 'ai-fundamentals' },
+  { id: 'cat-2', name: 'ChatGPT & LLMs', slug: 'chatgpt-llms' },
+  { id: 'cat-3', name: 'AI Art & Design', slug: 'ai-art' },
+  { id: 'cat-4', name: 'Machine Learning', slug: 'machine-learning' },
+  { id: 'cat-5', name: 'AI Development', slug: 'ai-development' },
+  { id: 'cat-6', name: 'AI for Business', slug: 'ai-business' },
+  { id: 'cat-7', name: 'AI Tools', slug: 'ai-tools' },
+  { id: 'cat-8', name: 'Deep Learning', slug: 'deep-learning' },
+  { id: 'cat-9', name: 'NLP & Text', slug: 'nlp' },
+  { id: 'cat-10', name: 'Computer Vision', slug: 'computer-vision' },
+];
+
+// Pool of unique YouTube video IDs for demo lessons
+const YOUTUBE_VIDEO_POOL = [
+  'B2oc3C0dg7c',
+  'VFIF2ioFWTg',
+  'gdA-2sPTTn0',
+  'buBjtZLqFEo',
+  'oYHxkEFTvxY',
+  'SsDyrO9pZ44',
+  'I0F_5oYe0eM',
+  'Z7_BsuwCg3Q',
+  'A8i7N913sVs',
+  'aBhumNe9lkA',
+  '5eXwdW5E09c',
+  'ndAfWDW7pm0',
+  'Ref0hXhc0IA',
+  '1yOron-kA7Y',
+  'dLRdaUda8Ho',
+  '3QrwN1pW3wo',
+];
+
+// Pool of YouTube video IDs for course trailers
+const YOUTUBE_TRAILER_POOL = [
+  'Hh9Ftxz_pAI',
+  'A50lJtRhpCg',
+  'tMvaM3LhbdE',
+  '1J5w-2mH3NE',
+];
+
+// Helper to create chapters with lessons
+function createChapters(
+  courseId: string,
+  chapterData: { title: string; lessons: { title: string; videoId: string; duration: number }[] }[]
+): Chapter[] {
+  return chapterData.map((chapter, chapterIndex) => ({
+    id: `${courseId}-ch${chapterIndex + 1}`,
+    title: chapter.title,
+    lessons: chapter.lessons.map((lesson, lessonIndex) => ({
+      id: `${courseId}-ch${chapterIndex + 1}-l${lessonIndex + 1}`,
+      title: lesson.title,
+      duration: lesson.duration,
+      videoUrl: lesson.videoId,
+      order: lessonIndex + 1,
+    })),
+  }));
+}
+
+// Tool tag mapping based on category - used for grouping Vava courses
+const CATEGORY_TO_TOOL_TAG: Record<string, string[]> = {
+  'AI Fundamentals': ['AI Basics'],
+  'ChatGPT & LLMs': ['ChatGPT'],
+  'AI Art & Design': ['AI Art'],
+  'Machine Learning': ['Machine Learning'],
+  'AI Development': ['AI Development'],
+  'AI for Business': ['AI Business'],
+  'AI Tools': ['AI Tools'],
+  'Deep Learning': ['Deep Learning'],
+  'NLP & Text': ['NLP'],
+  'Computer Vision': ['Computer Vision'],
+  'Nunu Training': ['Nunu'],
+};
+
+// Helper to create a course with proper chapter structure
+function createCourse(
+  id: string,
+  title: string,
+  subtitle: string,
+  description: string,
+  thumbnailUrl: string,
+  category: string,
+  tags: string[],
+  level: CourseLevel,
+  instructor: { name: string; avatar: string },
+  trailer: Trailer,
+  chapters: Chapter[],
+  isFeatured: boolean,
+  createdAt: Date,
+  courseType: CourseType = 'vava',
+  toolTags?: string[]
+): Course {
+  const allLessons = chapters.flatMap((ch) => ch.lessons);
+  const totalDuration = allLessons.reduce((sum, l) => sum + l.duration, 0);
+
+  // Determine tool tags: use provided or derive from category
+  const finalToolTags = toolTags || (courseType === 'vava' ? CATEGORY_TO_TOOL_TAG[category] || [category] : undefined);
+
+  return {
+    id,
+    title,
+    subtitle,
+    description,
+    thumbnailUrl,
+    trailer,
+    category,
+    tags,
+    level,
+    instructor,
+    chapters,
+    totalDuration,
+    lessonCount: allLessons.length,
+    isFeatured,
+    createdAt,
+    courseType,
+    toolTags: finalToolTags,
+    isFree: level === 1, // Level 1 courses are free
+  };
+}
+
+// 100 AI Courses with Chapter-based structure (3 chapters × 5 lessons = 15 lessons per course)
+export const CoursesTable: Course[] = [
+  // ==================== LEVEL 1 (FREE) - 15 Courses ====================
+  createCourse(
+    'c1',
+    'Introduction to AI',
+    'Your first step into artificial intelligence',
+    'A beginner-friendly introduction to AI concepts, history, and real-world applications. No prior experience required.',
+    'https://images.unsplash.com/photo-1535378620166-273708d44e4c?w=800',
+    'AI Fundamentals',
+    ['AI', 'Beginner', 'Introduction'],
+    1,
+    { name: 'Dr. Sarah Chen', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=sarah&top=longHairStraight' },
+    { title: 'Course Trailer', youtubeId: YOUTUBE_TRAILER_POOL[0], duration: 120 },
+    createChapters('c1', [
+      {
+        title: 'Chapter 1: AI Basics',
+        lessons: [
+          { title: 'What is Artificial Intelligence?', videoId: 'B2oc3C0dg7c', duration: 720 },
+          { title: 'Brief History of AI', videoId: 'VFIF2ioFWTg', duration: 900 },
+          { title: 'Types of AI Systems', videoId: 'gdA-2sPTTn0', duration: 840 },
+          { title: 'AI vs Machine Learning', videoId: 'buBjtZLqFEo', duration: 780 },
+          { title: 'AI Terminology Guide', videoId: 'oYHxkEFTvxY', duration: 660 },
+        ],
+      },
+      {
+        title: 'Chapter 2: AI in Practice',
+        lessons: [
+          { title: 'AI in Everyday Life', videoId: 'SsDyrO9pZ44', duration: 720 },
+          { title: 'AI in Healthcare', videoId: 'I0F_5oYe0eM', duration: 900 },
+          { title: 'AI in Finance', videoId: 'Z7_BsuwCg3Q', duration: 840 },
+          { title: 'AI in Transportation', videoId: 'A8i7N913sVs', duration: 780 },
+          { title: 'AI in Entertainment', videoId: 'aBhumNe9lkA', duration: 660 },
+        ],
+      },
+      {
+        title: 'Chapter 3: Future of AI',
+        lessons: [
+          { title: 'Emerging AI Technologies', videoId: '5eXwdW5E09c', duration: 720 },
+          { title: 'AI Ethics & Safety', videoId: 'ndAfWDW7pm0', duration: 900 },
+          { title: 'AI Job Market', videoId: 'Ref0hXhc0IA', duration: 840 },
+          { title: 'Learning AI Skills', videoId: '1yOron-kA7Y', duration: 780 },
+          { title: 'Your AI Journey Begins', videoId: 'dLRdaUda8Ho', duration: 660 },
+        ],
+      },
+    ]),
+    true,
+    new Date('2024-01-01')
+  ),
+
+  createCourse(
+    'c2',
+    'ChatGPT for Beginners',
+    'Start using ChatGPT today',
+    'Learn the basics of ChatGPT - from creating an account to writing your first prompts.',
+    'https://images.unsplash.com/photo-1507146153580-69a1fe6d8aa1?w=800',
+    'ChatGPT & LLMs',
+    ['ChatGPT', 'Beginner', 'Free'],
+    1,
+    { name: 'Alex Kim', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=alex&top=shortHairShortFlat' },
+    { title: 'Course Trailer', youtubeId: YOUTUBE_TRAILER_POOL[1], duration: 120 },
+    createChapters('c2', [
+      {
+        title: 'Chapter 1: Getting Started',
+        lessons: [
+          { title: 'What is ChatGPT?', videoId: '3QrwN1pW3wo', duration: 600 },
+          { title: 'Creating Your Account', videoId: 'B2oc3C0dg7c', duration: 720 },
+          { title: 'The ChatGPT Interface', videoId: 'VFIF2ioFWTg', duration: 840 },
+          { title: 'Your First Conversation', videoId: 'gdA-2sPTTn0', duration: 780 },
+          { title: 'Understanding Responses', videoId: 'buBjtZLqFEo', duration: 600 },
+        ],
+      },
+      {
+        title: 'Chapter 2: Basic Prompts',
+        lessons: [
+          { title: 'What is a Prompt?', videoId: 'oYHxkEFTvxY', duration: 600 },
+          { title: 'Writing Clear Prompts', videoId: 'SsDyrO9pZ44', duration: 720 },
+          { title: 'Asking Follow-up Questions', videoId: 'I0F_5oYe0eM', duration: 840 },
+          { title: 'Getting Better Answers', videoId: 'Z7_BsuwCg3Q', duration: 780 },
+          { title: 'Common Prompt Mistakes', videoId: 'A8i7N913sVs', duration: 600 },
+        ],
+      },
+      {
+        title: 'Chapter 3: Practical Uses',
+        lessons: [
+          { title: 'Writing Emails with ChatGPT', videoId: 'aBhumNe9lkA', duration: 600 },
+          { title: 'Brainstorming Ideas', videoId: '5eXwdW5E09c', duration: 720 },
+          { title: 'Learning New Topics', videoId: 'ndAfWDW7pm0', duration: 840 },
+          { title: 'Creative Writing Help', videoId: 'Ref0hXhc0IA', duration: 780 },
+          { title: 'Daily ChatGPT Habits', videoId: '1yOron-kA7Y', duration: 600 },
+        ],
+      },
+    ]),
+    true,
+    new Date('2024-01-05')
+  ),
+
+  createCourse(
+    'c3',
+    'AI Image Generation Basics',
+    'Create AI art with simple prompts',
+    'Introduction to AI image generation tools like DALL-E, Midjourney, and Stable Diffusion.',
+    'https://images.unsplash.com/photo-1561336526-2914f13db253?w=800',
+    'AI Art & Design',
+    ['AI Art', 'DALL-E', 'Beginner'],
+    1,
+    { name: 'Mia Johnson', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=mia&top=longHairStraight' },
+    { title: 'Course Trailer', youtubeId: YOUTUBE_TRAILER_POOL[2], duration: 120 },
+    createChapters('c3', [
+      {
+        title: 'Chapter 1: AI Art Introduction',
+        lessons: [
+          { title: 'What is AI Art?', videoId: 'dLRdaUda8Ho', duration: 720 },
+          { title: 'Popular AI Art Tools', videoId: '3QrwN1pW3wo', duration: 900 },
+          { title: 'How AI Creates Images', videoId: 'B2oc3C0dg7c', duration: 840 },
+          { title: 'Setting Up Your Tools', videoId: 'VFIF2ioFWTg', duration: 780 },
+          { title: 'Your First AI Image', videoId: 'gdA-2sPTTn0', duration: 660 },
+        ],
+      },
+      {
+        title: 'Chapter 2: Prompt Writing',
+        lessons: [
+          { title: 'Anatomy of a Good Prompt', videoId: 'buBjtZLqFEo', duration: 720 },
+          { title: 'Describing Subjects', videoId: 'oYHxkEFTvxY', duration: 900 },
+          { title: 'Style and Mood Words', videoId: 'SsDyrO9pZ44', duration: 840 },
+          { title: 'Negative Prompts', videoId: 'I0F_5oYe0eM', duration: 780 },
+          { title: 'Prompt Templates', videoId: 'Z7_BsuwCg3Q', duration: 660 },
+        ],
+      },
+      {
+        title: 'Chapter 3: Creating Art',
+        lessons: [
+          { title: 'Portrait Generation', videoId: 'A8i7N913sVs', duration: 720 },
+          { title: 'Landscape Creation', videoId: 'aBhumNe9lkA', duration: 900 },
+          { title: 'Abstract Art', videoId: '5eXwdW5E09c', duration: 840 },
+          { title: 'Character Design', videoId: 'ndAfWDW7pm0', duration: 780 },
+          { title: 'Sharing Your Creations', videoId: 'Ref0hXhc0IA', duration: 660 },
+        ],
+      },
+    ]),
+    true,
+    new Date('2024-01-10')
+  ),
+
+  createCourse(
+    'c4',
+    'Understanding Machine Learning',
+    'ML concepts explained simply',
+    'A non-technical introduction to machine learning concepts and terminology.',
+    'https://images.unsplash.com/photo-1495592822108-9e6261896da8?w=800',
+    'Machine Learning',
+    ['ML', 'Concepts', 'Beginner'],
+    1,
+    { name: 'Prof. David Lee', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=david&top=shortHairShortFlat' },
+    { title: 'Course Trailer', youtubeId: YOUTUBE_TRAILER_POOL[3], duration: 120 },
+    createChapters('c4', [
+      {
+        title: 'Chapter 1: ML Fundamentals',
+        lessons: [
+          { title: 'What is Machine Learning?', videoId: '1yOron-kA7Y', duration: 780 },
+          { title: 'ML vs Traditional Programming', videoId: 'dLRdaUda8Ho', duration: 900 },
+          { title: 'Types of Machine Learning', videoId: '3QrwN1pW3wo', duration: 720 },
+          { title: 'Data in Machine Learning', videoId: 'B2oc3C0dg7c', duration: 840 },
+          { title: 'ML Terminology', videoId: 'VFIF2ioFWTg', duration: 600 },
+        ],
+      },
+      {
+        title: 'Chapter 2: Learning Types',
+        lessons: [
+          { title: 'Supervised Learning', videoId: 'gdA-2sPTTn0', duration: 780 },
+          { title: 'Unsupervised Learning', videoId: 'buBjtZLqFEo', duration: 900 },
+          { title: 'Reinforcement Learning', videoId: 'oYHxkEFTvxY', duration: 720 },
+          { title: 'Classification vs Regression', videoId: 'SsDyrO9pZ44', duration: 840 },
+          { title: 'Choosing the Right Approach', videoId: 'I0F_5oYe0eM', duration: 600 },
+        ],
+      },
+      {
+        title: 'Chapter 3: ML Applications',
+        lessons: [
+          { title: 'Image Recognition', videoId: 'Z7_BsuwCg3Q', duration: 780 },
+          { title: 'Natural Language Processing', videoId: 'A8i7N913sVs', duration: 900 },
+          { title: 'Recommendation Systems', videoId: 'aBhumNe9lkA', duration: 720 },
+          { title: 'Fraud Detection', videoId: '5eXwdW5E09c', duration: 840 },
+          { title: 'ML in Your Daily Life', videoId: 'ndAfWDW7pm0', duration: 600 },
+        ],
+      },
+    ]),
+    false,
+    new Date('2024-01-15')
+  ),
+
+  createCourse(
+    'c5',
+    'AI Writing Assistant Guide',
+    'Write better with AI help',
+    'Learn to use AI writing tools to improve your writing productivity.',
+    'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800',
+    'AI Tools',
+    ['Writing', 'Productivity', 'Tools'],
+    1,
+    { name: 'Emma Davis', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=emma&top=longHairStraight' },
+    { title: 'Course Trailer', youtubeId: YOUTUBE_TRAILER_POOL[0], duration: 120 },
+    createChapters('c5', [
+      {
+        title: 'Chapter 1: AI Writing Tools',
+        lessons: [
+          { title: 'Overview of AI Writing Tools', videoId: 'Ref0hXhc0IA', duration: 600 },
+          { title: 'ChatGPT for Writing', videoId: '1yOron-kA7Y', duration: 720 },
+          { title: 'Claude for Writing', videoId: 'dLRdaUda8Ho', duration: 900 },
+          { title: 'Specialized Writing AIs', videoId: '3QrwN1pW3wo', duration: 780 },
+          { title: 'Choosing Your Tools', videoId: 'B2oc3C0dg7c', duration: 660 },
+        ],
+      },
+      {
+        title: 'Chapter 2: Writing Tasks',
+        lessons: [
+          { title: 'Email Writing', videoId: 'VFIF2ioFWTg', duration: 600 },
+          { title: 'Blog Post Creation', videoId: 'gdA-2sPTTn0', duration: 720 },
+          { title: 'Social Media Content', videoId: 'buBjtZLqFEo', duration: 900 },
+          { title: 'Report Writing', videoId: 'oYHxkEFTvxY', duration: 780 },
+          { title: 'Creative Writing', videoId: 'SsDyrO9pZ44', duration: 660 },
+        ],
+      },
+      {
+        title: 'Chapter 3: Best Practices',
+        lessons: [
+          { title: 'Editing AI Content', videoId: 'I0F_5oYe0eM', duration: 600 },
+          { title: 'Maintaining Your Voice', videoId: 'Z7_BsuwCg3Q', duration: 720 },
+          { title: 'Fact-Checking AI Output', videoId: 'A8i7N913sVs', duration: 900 },
+          { title: 'Ethical Considerations', videoId: 'aBhumNe9lkA', duration: 780 },
+          { title: 'Building a Workflow', videoId: '5eXwdW5E09c', duration: 660 },
+        ],
+      },
+    ]),
+    false,
+    new Date('2024-01-20')
+  ),
+
+  // Additional Level 1 courses (simplified for brevity - all with proper 3x5 structure)
+  ...generateSimplifiedCourses([
+    { id: 'c6', title: 'AI for Students', subtitle: 'Study smarter with AI', category: 'AI Tools', level: 1, featured: false },
+    { id: 'c7', title: 'Voice AI Basics', subtitle: 'Understanding voice assistants', category: 'AI Fundamentals', level: 1, featured: false },
+    { id: 'c8', title: 'AI Photo Editing', subtitle: 'Enhance photos with AI', category: 'AI Art & Design', level: 1, featured: false },
+    { id: 'c9', title: 'AI Chatbots 101', subtitle: 'Understanding conversational AI', category: 'ChatGPT & LLMs', level: 1, featured: false },
+    { id: 'c10', title: 'AI in Social Media', subtitle: 'Leveraging AI for content', category: 'AI Tools', level: 1, featured: false },
+    { id: 'c11', title: 'AI Ethics Primer', subtitle: 'Responsible AI usage', category: 'AI Fundamentals', level: 1, featured: false },
+    { id: 'c12', title: 'AI Music Creation', subtitle: 'Make music with AI', category: 'AI Art & Design', level: 1, featured: false },
+    { id: 'c13', title: 'AI Translation Tools', subtitle: 'Break language barriers', category: 'AI Tools', level: 1, featured: false },
+    { id: 'c14', title: 'AI Search Tips', subtitle: 'Better results with AI', category: 'AI Tools', level: 1, featured: false },
+    { id: 'c15', title: 'AI Coding Assistants', subtitle: 'Code faster with AI', category: 'AI Development', level: 1, featured: true },
+  ]),
+
+  // ==================== LEVEL 2-10 (PAID) ====================
+  ...generateSimplifiedCourses([
+    // Level 2
+    { id: 'c16', title: 'Prompt Engineering Basics', subtitle: 'Master the art of prompting', category: 'ChatGPT & LLMs', level: 2, featured: true },
+    { id: 'c17', title: 'AI Productivity Workflow', subtitle: 'Automate your daily tasks', category: 'AI Tools', level: 2, featured: false },
+    { id: 'c18', title: 'DALL-E Masterclass', subtitle: 'Create stunning AI images', category: 'AI Art & Design', level: 2, featured: false },
+    { id: 'c19', title: 'ML for Non-Coders', subtitle: 'Understand ML without code', category: 'Machine Learning', level: 2, featured: false },
+    { id: 'c20', title: 'AI Content Strategy', subtitle: 'Plan content with AI help', category: 'AI for Business', level: 2, featured: false },
+
+    // Level 3
+    { id: 'c21', title: 'Advanced Prompt Techniques', subtitle: 'Chain prompts like a pro', category: 'ChatGPT & LLMs', level: 3, featured: true },
+    { id: 'c22', title: 'Midjourney Deep Dive', subtitle: 'Master AI image generation', category: 'AI Art & Design', level: 3, featured: false },
+    { id: 'c23', title: 'Python for AI', subtitle: 'Code your first AI project', category: 'AI Development', level: 3, featured: false },
+    { id: 'c24', title: 'AI Data Analysis', subtitle: 'Analyze data with AI tools', category: 'AI for Business', level: 3, featured: false },
+    { id: 'c25', title: 'NLP Fundamentals', subtitle: 'Understanding text AI', category: 'NLP & Text', level: 3, featured: false },
+
+    // Level 4
+    { id: 'c26', title: 'Building AI Agents', subtitle: 'Create autonomous AI systems', category: 'AI Development', level: 4, featured: true },
+    { id: 'c27', title: 'Stable Diffusion Pro', subtitle: 'Advanced image generation', category: 'AI Art & Design', level: 4, featured: false },
+    { id: 'c28', title: 'AI API Integration', subtitle: 'Connect AI to your apps', category: 'AI Development', level: 4, featured: false },
+    { id: 'c29', title: 'ML Model Training', subtitle: 'Train your first model', category: 'Machine Learning', level: 4, featured: false },
+    { id: 'c30', title: 'AI Business Automation', subtitle: 'Automate business processes', category: 'AI for Business', level: 4, featured: false },
+
+    // Level 5
+    { id: 'c31', title: 'LLM Fine-tuning', subtitle: 'Customize language models', category: 'Deep Learning', level: 5, featured: true },
+    { id: 'c32', title: 'Computer Vision Intro', subtitle: 'Teach AI to see', category: 'Computer Vision', level: 5, featured: false },
+    { id: 'c33', title: 'RAG Systems', subtitle: 'Retrieval-augmented generation', category: 'ChatGPT & LLMs', level: 5, featured: false },
+    { id: 'c34', title: 'AI Project Management', subtitle: 'Lead AI initiatives', category: 'AI for Business', level: 5, featured: false },
+    { id: 'c35', title: 'Text-to-Speech AI', subtitle: 'Create AI voices', category: 'NLP & Text', level: 5, featured: false },
+
+    // Level 6
+    { id: 'c36', title: 'Transformer Architecture', subtitle: 'Deep dive into transformers', category: 'Deep Learning', level: 6, featured: true },
+    { id: 'c37', title: 'Object Detection', subtitle: 'Real-time object recognition', category: 'Computer Vision', level: 6, featured: false },
+    { id: 'c38', title: 'AI Agents Framework', subtitle: 'Build multi-agent systems', category: 'AI Development', level: 6, featured: false },
+    { id: 'c39', title: 'Semantic Search', subtitle: 'Intelligent search systems', category: 'NLP & Text', level: 6, featured: false },
+    { id: 'c40', title: 'AI Product Design', subtitle: 'Design AI-first products', category: 'AI for Business', level: 6, featured: false },
+
+    // Level 7
+    { id: 'c41', title: 'Neural Network Design', subtitle: 'Architecture from scratch', category: 'Deep Learning', level: 7, featured: true },
+    { id: 'c42', title: 'Image Segmentation', subtitle: 'Pixel-perfect AI vision', category: 'Computer Vision', level: 7, featured: false },
+    { id: 'c43', title: 'Custom GPT Development', subtitle: 'Build your own ChatGPT', category: 'ChatGPT & LLMs', level: 7, featured: false },
+    { id: 'c44', title: 'AI Ethics Advanced', subtitle: 'Complex ethical challenges', category: 'AI Fundamentals', level: 7, featured: false },
+    { id: 'c45', title: 'Production ML Ops', subtitle: 'Deploy ML at scale', category: 'Machine Learning', level: 7, featured: false },
+
+    // Level 8
+    { id: 'c46', title: 'Attention Mechanisms', subtitle: 'The heart of modern AI', category: 'Deep Learning', level: 8, featured: true },
+    { id: 'c47', title: '3D Vision AI', subtitle: 'Depth and spatial AI', category: 'Computer Vision', level: 8, featured: false },
+    { id: 'c48', title: 'Multi-modal AI', subtitle: 'Text, image, and audio AI', category: 'AI Development', level: 8, featured: false },
+    { id: 'c49', title: 'AI Research Methods', subtitle: 'Conduct AI research', category: 'AI Fundamentals', level: 8, featured: false },
+    { id: 'c50', title: 'Enterprise AI Strategy', subtitle: 'AI at organization scale', category: 'AI for Business', level: 8, featured: false },
+
+    // Level 9
+    { id: 'c51', title: 'State-of-Art Models', subtitle: 'Cutting-edge architectures', category: 'Deep Learning', level: 9, featured: true },
+    { id: 'c52', title: 'Video Understanding', subtitle: 'AI for video analysis', category: 'Computer Vision', level: 9, featured: false },
+    { id: 'c53', title: 'Reasoning AI Systems', subtitle: 'Build AI that thinks', category: 'AI Development', level: 9, featured: false },
+    { id: 'c54', title: 'AI Safety Research', subtitle: 'Ensuring safe AI systems', category: 'AI Fundamentals', level: 9, featured: false },
+    { id: 'c55', title: 'Distributed Training', subtitle: 'Train on multiple GPUs', category: 'Machine Learning', level: 9, featured: false },
+
+    // Level 10
+    { id: 'c56', title: 'AGI Research Topics', subtitle: 'Towards general intelligence', category: 'AI Fundamentals', level: 10, featured: true },
+    { id: 'c57', title: 'Neural Architecture Search', subtitle: 'AI designing AI', category: 'Deep Learning', level: 10, featured: false },
+    { id: 'c58', title: 'Embodied AI', subtitle: 'AI with physical presence', category: 'AI Development', level: 10, featured: false },
+    { id: 'c59', title: 'Consciousness in AI', subtitle: 'Philosophy meets AI', category: 'AI Fundamentals', level: 10, featured: false },
+    { id: 'c60', title: 'AI Research Leadership', subtitle: 'Lead breakthrough research', category: 'AI for Business', level: 10, featured: false },
+  ]),
+];
+
+// Helper to generate simplified courses with proper chapter structure
+function generateSimplifiedCourses(
+  courseConfigs: { id: string; title: string; subtitle: string; category: string; level: CourseLevel; featured: boolean; courseType?: CourseType }[]
+): Course[] {
+  const instructors = [
+    { name: 'Dr. Sarah Chen', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=sarah&top=longHairStraight' },
+    { name: 'Alex Kim', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=alex&top=shortHairShortFlat' },
+    { name: 'Mia Johnson', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=mia&top=longHairStraight' },
+    { name: 'Prof. David Lee', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=david&top=shortHairShortFlat' },
+    { name: 'Emma Davis', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=emma&top=longHairStraight' },
+    { name: 'Dr. James Wilson', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=james&top=shortHairShortFlat' },
+    { name: 'Lisa Wang', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=lisa&top=longHairStraight' },
+    { name: 'Mark Thompson', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=mark&top=shortHairShortFlat' },
+    { name: 'Dr. Nina Patel', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=nina&top=longHairStraight' },
+    { name: 'Ryan Garcia', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=ryan&top=shortHairShortFlat' },
+  ];
+
+  const thumbnails = [
+    // AI & Technology themed images - 55 unique images for c6-c60 (no overlap with series)
+    'https://images.unsplash.com/photo-1639322537228-f710d846310a?w=800', // Digital chip
+    'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800', // Blockchain
+    'https://images.unsplash.com/photo-1640158615573-cd28feb1bf4e?w=800', // AI concept
+    'https://images.unsplash.com/photo-1638913662252-70efce1e60a7?w=800', // Tech abstract
+    'https://images.unsplash.com/photo-1636955840493-f43a02bfa064?w=800', // Neon tech
+    'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800', // Math patterns
+    'https://images.unsplash.com/photo-1624996379697-f01d168b1a52?w=800', // AI network
+    'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800', // React code
+    'https://images.unsplash.com/photo-1628277613967-6abca504d0ac?w=800', // Ethereum
+    'https://images.unsplash.com/photo-1639762681057-408e52192e55?w=800', // Crypto art
+    'https://images.unsplash.com/photo-1633114128174-2f8aa49759b0?w=800', // NFT
+    'https://images.unsplash.com/photo-1635241161466-541f065683ba?w=800', // Digital art
+    'https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=800', // Cyber
+    'https://images.unsplash.com/photo-1639322537504-6427a16b0a28?w=800', // Circuit
+    'https://images.unsplash.com/photo-1640552435388-a54879e72b28?w=800', // AI face
+    'https://images.unsplash.com/photo-1638913971873-bcef915baee4?w=800', // Robot
+    'https://images.unsplash.com/photo-1636690513351-0af1763f6237?w=800', // Code screen
+    'https://images.unsplash.com/photo-1636690619068-eb3849be82b8?w=800', // Tech workspace
+    'https://images.unsplash.com/photo-1635002962487-2c1d4d2f63c2?w=800', // AI brain
+    'https://images.unsplash.com/photo-1637176256064-a93a8c6d3bf9?w=800', // Data viz
+    'https://images.unsplash.com/photo-1639803938107-625b0d4f4d9f?w=800', // Analytics
+    'https://images.unsplash.com/photo-1636690498207-d7ae8a5f8be7?w=800', // Dashboard
+    'https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?w=800', // Innovation
+    'https://images.unsplash.com/photo-1639762681286-c6b7fbb68c8c?w=800', // Digital wave
+    'https://images.unsplash.com/photo-1641805700799-2a75d6b3c7a5?w=800', // Tech future
+    'https://images.unsplash.com/photo-1636953056323-38cb5c6dfa6e?w=800', // AI learning
+    'https://images.unsplash.com/photo-1642176503142-7b39e8c6f183?w=800', // Smart tech
+    'https://images.unsplash.com/photo-1639803938115-96a4f6e6a0a4?w=800', // Neural
+    'https://images.unsplash.com/photo-1637073849667-91120a247bb6?w=800', // Digital mind
+    'https://images.unsplash.com/photo-1636690410922-3815ac42c0b8?w=800', // Abstract tech
+    'https://images.unsplash.com/photo-1636690581110-a812a86d7c98?w=800', // Modern code
+    'https://images.unsplash.com/photo-1635241161466-541f065683ba?w=800', // Creative tech
+    'https://images.unsplash.com/photo-1640552435613-7b2d1c92c1b8?w=800', // AI visual
+    'https://images.unsplash.com/photo-1636690513226-a5e59a0b5a3d?w=800', // Future tech
+    'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800', // Blockchain art
+    'https://images.unsplash.com/photo-1636953099881-e8e5e0e0e5e0?w=800', // Digital flow
+    'https://images.unsplash.com/photo-1640552436613-9b2d1c92c1b8?w=800', // Tech vision
+    'https://images.unsplash.com/photo-1635776063328-153b13e3c245?w=800', // Innovation hub
+    'https://images.unsplash.com/photo-1639762681057-408e52192e55?w=800', // Crypto
+    'https://images.unsplash.com/photo-1637073850065-85e8db5da6c1?w=800', // AI project
+    'https://images.unsplash.com/photo-1636690581110-a812a86d7c98?w=800', // Code art
+    'https://images.unsplash.com/photo-1640552435613-7b2d1c92c1b8?w=800', // Tech abstract
+    'https://images.unsplash.com/photo-1639803938107-625b0d4f4d9f?w=800', // Data science
+    'https://images.unsplash.com/photo-1636690619068-eb3849be82b8?w=800', // Developer space
+    'https://images.unsplash.com/photo-1635241161466-541f065683ba?w=800', // Digital design
+    'https://images.unsplash.com/photo-1637073849667-91120a247bb6?w=800', // Mind tech
+    'https://images.unsplash.com/photo-1639322537228-f710d846310a?w=800', // Chip design
+    'https://images.unsplash.com/photo-1636955840493-f43a02bfa064?w=800', // Neon abstract
+    'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800', // React dev
+    'https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=800', // Cyber tech
+    'https://images.unsplash.com/photo-1633114128174-2f8aa49759b0?w=800', // NFT art
+    'https://images.unsplash.com/photo-1639762681286-c6b7fbb68c8c?w=800', // Wave pattern
+    'https://images.unsplash.com/photo-1641805700799-2a75d6b3c7a5?w=800', // Future AI
+    'https://images.unsplash.com/photo-1640158615573-cd28feb1bf4e?w=800', // AI abstract
+    'https://images.unsplash.com/photo-1624996379697-f01d168b1a52?w=800', // Network viz
+  ];
+
+  return courseConfigs.map((config, index) => {
+    const instructor = instructors[index % instructors.length];
+    const thumbnail = thumbnails[index % thumbnails.length];
+    const trailerIndex = index % YOUTUBE_TRAILER_POOL.length;
+
+    // Create 3 chapters with 5 lessons each, using rotating video IDs
+    const chapters = createChapters(config.id, [
+      {
+        title: 'Chapter 1: Foundations',
+        lessons: Array.from({ length: 5 }, (_, i) => ({
+          title: `Lesson ${i + 1}: Foundation Topic ${i + 1}`,
+          videoId: YOUTUBE_VIDEO_POOL[(index * 15 + i) % YOUTUBE_VIDEO_POOL.length],
+          duration: 600 + (i * 60),
+        })),
+      },
+      {
+        title: 'Chapter 2: Core Concepts',
+        lessons: Array.from({ length: 5 }, (_, i) => ({
+          title: `Lesson ${i + 1}: Core Topic ${i + 1}`,
+          videoId: YOUTUBE_VIDEO_POOL[(index * 15 + 5 + i) % YOUTUBE_VIDEO_POOL.length],
+          duration: 600 + (i * 60),
+        })),
+      },
+      {
+        title: 'Chapter 3: Advanced Topics',
+        lessons: Array.from({ length: 5 }, (_, i) => ({
+          title: `Lesson ${i + 1}: Advanced Topic ${i + 1}`,
+          videoId: YOUTUBE_VIDEO_POOL[(index * 15 + 10 + i) % YOUTUBE_VIDEO_POOL.length],
+          duration: 600 + (i * 60),
+        })),
+      },
+    ]);
+
+    return createCourse(
+      config.id,
+      config.title,
+      config.subtitle,
+      `A comprehensive course on ${config.title.toLowerCase()}. Perfect for learners at ${
+        config.level === 1 ? 'beginner' : config.level <= 3 ? 'beginner to intermediate' : config.level <= 6 ? 'intermediate' : 'advanced'
+      } level.`,
+      thumbnail,
+      config.category,
+      [config.category, config.level === 1 ? 'Free' : 'Premium'],
+      config.level,
+      instructor,
+      { title: 'Course Trailer', youtubeId: YOUTUBE_TRAILER_POOL[trailerIndex], duration: 120 },
+      chapters,
+      config.featured,
+      new Date(`2024-0${Math.min(9, Math.floor(index / 10) + 1)}-${String((index % 28) + 1).padStart(2, '0')}`),
+      config.courseType || 'vava' // Default to vava for learner courses
+    );
+  });
+}
+
+// ==================== VERIFIED NUNU REQUIRED COURSES ====================
+// These 5 courses are required for Verified Nunu certification
+// They focus on mentorship, teaching, and Nunu-specific skills
+
+const VERIFIED_NUNU_COURSES: Course[] = [
+  {
+    id: 'nunu-v1',
+    title: 'Mentorship Fundamentals',
+    subtitle: 'The art of guiding AI learners',
+    description: 'Learn the core principles of effective mentorship. Understand how to guide learners, provide constructive feedback, and create personalized learning paths. Required for Verified Nunu certification.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1544531585-9847b68c8c86?w=800',
+    trailer: { title: 'Course Trailer', youtubeId: YOUTUBE_TRAILER_POOL[0], duration: 120 },
+    category: 'Nunu Training',
+    tags: ['Nunu', 'Mentorship', 'Teaching', 'Verified Required'],
+    level: 3 as CourseLevel,
+    instructor: { name: 'Shang-Zhe Liu', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=shangzhe&top=shortHairShortFlat' },
+    chapters: [
+      {
+        id: 'nunu-v1-ch1',
+        title: 'Chapter 1: Mentorship Basics',
+        lessons: [
+          { id: 'nunu-v1-ch1-l1', title: 'What Makes a Great Mentor?', order: 1, videoUrl: 'B2oc3C0dg7c', duration: 720 },
+          { id: 'nunu-v1-ch1-l2', title: 'Understanding Your Mentee', order: 2, videoUrl: 'VFIF2ioFWTg', duration: 660 },
+          { id: 'nunu-v1-ch1-l3', title: 'Setting Expectations', order: 3, videoUrl: 'gdA-2sPTTn0', duration: 600 },
+        ],
+      },
+      {
+        id: 'nunu-v1-ch2',
+        title: 'Chapter 2: Communication Skills',
+        lessons: [
+          { id: 'nunu-v1-ch2-l1', title: 'Active Listening', order: 1, videoUrl: 'buBjtZLqFEo', duration: 720 },
+          { id: 'nunu-v1-ch2-l2', title: 'Constructive Feedback', order: 2, videoUrl: 'oYHxkEFTvxY', duration: 660 },
+          { id: 'nunu-v1-ch2-l3', title: 'Handling Difficult Conversations', order: 3, videoUrl: 'SsDyrO9pZ44', duration: 600 },
+        ],
+      },
+    ],
+    totalDuration: 3960,
+    lessonCount: 6,
+    isFeatured: false,
+    createdAt: new Date('2025-01-15'),
+    courseType: 'nunu',
+    track: 'nunu',
+    verifiedRequired: true,
+    isFree: false,
+  },
+  {
+    id: 'nunu-v2',
+    title: 'Teaching AI Effectively',
+    subtitle: 'Pedagogy for AI educators',
+    description: 'Master the techniques for teaching AI concepts to learners at all levels. From explaining complex concepts simply to creating engaging learning experiences. Required for Verified Nunu certification.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800',
+    trailer: { title: 'Course Trailer', youtubeId: YOUTUBE_TRAILER_POOL[1], duration: 120 },
+    category: 'Nunu Training',
+    tags: ['Nunu', 'Teaching', 'Pedagogy', 'Verified Required'],
+    level: 4 as CourseLevel,
+    instructor: { name: 'Dr. Sarah Chen', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=sarah&top=longHairStraight' },
+    chapters: [
+      {
+        id: 'nunu-v2-ch1',
+        title: 'Chapter 1: AI Pedagogy',
+        lessons: [
+          { id: 'nunu-v2-ch1-l1', title: 'How Adults Learn AI', order: 1, videoUrl: 'I0F_5oYe0eM', duration: 720 },
+          { id: 'nunu-v2-ch1-l2', title: 'Scaffolding Complex Concepts', order: 2, videoUrl: 'Z7_BsuwCg3Q', duration: 660 },
+          { id: 'nunu-v2-ch1-l3', title: 'Hands-On Learning Design', order: 3, videoUrl: 'A8i7N913sVs', duration: 600 },
+        ],
+      },
+      {
+        id: 'nunu-v2-ch2',
+        title: 'Chapter 2: Practical Teaching',
+        lessons: [
+          { id: 'nunu-v2-ch2-l1', title: 'Creating Learning Paths', order: 1, videoUrl: 'aBhumNe9lkA', duration: 720 },
+          { id: 'nunu-v2-ch2-l2', title: 'Assessment Strategies', order: 2, videoUrl: '5eXwdW5E09c', duration: 660 },
+          { id: 'nunu-v2-ch2-l3', title: 'Adapting to Learning Styles', order: 3, videoUrl: 'ndAfWDW7pm0', duration: 600 },
+        ],
+      },
+    ],
+    totalDuration: 3960,
+    lessonCount: 6,
+    isFeatured: false,
+    createdAt: new Date('2025-01-16'),
+    courseType: 'nunu',
+    track: 'nunu',
+    verifiedRequired: true,
+    isFree: false,
+  },
+  {
+    id: 'nunu-v3',
+    title: 'Nunu Ethics & Standards',
+    subtitle: 'Professional conduct for mentors',
+    description: 'Understand the ethical responsibilities of being a Nunu mentor. Learn about boundaries, confidentiality, and maintaining professional standards. Required for Verified Nunu certification.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800',
+    trailer: { title: 'Course Trailer', youtubeId: YOUTUBE_TRAILER_POOL[2], duration: 120 },
+    category: 'Nunu Training',
+    tags: ['Nunu', 'Ethics', 'Standards', 'Verified Required'],
+    level: 3 as CourseLevel,
+    instructor: { name: 'Prof. David Lee', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=david&top=shortHairShortFlat' },
+    chapters: [
+      {
+        id: 'nunu-v3-ch1',
+        title: 'Chapter 1: Ethical Foundations',
+        lessons: [
+          { id: 'nunu-v3-ch1-l1', title: 'The Nunu Code of Conduct', order: 1, videoUrl: 'Ref0hXhc0IA', duration: 720 },
+          { id: 'nunu-v3-ch1-l2', title: 'Boundaries in Mentorship', order: 2, videoUrl: '1yOron-kA7Y', duration: 660 },
+          { id: 'nunu-v3-ch1-l3', title: 'Confidentiality & Trust', order: 3, videoUrl: 'dLRdaUda8Ho', duration: 600 },
+        ],
+      },
+      {
+        id: 'nunu-v3-ch2',
+        title: 'Chapter 2: Professional Practice',
+        lessons: [
+          { id: 'nunu-v3-ch2-l1', title: 'Handling Conflicts', order: 1, videoUrl: '3QrwN1pW3wo', duration: 720 },
+          { id: 'nunu-v3-ch2-l2', title: 'Fair & Inclusive Mentoring', order: 2, videoUrl: 'B2oc3C0dg7c', duration: 660 },
+          { id: 'nunu-v3-ch2-l3', title: 'Quality Standards', order: 3, videoUrl: 'VFIF2ioFWTg', duration: 600 },
+        ],
+      },
+    ],
+    totalDuration: 3960,
+    lessonCount: 6,
+    isFeatured: false,
+    createdAt: new Date('2025-01-17'),
+    courseType: 'nunu',
+    track: 'nunu',
+    verifiedRequired: true,
+    isFree: false,
+  },
+  {
+    id: 'nunu-v4',
+    title: 'Building Vava Success',
+    subtitle: 'Maximize mentee outcomes',
+    description: 'Learn strategies for helping your Vavas achieve their AI learning goals. Track progress, celebrate wins, and navigate setbacks together. Required for Verified Nunu certification.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1557425955-df376b5903c8?w=800',
+    trailer: { title: 'Course Trailer', youtubeId: YOUTUBE_TRAILER_POOL[3], duration: 120 },
+    category: 'Nunu Training',
+    tags: ['Nunu', 'Coaching', 'Success', 'Verified Required'],
+    level: 4 as CourseLevel,
+    instructor: { name: 'Emma Davis', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=emma&top=longHairStraight' },
+    chapters: [
+      {
+        id: 'nunu-v4-ch1',
+        title: 'Chapter 1: Goal Setting',
+        lessons: [
+          { id: 'nunu-v4-ch1-l1', title: 'Understanding Vava Goals', order: 1, videoUrl: 'gdA-2sPTTn0', duration: 720 },
+          { id: 'nunu-v4-ch1-l2', title: 'Creating SMART Objectives', order: 2, videoUrl: 'buBjtZLqFEo', duration: 660 },
+          { id: 'nunu-v4-ch1-l3', title: 'Milestone Planning', order: 3, videoUrl: 'oYHxkEFTvxY', duration: 600 },
+        ],
+      },
+      {
+        id: 'nunu-v4-ch2',
+        title: 'Chapter 2: Progress Tracking',
+        lessons: [
+          { id: 'nunu-v4-ch2-l1', title: 'Measuring Growth', order: 1, videoUrl: 'SsDyrO9pZ44', duration: 720 },
+          { id: 'nunu-v4-ch2-l2', title: 'Celebrating Wins', order: 2, videoUrl: 'I0F_5oYe0eM', duration: 660 },
+          { id: 'nunu-v4-ch2-l3', title: 'Overcoming Setbacks', order: 3, videoUrl: 'Z7_BsuwCg3Q', duration: 600 },
+        ],
+      },
+    ],
+    totalDuration: 3960,
+    lessonCount: 6,
+    isFeatured: false,
+    createdAt: new Date('2025-01-18'),
+    courseType: 'nunu',
+    track: 'nunu',
+    verifiedRequired: true,
+    isFree: false,
+  },
+  {
+    id: 'nunu-v5',
+    title: 'Advanced Nunu Practices',
+    subtitle: 'Expert-level mentorship',
+    description: 'Take your Nunu skills to the next level. Learn advanced coaching techniques, handle complex situations, and develop your own mentorship style. Required for Verified Nunu certification.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800',
+    trailer: { title: 'Course Trailer', youtubeId: YOUTUBE_TRAILER_POOL[0], duration: 120 },
+    category: 'Nunu Training',
+    tags: ['Nunu', 'Advanced', 'Expert', 'Verified Required'],
+    level: 5 as CourseLevel,
+    instructor: { name: 'Shang-Zhe Liu', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=shangzhe&top=shortHairShortFlat' },
+    chapters: [
+      {
+        id: 'nunu-v5-ch1',
+        title: 'Chapter 1: Advanced Techniques',
+        lessons: [
+          { id: 'nunu-v5-ch1-l1', title: 'Coaching High-Performers', order: 1, videoUrl: 'A8i7N913sVs', duration: 720 },
+          { id: 'nunu-v5-ch1-l2', title: 'Mentoring Across Disciplines', order: 2, videoUrl: 'aBhumNe9lkA', duration: 660 },
+          { id: 'nunu-v5-ch1-l3', title: 'Group Mentoring Sessions', order: 3, videoUrl: '5eXwdW5E09c', duration: 600 },
+        ],
+      },
+      {
+        id: 'nunu-v5-ch2',
+        title: 'Chapter 2: Your Nunu Journey',
+        lessons: [
+          { id: 'nunu-v5-ch2-l1', title: 'Developing Your Style', order: 1, videoUrl: 'ndAfWDW7pm0', duration: 720 },
+          { id: 'nunu-v5-ch2-l2', title: 'Building Your Reputation', order: 2, videoUrl: 'Ref0hXhc0IA', duration: 660 },
+          { id: 'nunu-v5-ch2-l3', title: 'The Path to Super Nunu', order: 3, videoUrl: '1yOron-kA7Y', duration: 600 },
+        ],
+      },
+    ],
+    totalDuration: 3960,
+    lessonCount: 6,
+    isFeatured: true,
+    createdAt: new Date('2025-01-19'),
+    courseType: 'nunu',
+    track: 'nunu',
+    verifiedRequired: true,
+    isFree: false,
+  },
+];
+
+// Add Verified Nunu courses to the main course list
+CoursesTable.push(...VERIFIED_NUNU_COURSES);
+
+// ==================== 6 REQUIRED SERIES (10 COURSES EACH) ====================
+// These series are ALWAYS shown on the Learn page in this exact order:
+// 1. ChatGPT series (10)
+// 2. Make series (10)
+// 3. n8n series (10)
+// 4. Midjourney series (10)
+// 5. Stable Diffusion series (10)
+// 6. Gemini series (10)
+//
+// Each series has exactly 1 free course (level 1, isFree: true)
+
+const SERIES_CONFIGS = [
+  {
+    id: 'chatgpt',
+    name: 'ChatGPT',
+    toolTag: 'ChatGPT',
+    courses: [
+      { title: 'ChatGPT for Complete Beginners', subtitle: 'Your first AI conversation', free: true },
+      { title: 'ChatGPT Prompt Mastery', subtitle: 'Write prompts that get results' },
+      { title: 'ChatGPT for Writing', subtitle: 'Create content with AI assistance' },
+      { title: 'ChatGPT for Business', subtitle: 'Automate your daily work tasks' },
+      { title: 'ChatGPT for Developers', subtitle: 'Code faster with AI pair programming' },
+      { title: 'ChatGPT Advanced Techniques', subtitle: 'Chain prompts and build workflows' },
+      { title: 'ChatGPT API Integration', subtitle: 'Build apps with OpenAI API' },
+      { title: 'ChatGPT for Education', subtitle: 'Learning and teaching with AI' },
+      { title: 'ChatGPT Plugins & GPTs', subtitle: 'Extend ChatGPT capabilities' },
+      { title: 'ChatGPT for Research', subtitle: 'Academic research with AI assistance' },
+    ],
+  },
+  {
+    id: 'make',
+    name: 'Make',
+    toolTag: 'Make',
+    courses: [
+      { title: 'Make.com Fundamentals', subtitle: 'Visual automation for beginners', free: true },
+      { title: 'Make Scenarios Deep Dive', subtitle: 'Build complex automation workflows' },
+      { title: 'Make + AI Integrations', subtitle: 'Connect AI tools with Make' },
+      { title: 'Make for E-commerce', subtitle: 'Automate your online store' },
+      { title: 'Make Data Processing', subtitle: 'Transform and route data automatically' },
+      { title: 'Make for Marketing', subtitle: 'Automate campaigns and leads' },
+      { title: 'Make Error Handling', subtitle: 'Build robust, reliable automations' },
+      { title: 'Make Advanced Patterns', subtitle: 'Professional automation architecture' },
+      { title: 'Make + CRM Automation', subtitle: 'Sales pipeline automation' },
+      { title: 'Make Enterprise Solutions', subtitle: 'Scale automation across teams' },
+    ],
+  },
+  {
+    id: 'n8n',
+    name: 'n8n',
+    toolTag: 'n8n',
+    courses: [
+      { title: 'n8n Getting Started', subtitle: 'Self-hosted automation basics', free: true },
+      { title: 'n8n Workflow Design', subtitle: 'Create powerful automation flows' },
+      { title: 'n8n + AI Workflows', subtitle: 'Build AI-powered automations' },
+      { title: 'n8n for DevOps', subtitle: 'Automate your development pipeline' },
+      { title: 'n8n Data Transformation', subtitle: 'Process and transform any data' },
+      { title: 'n8n Custom Nodes', subtitle: 'Extend n8n with your own integrations' },
+      { title: 'n8n Self-Hosting Guide', subtitle: 'Deploy and manage your own instance' },
+      { title: 'n8n Security Best Practices', subtitle: 'Secure your automation workflows' },
+      { title: 'n8n + Database Integration', subtitle: 'Connect to any database system' },
+      { title: 'n8n Production Deployment', subtitle: 'Scale n8n for enterprise use' },
+    ],
+  },
+  {
+    id: 'midjourney',
+    name: 'Midjourney',
+    toolTag: 'Midjourney',
+    courses: [
+      { title: 'Midjourney for Beginners', subtitle: 'Create stunning AI art today', free: true },
+      { title: 'Midjourney Prompt Engineering', subtitle: 'Master the art of AI prompts' },
+      { title: 'Midjourney Styles & Aesthetics', subtitle: 'Achieve any artistic style' },
+      { title: 'Midjourney for Designers', subtitle: 'Professional design workflows' },
+      { title: 'Midjourney Character Design', subtitle: 'Create consistent characters' },
+      { title: 'Midjourney Environments', subtitle: 'Build immersive worlds' },
+      { title: 'Midjourney for Marketing', subtitle: 'Create marketing visuals' },
+      { title: 'Midjourney Advanced Parameters', subtitle: 'Master every setting' },
+      { title: 'Midjourney Inpainting & Editing', subtitle: 'Refine and modify images' },
+      { title: 'Midjourney Professional Workflows', subtitle: 'From concept to final asset' },
+    ],
+  },
+  {
+    id: 'stable-diffusion',
+    name: 'Stable Diffusion',
+    toolTag: 'Stable Diffusion',
+    courses: [
+      { title: 'Stable Diffusion Basics', subtitle: 'Open-source AI art generation', free: true },
+      { title: 'Stable Diffusion WebUI', subtitle: 'Master the AUTOMATIC1111 interface' },
+      { title: 'SD Model Training', subtitle: 'Train custom models and LoRAs' },
+      { title: 'ControlNet Mastery', subtitle: 'Precise control over AI generation' },
+      { title: 'SD for Concept Art', subtitle: 'Professional concept workflows' },
+      { title: 'SD Upscaling & Enhancement', subtitle: 'Create high-resolution artwork' },
+      { title: 'ComfyUI Workflows', subtitle: 'Node-based generation pipelines' },
+      { title: 'SD Animation & Video', subtitle: 'Create AI-powered animations' },
+      { title: 'SD for Game Assets', subtitle: 'Generate game art and textures' },
+      { title: 'SD Production Pipeline', subtitle: 'Enterprise AI art workflow' },
+    ],
+  },
+  {
+    id: 'gemini',
+    name: 'Gemini',
+    toolTag: 'Gemini',
+    courses: [
+      { title: 'Gemini Introduction', subtitle: 'Google\'s multimodal AI', free: true },
+      { title: 'Gemini for Productivity', subtitle: 'Enhance your daily workflow' },
+      { title: 'Gemini + Google Workspace', subtitle: 'AI in Docs, Sheets, and more' },
+      { title: 'Gemini API Development', subtitle: 'Build with Gemini API' },
+      { title: 'Gemini Vision & Images', subtitle: 'Multimodal AI applications' },
+      { title: 'Gemini for Analysis', subtitle: 'Data analysis with AI' },
+      { title: 'Gemini vs ChatGPT', subtitle: 'Choose the right tool' },
+      { title: 'Gemini Advanced Features', subtitle: 'Power user techniques' },
+      { title: 'Gemini for Education', subtitle: 'Learning with Google AI' },
+      { title: 'Gemini Enterprise Integration', subtitle: 'Deploy AI across your org' },
+    ],
+  },
+];
+
+// Generate the 60 series courses
+const SERIES_COURSES: Course[] = [];
+
+SERIES_CONFIGS.forEach((series, seriesIndex) => {
+  series.courses.forEach((courseConfig, courseIndex) => {
+    const courseId = `${series.id}-${courseIndex + 1}`;
+    const isFree = courseConfig.free === true;
+    const level = isFree ? 1 : (Math.min(10, Math.floor(courseIndex / 2) + 2) as CourseLevel);
+
+    const instructors = [
+      { name: 'Dr. Sarah Chen', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=sarah&top=longHairStraight' },
+      { name: 'Alex Kim', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=alex&top=shortHairShortFlat' },
+      { name: 'Mia Johnson', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=mia&top=longHairStraight' },
+      { name: 'Prof. David Lee', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=david&top=shortHairShortFlat' },
+      { name: 'Emma Davis', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=emma&top=longHairStraight' },
+      { name: 'Dr. James Wilson', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=james&top=shortHairShortFlat' },
+    ];
+
+    // 60 unique thumbnails for series courses (no repeats)
+    const thumbnails = [
+      // Gemini series (0-9)
+      'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800', // AI face
+      'https://images.unsplash.com/photo-1696446702183-cbd355ff8d3f?w=800', // Google AI
+      'https://images.unsplash.com/photo-1699778910066-7a61f4bd92c5?w=800', // Gemini style
+      'https://images.unsplash.com/photo-1697577418970-95d99b5a55cf?w=800', // AI abstract
+      'https://images.unsplash.com/photo-1675557009875-436f7a5c6f67?w=800', // Futuristic
+      'https://images.unsplash.com/photo-1686191128892-3a22b65f2c33?w=800', // AI glow
+      'https://images.unsplash.com/photo-1684487747720-1ba29cda82f8?w=800', // Tech abstract
+      'https://images.unsplash.com/photo-1694903089438-bf28d4697373?w=800', // AI neural
+      'https://images.unsplash.com/photo-1695654400041-4f531e5d5de5?w=800', // Digital brain
+      'https://images.unsplash.com/photo-1675271591211-930246f80666?w=800', // AI concept
+      // ChatGPT series (10-19)
+      'https://images.unsplash.com/photo-1676299081847-824916de030a?w=800', // ChatGPT style
+      'https://images.unsplash.com/photo-1684163761964-d291fbd70cad?w=800', // OpenAI
+      'https://images.unsplash.com/photo-1673187648408-fcdc1f8ed1c2?w=800', // Chat interface
+      'https://images.unsplash.com/photo-1674027444485-cec3da58eef4?w=800', // AI assistant
+      'https://images.unsplash.com/photo-1680452759136-c3fbc1124a78?w=800', // Conversation
+      'https://images.unsplash.com/photo-1682687982093-4dbfc7c8c2e3?w=800', // AI chat
+      'https://images.unsplash.com/photo-1679403766680-9b506ed0f145?w=800', // Language model
+      'https://images.unsplash.com/photo-1676031020564-a9e2b044a832?w=800', // AI text
+      'https://images.unsplash.com/photo-1676310483825-daa08ec5dfc8?w=800', // GPT visual
+      'https://images.unsplash.com/photo-1672239789084-98ea4005bfd6?w=800', // AI writing
+      // Make series (20-29)
+      'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800', // Team coding
+      'https://images.unsplash.com/photo-1526378787940-576a539ba69d?w=800', // Workflow
+      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800', // Business automation
+      'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800', // Professional
+      'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800', // Collaboration
+      'https://images.unsplash.com/photo-1573164574572-cb89e39749b4?w=800', // Integration
+      'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800', // Office tech
+      'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800', // Process flow
+      'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=800', // Analytics
+      'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800', // Meeting
+      // n8n series (30-39)
+      'https://images.unsplash.com/photo-1547954575-855750c57bd3?w=800', // Automation
+      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800', // Server
+      'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=800', // Code
+      'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800', // Network
+      'https://images.unsplash.com/photo-1536104968055-4d61aa56f46a?w=800', // Dev tools
+      'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=800', // GitHub
+      'https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=800', // Docker
+      'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=800', // API
+      'https://images.unsplash.com/photo-1605379399642-870262d3d051?w=800', // Developer
+      'https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=800', // Tech setup
+      // Midjourney series (40-49)
+      'https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=800', // AI art
+      'https://images.unsplash.com/photo-1633412802994-5c058f151b66?w=800', // Metaverse
+      'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800', // Generated
+      'https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?w=800', // Abstract
+      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', // Digital art
+      'https://images.unsplash.com/photo-1634926878768-2a5b3c42f139?w=800', // Creative
+      'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800', // Artistic
+      'https://images.unsplash.com/photo-1617791160505-6f00504e3519?w=800', // VR
+      'https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?w=800', // Illustration
+      'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800', // Gallery
+      // Stable Diffusion series (50-59)
+      'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800', // Neural
+      'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800', // AI brain
+      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800', // Earth
+      'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800', // Retro tech
+      'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800', // Lab
+      'https://images.unsplash.com/photo-1558346547-30ac3c7d5e3b?w=800', // Processing
+      'https://images.unsplash.com/photo-1569396116180-90599c23dcdd?w=800', // Animation
+      'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800', // Creative code
+      'https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=800', // 3D
+      'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=800', // NFT art
+    ];
+
+    const course: Course = {
+      id: courseId,
+      title: courseConfig.title,
+      subtitle: courseConfig.subtitle,
+      description: `A comprehensive course on ${courseConfig.title.toLowerCase()}. Part of the ${series.name} series.`,
+      thumbnailUrl: thumbnails[seriesIndex * 10 + courseIndex], // Each course gets unique thumbnail
+      trailer: {
+        title: 'Course Trailer',
+        youtubeId: YOUTUBE_TRAILER_POOL[(seriesIndex + courseIndex) % YOUTUBE_TRAILER_POOL.length],
+        duration: 120,
+      },
+      category: series.name,
+      tags: [series.name, isFree ? 'Free' : 'Premium', `Level ${level}`],
+      level: level,
+      instructor: instructors[(seriesIndex + courseIndex) % instructors.length],
+      chapters: createChapters(courseId, [
+        {
+          title: 'Chapter 1: Getting Started',
+          lessons: Array.from({ length: 5 }, (_, i) => ({
+            title: `Lesson ${i + 1}: Introduction to ${series.name}`,
+            videoId: YOUTUBE_VIDEO_POOL[(seriesIndex * 15 + i) % YOUTUBE_VIDEO_POOL.length],
+            duration: 600 + i * 60,
+          })),
+        },
+        {
+          title: 'Chapter 2: Core Techniques',
+          lessons: Array.from({ length: 5 }, (_, i) => ({
+            title: `Lesson ${i + 1}: ${series.name} Techniques`,
+            videoId: YOUTUBE_VIDEO_POOL[(seriesIndex * 15 + 5 + i) % YOUTUBE_VIDEO_POOL.length],
+            duration: 600 + i * 60,
+          })),
+        },
+        {
+          title: 'Chapter 3: Advanced Applications',
+          lessons: Array.from({ length: 5 }, (_, i) => ({
+            title: `Lesson ${i + 1}: Advanced ${series.name}`,
+            videoId: YOUTUBE_VIDEO_POOL[(seriesIndex * 15 + 10 + i) % YOUTUBE_VIDEO_POOL.length],
+            duration: 600 + i * 60,
+          })),
+        },
+      ]),
+      totalDuration: 10500,
+      lessonCount: 15,
+      isFeatured: courseIndex === 0, // First course in each series is featured
+      createdAt: new Date(`2024-0${Math.min(9, seriesIndex + 1)}-${String(courseIndex + 1).padStart(2, '0')}`),
+      courseType: 'vava',
+      toolTags: [series.toolTag],
+      isFree: isFree,
+    };
+
+    SERIES_COURSES.push(course);
+  });
+});
+
+// Add series courses to the main list
+CoursesTable.push(...SERIES_COURSES);
+
+// ==================== SERIES COURSE HELPERS ====================
+
+/**
+ * Required series in display order for Learn page
+ */
+export const REQUIRED_SERIES_ORDER = [
+  'ChatGPT',
+  'Make',
+  'n8n',
+  'Midjourney',
+  'Stable Diffusion',
+  'Gemini',
+] as const;
+
+/**
+ * Get courses for a specific series by tool tag
+ */
+export function getSeriesCourses(seriesTag: string): Course[] {
+  return CoursesTable.filter(
+    (course) => course.courseType === 'vava' && course.toolTags?.includes(seriesTag)
+  );
+}
+
+/**
+ * Get all courses organized by required series order
+ */
+export function getCoursesBySeriesOrder(): Map<string, Course[]> {
+  const result = new Map<string, Course[]>();
+  REQUIRED_SERIES_ORDER.forEach((series) => {
+    result.set(series, getSeriesCourses(series));
+  });
+  return result;
+}
+
+/**
+ * Get free courses - exactly 1 per required series (6 total)
+ */
+export function getFreeCoursesBySeries(): Course[] {
+  return REQUIRED_SERIES_ORDER.map((series) => {
+    const seriesCourses = getSeriesCourses(series);
+    return seriesCourses.find((c) => c.isFree);
+  }).filter((c): c is Course => c !== undefined);
+}
+
+// ==================== NUNU/VAVA COURSE HELPERS ====================
+
+/**
+ * Get all Nunu courses (mentor training)
+ */
+export function getNunuCourses(): Course[] {
+  return CoursesTable.filter((course) => course.courseType === 'nunu');
+}
+
+/**
+ * Get all Vava courses (learner courses)
+ */
+export function getVavaCourses(): Course[] {
+  return CoursesTable.filter((course) => course.courseType === 'vava');
+}
+
+/**
+ * Get all free Vava courses
+ */
+export function getFreeVavaCourses(): Course[] {
+  return CoursesTable.filter((course) => course.courseType === 'vava' && course.isFree);
+}
+
+/**
+ * Get unique tool tags from all Vava courses
+ */
+export function getAllToolTags(): string[] {
+  const tags = new Set<string>();
+  CoursesTable.forEach((course) => {
+    if (course.courseType === 'vava' && course.toolTags) {
+      course.toolTags.forEach((tag) => tags.add(tag));
+    }
+  });
+  return Array.from(tags).sort();
+}
+
+/**
+ * Get Vava courses grouped by their primary tool tag
+ */
+export function getVavaCoursesByToolTag(): Map<string, Course[]> {
+  const grouped = new Map<string, Course[]>();
+
+  CoursesTable.forEach((course) => {
+    if (course.courseType === 'vava' && course.toolTags && course.toolTags.length > 0) {
+      const primaryTag = course.toolTags[0];
+      const existing = grouped.get(primaryTag) || [];
+      existing.push(course);
+      grouped.set(primaryTag, existing);
+    }
+  });
+
+  return grouped;
+}
+
+/**
+ * Get all Verified Nunu required courses
+ */
+export function getVerifiedRequiredCourses(): Course[] {
+  return CoursesTable.filter((course) => course.verifiedRequired === true);
+}
+
+/**
+ * Get courses by track
+ */
+export function getCoursesByTrack(track: CourseTrack): Course[] {
+  if (track === 'general') {
+    return CoursesTable.filter((course) => !course.track || course.track === 'general');
+  }
+  return CoursesTable.filter((course) => course.track === track);
+}
+
+// ==================== QUERY HELPERS ====================
+
+export function getCoursesByCategory(category: string): Course[] {
+  return CoursesTable.filter((course) => course.category === category);
+}
+
+export function getCoursesByLevel(level: CourseLevel): Course[] {
+  return CoursesTable.filter((course) => course.level === level);
+}
+
+export function getFreeCourses(): Course[] {
+  return CoursesTable.filter((course) => course.level === 1);
+}
+
+export function getFeaturedCourses(): Course[] {
+  return CoursesTable.filter((course) => course.isFeatured);
+}
+
+export function getCourseById(id: string): Course | undefined {
+  return CoursesTable.find((course) => course.id === id);
+}
+
+export function getAllCourses(): Course[] {
+  return CoursesTable;
+}
+
+export function getRecentCourses(limit: number = 10): Course[] {
+  return [...CoursesTable]
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .slice(0, limit);
+}
+
+export function searchCourses(query: string): Course[] {
+  const lowerQuery = query.toLowerCase();
+  return CoursesTable.filter(
+    (course) =>
+      course.title.toLowerCase().includes(lowerQuery) ||
+      course.subtitle.toLowerCase().includes(lowerQuery) ||
+      course.description.toLowerCase().includes(lowerQuery) ||
+      course.category.toLowerCase().includes(lowerQuery) ||
+      course.tags.some((tag) => tag.toLowerCase().includes(lowerQuery))
+  );
+}
+
+// Legacy compatibility - create a flat lessons getter
+export function getCourseLessons(course: Course): Lesson[] {
+  return course.chapters.flatMap((chapter) => chapter.lessons);
+}
+
+// ==================== LEGACY EXPORTS ====================
+// For backward compatibility with existing imports
+
+/** @deprecated Use CoursesTable instead */
+export const MOCK_COURSES = CoursesTable;
+
+/** @deprecated Use CoursesTable instead */
+export const courses = CoursesTable;
+
+// Re-export types for convenience
+export type { Course, CourseCategory, CourseLevel, CourseType, CourseTrack, Chapter, Lesson, Trailer };

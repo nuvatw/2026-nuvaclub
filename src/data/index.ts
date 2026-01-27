@@ -1,3 +1,9 @@
+/**
+ * @deprecated Import from '@/Database' instead.
+ *
+ * This file is a compatibility re-export.
+ */
+
 // Type exports
 export * from './types';
 

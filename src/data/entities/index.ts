@@ -7,14 +7,14 @@
  * @deprecated Import from '@/Database' instead
  */
 
-// Courses - still in original location (not yet migrated to Database)
+// Courses - from Database
 export {
   MOCK_COURSES,
   COURSE_CATEGORIES,
   getFeaturedCourses,
   getCoursesByCategory,
   getCourseById,
-} from '@/features/learn/data/courses';
+} from '@/Database';
 
 // Forum - from Database
 export { MOCK_POSTS, getPinnedPosts, getRecentPosts } from '@/Database';
@@ -28,5 +28,5 @@ export { MOCK_SEASONS } from '@/Database';
 // Shop - from Database
 export { MOCK_PLANS, PLANS } from '@/Database';
 export { MOCK_MERCHANDISE, MERCHANDISE } from '@/Database';
-export { getAllProducts } from '@/mocks/entities/products.mock';
+export { getAllProducts } from '@/Database/tables/products';
 export { MOCK_EVENTS, EVENTS } from '@/Database';

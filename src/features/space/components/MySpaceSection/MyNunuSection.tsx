@@ -1,30 +1,117 @@
 'use client';
 
+import { useState, useMemo, useCallback } from 'react';
 import { motion } from 'motion/react';
-import { useAuth } from '@/features/auth/components/AuthProvider';
+import { useAuth, getEffectiveUserId } from '@/features/auth/components/AuthProvider';
 import { useMentorships } from '@/lib/db/hooks/useMentorships';
+import { useDBContext } from '@/lib/db';
 import { PairingCard } from './PairingCard';
 import { EmptyPairingState } from './EmptyPairingState';
+import { ExtendRelationshipModal } from './ExtendRelationshipModal';
 import type { NunuLevel, NunuType } from '@/features/space/types';
 
 interface MyNunuSectionProps {
   onNavigateToMatchingBoard?: () => void;
 }
 
+/**
+ * Get a fallback Nunu for users who don't have an assigned match.
+ * This ensures every logged-in user always sees a Nunu card.
+ * Uses deterministic selection based on user ID for consistency.
+ */
+function useFallbackNunu(userId: string | undefined) {
+  const { db, isReady } = useDBContext();
+
+  return useMemo(() => {
+    if (!isReady || !db || !userId) return null;
+
+    // Get all Nunu profiles
+    const nunuProfiles = db.nunuProfiles.findAll().filter((p) => p.isAvailable);
+    if (nunuProfiles.length === 0) return null;
+
+    // Deterministic selection: hash user ID to select a Nunu
+    const hash = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const selectedProfile = nunuProfiles[hash % nunuProfiles.length];
+
+    // Get the user record for the selected Nunu
+    const nunuUser = db.users.findById(selectedProfile.userId);
+    if (!nunuUser) return null;
+
+    // Create a default mentorship-like structure
+    return {
+      nunu: {
+        id: nunuUser.id,
+        name: nunuUser.name,
+        avatar: nunuUser.avatar,
+        level: selectedProfile.level as NunuLevel,
+        type: selectedProfile.type as NunuType,
+        discordId: nunuUser.discordId,
+        githubUsername: nunuUser.githubUsername,
+      },
+      mentorship: {
+        // Default months: current month + next 2 months
+        months: getDefaultMonths(),
+        startedAt: new Date(),
+        sessionCount: 0,
+        status: 'active' as const,
+      },
+    };
+  }, [db, isReady, userId]);
+}
+
+/**
+ * Get default months for fallback: current + next 2 months
+ */
+function getDefaultMonths(): string[] {
+  const now = new Date();
+  const months: string[] = [];
+  for (let i = 0; i < 3; i++) {
+    const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    months.push(`${year}-${month}`);
+  }
+  return months;
+}
+
 export function MyNunuSection({ onNavigateToMatchingBoard }: MyNunuSectionProps) {
-  const { user } = useAuth();
-  const userId = user?.id;
+  const { user, identity } = useAuth();
+  // Map test account ID to actual user ID for data lookups
+  const userId = getEffectiveUserId(user?.id ?? null) ?? undefined;
 
   const { myNunu, hasNunu, mentorshipsAsVava } = useMentorships(userId);
+  const fallbackNunu = useFallbackNunu(userId);
 
-  // Get the active mentorship to show session count
+  // Modal state
+  const [isExtendModalOpen, setIsExtendModalOpen] = useState(false);
+
+  // Determine the effective Nunu and mentorship to display
+  const effectiveNunu = myNunu || fallbackNunu?.nunu;
   const activeMentorship = mentorshipsAsVava.find((m) => m.status === 'active');
+  const effectiveMentorship = activeMentorship || fallbackNunu?.mentorship;
+
+  // Get months from active mentorship
+  const currentMonths = effectiveMentorship?.months || getDefaultMonths();
 
   const handleNavigateToBoard = () => {
     onNavigateToMatchingBoard?.();
     const boardSection = document.getElementById('matching-board');
     boardSection?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  const handleCardClick = useCallback(() => {
+    setIsExtendModalOpen(true);
+  }, []);
+
+  const handleExtendSubmit = useCallback((extensionMonths: number, message: string) => {
+    // In a real app, this would call an API
+    // For now, we just log and show success (handled in modal)
+    console.log('Extension request:', { extensionMonths, message });
+  }, []);
+
+  // Only show section for logged-in users
+  const isLoggedIn = identity !== 'guest';
+  const showNunuCard = isLoggedIn && effectiveNunu;
 
   return (
     <section className="mb-8">
@@ -37,7 +124,7 @@ export function MyNunuSection({ onNavigateToMatchingBoard }: MyNunuSectionProps)
         <p className="text-sm text-neutral-400">Your mentor who guides your learning journey</p>
       </motion.div>
 
-      {hasNunu && myNunu ? (
+      {showNunuCard ? (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -46,17 +133,19 @@ export function MyNunuSection({ onNavigateToMatchingBoard }: MyNunuSectionProps)
           <PairingCard
             type="nunu"
             user={{
-              id: myNunu.id,
-              name: myNunu.name,
-              avatar: myNunu.avatar,
-              level: myNunu.level as NunuLevel | undefined,
-              nunuType: myNunu.type as NunuType | undefined,
-              discordId: myNunu.discordId,
-              githubUsername: myNunu.githubUsername,
+              id: effectiveNunu.id,
+              name: effectiveNunu.name,
+              avatar: effectiveNunu.avatar,
+              level: effectiveNunu.level as NunuLevel | undefined,
+              nunuType: effectiveNunu.type as NunuType | undefined,
+              discordId: effectiveNunu.discordId,
+              githubUsername: effectiveNunu.githubUsername,
             }}
             status="active"
-            startedAt={activeMentorship?.startedAt ? new Date(activeMentorship.startedAt) : new Date()}
-            sessionCount={activeMentorship?.sessionCount || 0}
+            startedAt={effectiveMentorship?.startedAt ? new Date(effectiveMentorship.startedAt) : new Date()}
+            sessionCount={effectiveMentorship?.sessionCount || 0}
+            months={currentMonths}
+            onCardClick={handleCardClick}
           />
         </motion.div>
       ) : (
@@ -70,6 +159,17 @@ export function MyNunuSection({ onNavigateToMatchingBoard }: MyNunuSectionProps)
             onAction={handleNavigateToBoard}
           />
         </motion.div>
+      )}
+
+      {/* Extend Relationship Modal */}
+      {effectiveNunu && (
+        <ExtendRelationshipModal
+          isOpen={isExtendModalOpen}
+          onClose={() => setIsExtendModalOpen(false)}
+          nunuName={effectiveNunu.name}
+          currentMonths={currentMonths}
+          onSubmit={handleExtendSubmit}
+        />
       )}
     </section>
   );

@@ -16,8 +16,10 @@ export {
 } from './QuestionRenderer';
 export { CourseListCard, StatusTabs, LevelFilters } from './CourseFilters';
 
-// New Nunu/Vava track components
+// New Nunu/Vava/Report track components
 export { TrackSwitcher, TRACK_CONFIGS, type TestTrack } from './TrackSwitcher';
 export { NunuProgressBar } from './NunuProgressBar';
 export { VavaProgressBar, VAVA_LEVELS } from './VavaProgressBar';
 export { NunuRequirementsPanel } from './NunuRequirementsPanel';
+export { ReportSection } from './ReportSection';
+export type { AIReport, ReportMonth, ReportRole, ReportMetric, ReportHighlight, ReportRecommendation, ReportListItem } from './ReportSection';

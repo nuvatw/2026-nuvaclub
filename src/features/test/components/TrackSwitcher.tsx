@@ -1,9 +1,9 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { AcademicCapIcon, BookIcon } from '@/components/icons';
+import { AcademicCapIcon, BookIcon, ChartBarIcon } from '@/components/icons';
 
-export type TestTrack = 'nunu' | 'vava';
+export type TestTrack = 'nunu' | 'vava' | 'report';
 
 interface TrackConfig {
   id: TestTrack;
@@ -30,6 +30,14 @@ const TRACK_CONFIGS: TrackConfig[] = [
     icon: <BookIcon size="md" />,
     activeColor: 'text-blue-400',
     activeBg: 'bg-blue-500/20 border-blue-500',
+  },
+  {
+    id: 'report',
+    label: 'Report',
+    sublabel: 'Monthly',
+    icon: <ChartBarIcon size="md" />,
+    activeColor: 'text-green-400',
+    activeBg: 'bg-green-500/20 border-green-500',
   },
 ];
 

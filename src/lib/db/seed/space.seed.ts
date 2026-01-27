@@ -26,12 +26,12 @@ export async function seedSpace(db: MockDB): Promise<void> {
   // COMPANIONS (Legacy external companions)
   // ==========================================
   db.companions.createMany([
-    { id: 'companion-1', name: 'Amy', avatar: 'https://i.pravatar.cc/150?u=amy-nunu', type: 'nunu', bio: 'Loves helping beginners get started with AI tools.', discordId: 'amy#1234', isAvailable: true, createdAt: new Date('2025-06-01'), updatedAt: now },
-    { id: 'companion-2', name: 'Ben', avatar: 'https://i.pravatar.cc/150?u=ben-nunu', type: 'nunu', bio: 'Focused on AI automation workflows.', discordId: 'ben#5678', isAvailable: true, createdAt: new Date('2025-07-01'), updatedAt: now },
-    { id: 'companion-3', name: 'Carol', avatar: 'https://i.pravatar.cc/150?u=carol-nunu', type: 'nunu', bio: 'Content creator using AI for efficiency.', discordId: 'carol#9012', isAvailable: false, createdAt: new Date('2025-08-01'), updatedAt: now },
-    { id: 'companion-4', name: 'David', avatar: 'https://i.pravatar.cc/150?u=david-certified', type: 'certified-nunu', bio: 'Senior AI engineer specializing in Prompt Engineering.', discordId: 'david#3456', isAvailable: true, createdAt: new Date('2025-05-01'), updatedAt: now },
-    { id: 'companion-5', name: 'Eva', avatar: 'https://i.pravatar.cc/150?u=eva-certified', type: 'certified-nunu', bio: 'AI Product Manager helping with execution.', discordId: 'eva#7890', isAvailable: true, createdAt: new Date('2025-04-01'), updatedAt: now },
-    { id: 'companion-6', name: 'Shangzhe', avatar: 'https://i.pravatar.cc/150?u=shangzhe', type: 'shangzhe', bio: 'nuvaClub founder and AI education expert.', discordId: 'shangzhe#0001', isAvailable: true, createdAt: new Date('2025-01-01'), updatedAt: now },
+    { id: 'companion-1', name: 'Amy', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=amy-nunu&top=longHairStraight', type: 'nunu', bio: 'Loves helping beginners get started with AI tools.', discordId: 'amy#1234', isAvailable: true, createdAt: new Date('2025-06-01'), updatedAt: now },
+    { id: 'companion-2', name: 'Ben', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=ben-nunu&top=shortHairShortFlat', type: 'nunu', bio: 'Focused on AI automation workflows.', discordId: 'ben#5678', isAvailable: true, createdAt: new Date('2025-07-01'), updatedAt: now },
+    { id: 'companion-3', name: 'Carol', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=carol-nunu&top=longHairBob', type: 'nunu', bio: 'Content creator using AI for efficiency.', discordId: 'carol#9012', isAvailable: false, createdAt: new Date('2025-08-01'), updatedAt: now },
+    { id: 'companion-4', name: 'David', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=david-certified&top=shortHairShortWaved', type: 'certified-nunu', bio: 'Senior AI engineer specializing in Prompt Engineering.', discordId: 'david#3456', isAvailable: true, createdAt: new Date('2025-05-01'), updatedAt: now },
+    { id: 'companion-5', name: 'Eva', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=eva-certified&top=longHairMiaWallace', type: 'certified-nunu', bio: 'AI Product Manager helping with execution.', discordId: 'eva#7890', isAvailable: true, createdAt: new Date('2025-04-01'), updatedAt: now },
+    { id: 'companion-6', name: 'Shangzhe', avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=shangzhe&top=shortHairShortCurly', type: 'shangzhe', bio: 'nuvaClub founder and AI education expert.', discordId: 'shangzhe#0001', isAvailable: true, createdAt: new Date('2025-01-01'), updatedAt: now },
   ]);
 
   // ==========================================

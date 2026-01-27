@@ -112,26 +112,26 @@ export function useSprintVoting(
   const toggleVote = useCallback(
     (projectId: string): { success: boolean; message: string } => {
       if (!db || !userId) {
-        return { success: false, message: '請先登入' };
+        return { success: false, message: 'Please sign in first' };
       }
 
       if (isDeadlinePassed) {
-        return { success: false, message: '投票已截止' };
+        return { success: false, message: 'Voting has ended' };
       }
 
       if (!isVotingOpen) {
-        return { success: false, message: '投票未開放' };
+        return { success: false, message: 'Voting is not open' };
       }
 
       const isAlreadyVoted = hasVotedFor(projectId);
 
       if (!isAlreadyVoted && remainingVotes <= 0) {
-        return { success: false, message: '已用完 5 個星星，請先取消其他投票' };
+        return { success: false, message: 'You have used all 5 votes. Remove a vote first.' };
       }
 
       // Check if project belongs to this sprint
       if (!sprintProjectIds.includes(projectId)) {
-        return { success: false, message: '此專案不屬於這個衝刺' };
+        return { success: false, message: 'This project does not belong to this sprint' };
       }
 
       // Get existing vote
@@ -155,7 +155,7 @@ export function useSprintVoting(
         }
         db.persist();
         refresh();
-        return { success: true, message: '已取消投票' };
+        return { success: true, message: 'Vote removed' };
       } else {
         // Add vote
         db.projectVotes.create({
@@ -185,7 +185,7 @@ export function useSprintVoting(
 
         db.persist();
         refresh();
-        return { success: true, message: '投票成功！' };
+        return { success: true, message: 'Vote submitted!' };
       }
     },
     [db, userId, isDeadlinePassed, isVotingOpen, hasVotedFor, remainingVotes, sprintProjectIds, refresh]

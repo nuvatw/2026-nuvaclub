@@ -13,7 +13,7 @@ import { useLearnSections } from '@/features/learn/sections/useLearnSections';
 import { useMediaPreloadGate, useProgressiveRowLoader } from '@/features/learn/hooks';
 import type { Course } from '@/features/learn/types';
 import { getAllLessons } from '@/features/learn/types';
-import { getCourseById, getFeaturedCourses } from '@/features/learn/data/courses';
+import { getCourseById, getFeaturedCourses } from '@/Database';
 import { LearnPageSkeleton } from '@/components/skeletons';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 import { useVideoProgress } from '@/lib/db/hooks';
@@ -55,7 +55,7 @@ export default function LearnPage() {
 
   // Media preload gate - waits for hero + first row thumbnails
   const { isReady: mediaReady } = useMediaPreloadGate({
-    heroVideoId: '0kARDVL2nZg',
+    heroVideoId: 'dLRdaUda8Ho',
     thumbnailUrls: firstRowThumbnails,
     timeout: 2500,
   });
@@ -159,7 +159,7 @@ export default function LearnPage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4 }}
           >
-            <VideoHero course={heroCourse} videoId="0kARDVL2nZg" />
+            <VideoHero course={heroCourse} videoId="dLRdaUda8Ho" />
           </motion.div>
 
           {/* Course Rows - Netflix-style layout with 2.5 rows visible on load */}

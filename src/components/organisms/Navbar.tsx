@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -90,61 +91,66 @@ export function Navbar() {
         {/* Full-width container with app gutter for consistent alignment with Learn page */}
         <div className="w-full" style={{ paddingLeft: 'var(--app-gutter)', paddingRight: 'var(--app-gutter)' }}>
           <div className="flex items-center justify-between h-18">
-            {/* Left Cluster: Logo + Desktop Navigation */}
-            <div className="flex items-center gap-8">
-              {/* Logo */}
-              <Link href="/" className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-white">nuva</span>
-                <span className="text-2xl font-bold text-primary-500">Club</span>
+            {/* Left: Logo */}
+            <div className="flex items-center flex-shrink-0">
+              <Link href="/" className="flex items-center">
+                <Image
+                  src="/white nuva logo.png"
+                  alt="nuva"
+                  width={80}
+                  height={32}
+                  className="h-7 w-auto"
+                  priority
+                />
               </Link>
-
-              {/* Desktop Navigation */}
-              <div ref={navContainerRef} className="hidden md:flex items-center gap-8 relative">
-                {NAV_ITEMS.map((item) => {
-                  const isActive = pathname.startsWith(item.href);
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      ref={(el) => {
-                        if (el) {
-                          navItemRefs.current.set(item.href, el);
-                        } else {
-                          navItemRefs.current.delete(item.href);
-                        }
-                      }}
-                      className="relative py-6 group"
-                    >
-                      <span
-                        className={cn(
-                          'text-base font-medium transition-all duration-200',
-                          isActive
-                            ? 'text-white'
-                            : 'text-neutral-500 group-hover:text-white'
-                        )}
-                      >
-                        {item.label}
-                      </span>
-                    </Link>
-                  );
-                })}
-                {/* Active underline indicator - positioned relative to container, not viewport */}
-                {underlineStyle && (
-                  <motion.div
-                    className="absolute bottom-0 h-0.5 bg-white"
-                    initial={false}
-                    animate={{
-                      left: underlineStyle.left,
-                      width: underlineStyle.width,
-                    }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </div>
             </div>
 
-            {/* Right Cluster: User Area - Icon order: Search, Mission, Notification, Cart, Avatar/Login */}
-            <div className="hidden md:flex items-center gap-3">
+            {/* Center: Desktop Navigation */}
+            <div ref={navContainerRef} className="hidden md:flex items-center gap-8 relative">
+              {NAV_ITEMS.map((item) => {
+                const isActive = pathname.startsWith(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    ref={(el) => {
+                      if (el) {
+                        navItemRefs.current.set(item.href, el);
+                      } else {
+                        navItemRefs.current.delete(item.href);
+                      }
+                    }}
+                    className="relative py-6 group"
+                  >
+                    <span
+                      className={cn(
+                        'text-base font-medium transition-all duration-200',
+                        isActive
+                          ? 'text-white'
+                          : 'text-neutral-500 group-hover:text-white'
+                      )}
+                    >
+                      {item.label}
+                    </span>
+                  </Link>
+                );
+              })}
+              {/* Active underline indicator - positioned relative to container, not viewport */}
+              {underlineStyle && (
+                <motion.div
+                  className="absolute bottom-0 h-0.5 bg-white"
+                  initial={false}
+                  animate={{
+                    left: underlineStyle.left,
+                    width: underlineStyle.width,
+                  }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                />
+              )}
+            </div>
+
+            {/* Right: User Area - Icon order: Search, Mission, Notification, Cart, Avatar/Login */}
+            <div className="hidden md:flex items-center gap-3 flex-shrink-0">
               <button
                 onClick={openSearch}
                 className="p-2 text-neutral-500 hover:text-white transition-colors"

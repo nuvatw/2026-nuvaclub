@@ -11,6 +11,7 @@ import {
   NunuProgressBar,
   VavaProgressBar,
   NunuRequirementsPanel,
+  ReportSection,
   CourseListCard,
   StatusTabs,
   LevelFilters,
@@ -38,7 +39,7 @@ import { getCourseStatus } from '@/lib/utils/level';
 import type { CourseStatus } from '@/lib/utils/level';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { TestPageSkeleton } from '@/components/skeletons';
-import { getAllCourses, getNunuCourses, getVerifiedRequiredCourses, getCoursesByLevel } from '@/features/learn/data/courses';
+import { getAllCourses, getNunuCourses, getVerifiedRequiredCourses, getCoursesByLevel } from '@/Database';
 import { useProgress } from '@/features/shared/progress/useProgress';
 import type { CourseLevel, Course } from '@/features/learn/types';
 
@@ -53,7 +54,7 @@ export default function TestPage() {
   const [activeTrack, setActiveTrack] = useState<TestTrack>('nunu');
 
   // Nunu state
-  const [selectedNunuLevel, setSelectedNunuLevel] = useState<NunuLevel | 'verified'>('N-Test');
+  const [selectedNunuLevel, setSelectedNunuLevel] = useState<NunuLevel | 'verified'>('Nx');
   const [nunuUserStats, setNunuUserStats] = useState<NunuUserStats | null>(null);
 
   // Vava state - selected level and course filter
@@ -502,6 +503,11 @@ export default function TestPage() {
                 )}
               </motion.div>
             </>
+          )}
+
+          {/* REPORT TRACK CONTENT */}
+          {activeTrack === 'report' && (
+            <ReportSection userId={user?.id ?? null} />
           )}
         </div>
       </div>

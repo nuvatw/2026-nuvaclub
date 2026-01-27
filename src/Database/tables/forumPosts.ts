@@ -6,7 +6,7 @@
  */
 import type { UserIdentity } from './users';
 
-export type PostCategory = 'question' | 'share' | 'discussion' | 'resource';
+export type PostCategory = 'discussion' | 'question' | 'resource' | 'announcement' | 'share';
 
 export interface PostAuthor {
   id: string;
@@ -47,7 +47,7 @@ But there are still some issues, hope everyone can share their experience!`,
     author: {
       id: 'user-1',
       name: 'Alex Chen',
-      avatar: 'https://i.pravatar.cc/150?u=alex',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=alex&top=shortHairShortFlat',
       identity: 'solo-traveler',
     },
     category: 'question',
@@ -77,7 +77,7 @@ Everyone is welcome to check it out and provide suggestions!`,
     author: {
       id: 'user-2',
       name: 'Sarah Lin',
-      avatar: 'https://i.pravatar.cc/150?u=sarah',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=sarah&top=longHairStraight',
       identity: 'solo-traveler',
     },
     category: 'share',
@@ -107,7 +107,7 @@ Does anyone have any insights to share?`,
     author: {
       id: 'user-3',
       name: 'Mike Wang',
-      avatar: 'https://i.pravatar.cc/150?u=mike',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=mike&top=shortHairShortFlat',
       identity: 'solo-traveler',
     },
     category: 'discussion',
@@ -150,7 +150,7 @@ Continuously updating, feel free to add more!`,
     author: {
       id: 'user-4',
       name: 'Emily Huang',
-      avatar: 'https://i.pravatar.cc/150?u=emily',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=emily&top=longHairStraight',
       identity: 'solo-traveler',
     },
     category: 'resource',
@@ -178,7 +178,7 @@ Thank you everyone!`,
     author: {
       id: 'user-5',
       name: 'Kevin Lee',
-      avatar: 'https://i.pravatar.cc/150?u=kevin',
+      avatar: 'https://api.dicebear.com/9.x/avataaars/png?seed=kevin&top=shortHairShortFlat',
       identity: 'explorer',
     },
     category: 'question',

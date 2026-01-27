@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { Card, CardContent, Badge } from '@/components/atoms';
 import { StarSolidIcon, StarIcon, ExternalLinkIcon } from '@/components/icons';
 import type { ProjectWithRelations } from '@/lib/db/repositories';
@@ -16,6 +15,8 @@ interface VotableProjectCardProps {
   isDisabled?: boolean;
   disabledReason?: string;
   className?: string;
+  /** Open project in modal instead of navigating */
+  onOpenModal?: () => void;
 }
 
 export function VotableProjectCard({
@@ -27,6 +28,7 @@ export function VotableProjectCard({
   isDisabled = false,
   disabledReason,
   className,
+  onOpenModal,
 }: VotableProjectCardProps) {
   const handleVoteClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -43,9 +45,21 @@ export function VotableProjectCard({
     }
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (onOpenModal) {
+      e.preventDefault();
+      onOpenModal();
+    }
+  };
+
+  const CardWrapper = onOpenModal ? 'div' : 'a';
+  const cardProps = onOpenModal
+    ? { onClick: handleCardClick, role: 'button', tabIndex: 0, 'aria-label': `View ${project.title}` }
+    : { href: `/sprint/project/${project.id}` };
+
   return (
-    <Card hover padding="none" className={cn('overflow-hidden group', className)}>
-      <Link href={`/sprint/project/${project.id}`}>
+    <Card hover padding="none" className={cn('overflow-hidden group cursor-pointer', className)}>
+      <CardWrapper {...(cardProps as any)}>
         <div className="relative aspect-video">
           <Image
             src={project.thumbnailUrl}
@@ -72,12 +86,12 @@ export function VotableProjectCard({
             </div>
           )}
 
-          {/* Voted indicator */}
+          {/* Starred indicator */}
           {isVoted && (
             <div className="absolute top-3 right-3">
               <div className="flex items-center gap-1 bg-amber-500/90 text-black px-2 py-0.5 rounded-full text-xs font-medium">
                 <StarSolidIcon size="sm" className="w-3 h-3" />
-                已投票
+                Starred
               </div>
             </div>
           )}
@@ -102,7 +116,7 @@ export function VotableProjectCard({
               />
             )}
             <span className="text-xs text-neutral-500">
-              {project.author?.name ?? '匿名'}
+              {project.author?.name ?? 'Anonymous'}
             </span>
           </div>
 
@@ -128,24 +142,24 @@ export function VotableProjectCard({
                     ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30'
                     : isDisabled
                       ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
-                      : 'bg-neutral-800 text-white hover:bg-neutral-700'
+                      : 'bg-amber-500 text-black hover:bg-amber-600'
                 )}
                 aria-label={
                   isVoted
-                    ? `取消對 ${project.title} 的投票`
-                    : `投票給 ${project.title}`
+                    ? `Remove star from ${project.title}`
+                    : `Give a star to ${project.title}`
                 }
                 title={isDisabled && !isVoted ? disabledReason : undefined}
               >
                 {isVoted ? (
                   <>
                     <StarSolidIcon size="sm" />
-                    <span>已投票</span>
+                    <span>Starred</span>
                   </>
                 ) : (
                   <>
                     <StarIcon size="sm" />
-                    <span>投票</span>
+                    <span>Star</span>
                   </>
                 )}
               </button>
@@ -202,7 +216,7 @@ export function VotableProjectCard({
             </div>
           )}
         </CardContent>
-      </Link>
+      </CardWrapper>
     </Card>
   );
 }

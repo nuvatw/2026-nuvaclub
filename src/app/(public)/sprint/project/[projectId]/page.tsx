@@ -16,7 +16,7 @@ import {
   getProjectById,
   getSprintById,
   getSeasonById,
-} from '@/mocks';
+} from '@/Database';
 import { getRankLabel, getRankStyle } from '@/features/sprint/types';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { formatDateMedium } from '@/lib/utils/date';

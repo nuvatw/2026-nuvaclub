@@ -1,49 +1,14 @@
-export interface Season {
-  id: string;
-  name: string;
-  description: string;
-  startDate: Date;
-  endDate: Date;
-  isActive: boolean;
-}
+/**
+ * Sprint Feature Types
+ *
+ * Re-exports entity types from Database (canonical source)
+ * and defines feature-specific types for sprint functionality.
+ */
 
-export interface Sprint {
-  id: string;
-  seasonId: string;
-  title: string;
-  description: string;
-  theme: string;
-  thumbnailUrl: string;
-  startDate: Date;
-  endDate: Date;
-  votingStartDate: Date;
-  projectCount: number;
-  isVotingOpen: boolean;
-}
+// Re-export entity types from Database (canonical source)
+export type { Season, Sprint, Project } from '@/Database/schema';
 
-export interface Project {
-  id: string;
-  sprintId: string;
-  title: string;
-  description: string;
-  thumbnailUrl: string;
-  videoUrl?: string;
-  githubUrl?: string;
-  liveUrl?: string;
-  techStack: string[];
-  author: {
-    id: string;
-    name: string;
-    avatar?: string;
-  };
-  voteCount: number;
-  viewCount: number;
-  starCount: number;
-  rank?: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
+// Feature-specific types
 // Note: 'most-starred' now represents "Most Voted" (votes, not favorites)
 // The star icon in the UI represents votes, not stars/favorites
 export type SortOption = 'most-viewed' | 'most-starred';

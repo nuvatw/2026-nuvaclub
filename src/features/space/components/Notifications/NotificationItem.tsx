@@ -55,7 +55,7 @@ export function NotificationItem({ invitation, onClose }: NotificationItemProps)
         {/* Header Row */}
         <div className="flex items-start gap-3 mb-2">
           <Image
-            src={invitation.fromUserAvatar || 'https://i.pravatar.cc/150?u=default'}
+            src={invitation.fromUserAvatar || 'https://api.dicebear.com/9.x/avataaars/png?seed=default'}
             alt={invitation.fromUserName}
             width={36}
             height={36}
@@ -115,7 +115,7 @@ export function NotificationItem({ invitation, onClose }: NotificationItemProps)
           {/* From */}
           <div className="flex items-center gap-3 p-3 rounded-lg bg-neutral-800/50">
             <Image
-              src={invitation.fromUserAvatar || 'https://i.pravatar.cc/150?u=default'}
+              src={invitation.fromUserAvatar || 'https://api.dicebear.com/9.x/avataaars/png?seed=default'}
               alt={invitation.fromUserName}
               width={48}
               height={48}

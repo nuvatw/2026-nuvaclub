@@ -62,7 +62,8 @@ export function useGlobalHotkeys(
         // But if alt is NOT required, we should reject if alt IS pressed (to avoid conflicts)
         const altExact = hotkey.alt === event.altKey;
 
-        // Check if the key matches
+        // Check if the key matches (guard against undefined event.key)
+        if (!event.key) continue;
         const keyMatch = event.key.toLowerCase() === hotkey.key.toLowerCase();
 
         if (!keyMatch) continue;

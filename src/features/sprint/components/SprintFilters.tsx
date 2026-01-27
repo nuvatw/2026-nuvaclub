@@ -2,7 +2,7 @@
 
 import type { SortOption, SeasonFilter } from '@/features/sprint/types';
 import type { Season, Sprint } from '@/features/sprint/types';
-import { formatSeasonDateRange } from '@/mocks';
+import { formatSeasonDateRange } from '@/Database';
 import { Dropdown } from '@/components/molecules';
 
 export type SprintFilter = 'all' | string;
