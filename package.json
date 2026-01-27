@@ -13,7 +13,10 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\""
   },
   "dependencies": {
+    "@react-three/fiber": "^9.5.0",
+    "@shadergradient/react": "^2.4.20",
     "@tailwindcss/typography": "^0.5.19",
+    "camera-controls": "^3.1.2",
     "clsx": "^2.1.1",
     "html2canvas": "^1.4.1",
     "motion": "^11.15.0",
@@ -22,7 +25,9 @@
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
-    "tailwind-merge": "^2.6.0"
+    "tailwind-merge": "^2.6.0",
+    "three": "^0.182.0",
+    "three-stdlib": "^2.36.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
@@ -31,6 +36,7 @@
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.182.0",
     "@typescript-eslint/eslint-plugin": "^8.53.1",
     "@typescript-eslint/parser": "^8.53.1",
     "eslint": "^9.39.2",

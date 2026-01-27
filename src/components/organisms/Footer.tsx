@@ -53,10 +53,10 @@ function LineIcon({ className }: { className?: string }) {
 
 // Footer link data
 const footerLinks = [
-  { label: 'Playbook', href: '/document' },
-  { label: 'Cookie', href: '/cookie' },
-  { label: 'Policies', href: '/policies' },
-  { label: 'Contact Us', href: '/contact' },
+  { label: 'Playbook', href: '/playbook' },
+  { label: 'Cookie 政策', href: '/policy/cookie' },
+  { label: '隱私權政策', href: '/policy/privacy' },
+  { label: '服務條款', href: '/policy/terms' },
 ];
 
 const socialLinks = [

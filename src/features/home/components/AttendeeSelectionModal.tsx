@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Modal } from '@/components/atoms';
 import { cn } from '@/lib/utils';
+import { SpinnerIcon } from '@/components/icons';
 import { ATTENDEE_SELECTION } from '@/Database/content/home-content';
 
 interface AttendeeSelectionModalProps {
@@ -28,6 +29,7 @@ export function AttendeeSelectionModal({
   const [count, setCount] = useState(1);
   const [customCount, setCustomCount] = useState('');
   const [isCustom, setIsCustom] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const effectiveCount = isCustom ? (parseInt(customCount, 10) || 1) : count;
@@ -55,6 +57,7 @@ export function AttendeeSelectionModal({
   };
 
   const handleConfirm = () => {
+    setIsLoading(true);
     onConfirm(effectiveCount);
     // Navigate to checkout page
     const params = new URLSearchParams({
@@ -145,11 +148,22 @@ export function AttendeeSelectionModal({
 
         {/* Actions */}
         <div className="flex gap-3">
-          <Button variant="outline" onClick={onClose} className="flex-1">
+          <Button variant="outline" onClick={onClose} disabled={isLoading} className="flex-1">
             取消
           </Button>
-          <Button onClick={handleConfirm} disabled={effectiveCount < 1} className="flex-1">
-            {ATTENDEE_SELECTION.labels.continue}
+          <Button
+            onClick={handleConfirm}
+            disabled={effectiveCount < 1 || isLoading}
+            className="flex-1"
+          >
+            {isLoading ? (
+              <span className="flex items-center justify-center gap-2">
+                <SpinnerIcon size="sm" className="animate-spin" />
+                處理中...
+              </span>
+            ) : (
+              ATTENDEE_SELECTION.labels.continue
+            )}
           </Button>
         </div>
       </div>

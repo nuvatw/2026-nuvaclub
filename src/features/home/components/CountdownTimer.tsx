@@ -70,14 +70,15 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
         <span className="bg-neutral-800 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm font-semibold">
           {String(hours).padStart(2, '0')}
         </span>
-        <span className="text-neutral-500">:</span>
+        <span className="text-neutral-500">時</span>
         <span className="bg-neutral-800 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm font-semibold">
           {String(minutes).padStart(2, '0')}
         </span>
-        <span className="text-neutral-500">:</span>
+        <span className="text-neutral-500">分</span>
         <span className="bg-neutral-800 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm font-semibold">
           {String(seconds).padStart(2, '0')}
         </span>
+        <span className="text-neutral-500">秒</span>
       </div>
     </div>
   );

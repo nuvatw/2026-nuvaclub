@@ -47,7 +47,7 @@ export const FOUNDER_VIDEO_CONTENT = {
   badge: '創辦人的話',
   headline: '10 分鐘，了解我們的願景',
   subheadline:
-    '為什麼我們要打造 nuvaClub？這個平台將如何改變 AI 學習的方式？讓創辦人親自告訴你。',
+    '為什麼我們要打造 nuvaClub？這個平台將如何改變人類 AI 學習的方式？',
   videoId: 'dLRdaUda8Ho', // Replace with actual founder video
   duration: '10:23',
   chapters: [
@@ -66,7 +66,7 @@ export const FOUNDER_VIDEO_CONTENT = {
 export const FUNDING_CONTENT = {
   badge: '早鳥限定方案',
   headline: '選擇你的贊助方案',
-  subheadline: 'Voyager 方案 — 完整解鎖所有平台功能，包含課程、導師配對、社群與專案挑戰',
+  subheadline: '7/1 解鎖所有平台功能',
   basePrice: 990,
   basePlanName: 'Voyager',
 } as const;
@@ -302,7 +302,7 @@ export const CROWDFUNDING_CHECKOUT = {
 export const PLATFORM_PREVIEW_CONTENT = {
   badge: '平台功能預覽',
   headline: '探索 nuvaClub 的世界',
-  subheadline: '點擊預覽各功能模組。完整功能將於正式上線後開放，感謝你的耐心等候。',
+  subheadline: '點擊預覽各功能模組。完整功能將於 7/1 正式上線後開放，感謝你的耐心等候！',
 } as const;
 
 export const PLATFORM_MODULES = [
@@ -423,7 +423,7 @@ export const FINAL_CTA_CONTENT = {
   headline: 'AI 時代已經來臨',
   headlineHighlight: '你準備好了嗎？',
   subheadline:
-    '成為 nuvaClub 的早鳥贊助者，與我們一起打造 AI 學習的未來。限量方案，售完即止。',
+    '成為 nuvaClub 的早鳥贊助者，與我們一起打造 AI 學習的未來。',
   primaryCta: '立即成為贊助者',
   trustPoints: [
     '14 天無條件退款',
