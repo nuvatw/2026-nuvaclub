@@ -12,9 +12,10 @@ const TIME_AGO_LABELS = {
 /**
  * Format a date as a relative time string (e.g., "5 minutes ago")
  */
-export function formatTimeAgo(date: Date, locale: SupportedLocale = 'en-US'): string {
+export function formatTimeAgo(date: Date | string, locale: SupportedLocale = 'en-US'): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
   const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
+  const diffMs = now.getTime() - d.getTime();
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMins / 60);
   const diffDays = Math.floor(diffHours / 24);
@@ -25,7 +26,7 @@ export function formatTimeAgo(date: Date, locale: SupportedLocale = 'en-US'): st
   if (diffHours < 24) return `${diffHours} ${labels.hours}`;
   if (diffDays < 7) return `${diffDays} ${labels.days}`;
 
-  return date.toLocaleDateString(locale);
+  return d.toLocaleDateString(locale);
 }
 
 /**

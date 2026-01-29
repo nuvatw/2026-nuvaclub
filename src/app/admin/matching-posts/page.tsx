@@ -98,7 +98,7 @@ export default function AdminMatchingPostsPage() {
       result = result.filter(
         (p) =>
           p.title.toLowerCase().includes(query) ||
-          p.content.toLowerCase().includes(query) ||
+          p.description?.toLowerCase().includes(query) ||
           p.author?.name.toLowerCase().includes(query)
       );
     }
@@ -231,7 +231,7 @@ export default function AdminMatchingPostsPage() {
                       </span>
                     </div>
                     <div className="text-sm text-neutral-400 mt-1 line-clamp-2">
-                      {post.content}
+                      {post.description || 'No description'}
                     </div>
                     <div className="flex items-center gap-4 mt-2 text-xs text-neutral-500">
                       <span>By {post.author?.name || 'Unknown'}</span>
@@ -294,7 +294,7 @@ export default function AdminMatchingPostsPage() {
                       </span>
                     </div>
                     <div className="text-sm text-neutral-500 mt-1 line-clamp-2">
-                      {post.content}
+                      {post.description || 'No description'}
                     </div>
                     <div className="flex items-center gap-4 mt-2 text-xs text-neutral-600">
                       <span>By {post.author?.name || 'Unknown'}</span>

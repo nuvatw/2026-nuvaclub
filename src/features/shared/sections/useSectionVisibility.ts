@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 import { useProgress } from '@/features/shared/progress/useProgress';
 import type { SectionVisibilityRule } from './types';
-import type { ModuleType } from '@/data/types';
+import type { ModuleType } from '@/lib/types/legacy-user-state';
 import { isGuestOrExplorer } from '@/features/auth/utils/role-gating';
 
 /**

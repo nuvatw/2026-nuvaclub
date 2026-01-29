@@ -1,4 +1,4 @@
-import { getAllCourses, getRecentCourses } from '@/Database';
+import { getAllCourses, getRecentCourses } from '@/lib/legacy-db-shim';
 
 export class LearnService {
     async getAllCourses() {

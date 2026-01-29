@@ -7,7 +7,7 @@ import { Button } from '@/components/atoms';
 import { useCart } from '@/features/shop/components/cart';
 import { CheckoutProvider, useCheckout } from '@/features/checkout/context';
 import { useDuoEntitlement } from '@/features/shop/hooks/useDuoEntitlement';
-import { getDuoProductById } from '@/Database';
+import { getDuoProductById } from '@/lib/legacy-db-shim';
 import type { CartItem } from '@/features/checkout/types';
 import type { DuoVariant } from '@/features/shop/types';
 

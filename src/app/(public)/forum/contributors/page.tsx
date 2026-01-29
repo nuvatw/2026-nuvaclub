@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'motion/react';
 import { SparklesIcon, ChevronLeftIcon } from '@/components/icons';
-import { useLeaderboard } from '@/lib/db/hooks';
+import { useLeaderboard, type LeaderboardEntry } from '@/lib/db/hooks';
 import { IDENTITY_COLORS, IDENTITY_LABELS, type IdentityType } from '@/features/auth/types';
 import { cn } from '@/lib/utils';
 import { PageTransition } from '@/components/molecules/PageTransition';
@@ -14,19 +14,15 @@ import { ForumPageSkeleton } from '@/components/skeletons';
 // TOP CONTRIBUTORS PAGE
 // ============================================================================
 
+interface ContributorCardProps {
+  contributor: LeaderboardEntry;
+  index: number;
+}
+
 function ContributorCard({
   contributor,
   index,
-}: {
-  contributor: {
-    userId: string;
-    name: string;
-    avatar?: string;
-    identityType: string;
-    totalPoints: number;
-  };
-  index: number;
-}) {
+}: ContributorCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -54,17 +50,17 @@ function ContributorCard({
 
       {/* Avatar */}
       <div className="flex-shrink-0">
-        {contributor.avatar ? (
+        {contributor.avatarUrl ? (
           <Image
-            src={contributor.avatar}
-            alt={contributor.name}
+            src={contributor.avatarUrl}
+            alt={contributor.username || contributor.userId}
             width={48}
             height={48}
             className="rounded-full"
           />
         ) : (
           <div className="w-12 h-12 rounded-full bg-[#343536] flex items-center justify-center text-[#818384] text-lg font-medium">
-            {contributor.name.charAt(0)}
+            {(contributor.username || contributor.userId).charAt(0)}
           </div>
         )}
       </div>
@@ -73,18 +69,18 @@ function ContributorCard({
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="text-base font-medium text-[#d7dadc] truncate">
-            {contributor.name}
+            {contributor.username || contributor.userId}
           </span>
           <span
             className={cn(
               'w-2 h-2 rounded-full flex-shrink-0',
-              IDENTITY_COLORS[contributor.identityType as IdentityType]
+              IDENTITY_COLORS['explorer']
             )}
-            title={IDENTITY_LABELS[contributor.identityType as IdentityType]}
+            title="Explorer"
           />
         </div>
         <p className="text-sm text-[#818384]">
-          {contributor.totalPoints.toLocaleString()} points
+          {(contributor.points || 0).toLocaleString()} points
         </p>
       </div>
 

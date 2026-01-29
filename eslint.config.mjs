@@ -21,15 +21,15 @@ const eslintConfig = [
   },
   {
     // Constraint: UI cannot import Domain/Infra/Database/Prisma
-    files: ['src/ui/**/*', 'src/components/**/*', 'src/features/**/*', 'src/app/(public)/**/*'],
+    files: ['src/ui/**/*', 'src/components/**/*', 'src/features/**/*', 'src/app/(public)/**/*', 'src/lib/hooks/**/*'],
     rules: {
       'no-restricted-imports': [
         'error',
         {
           patterns: [
             {
-              group: ['@/domain/*', '@/Database/*', '@/infra/*', '@prisma/client'],
-              message: 'UI components cannot directly import Domain, Database, or Infra layers. Use BFF endpoints instead.',
+              group: ['@/domain', '@/domain/*', '@/Database', '@/Database/*', '@/infra', '@/infra/*', '@prisma/client'],
+              message: 'UI/Client components cannot directly import Domain, Database, or Infra layers. Use BFF endpoints instead.',
             },
             {
               group: ['src/domain/*', 'src/Database/*', 'src/infra/*'],

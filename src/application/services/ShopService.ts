@@ -1,4 +1,4 @@
-import { getMatchAccessForVariant } from '@/Database';
+import { getMatchAccessForVariant } from '@/lib/legacy-db-shim';
 
 // In a real domain, this would be part of ShopService or EntitlementService
 export class ShopService {

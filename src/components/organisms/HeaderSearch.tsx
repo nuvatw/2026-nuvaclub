@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { useKeyboardShortcuts } from '@/features/keyboard-shortcuts';
 
 // Import data sources for each scope
-// import { getAllCourses, getAllShopProducts, getProjectsWithSeasonInfo } from '@/Database';
+// import { getAllCourses, getAllShopProducts, getProjectsWithSeasonInfo } from '@/lib/legacy-db-shim';
 import { useGlobalSearch } from '@/lib/hooks/domain/useGlobalSearch';
 import { usePosts } from '@/lib/db/hooks';
 import { useMatchingPosts } from '@/lib/db/hooks/useMatchingPosts';

@@ -9,4 +9,4 @@ export {
     getVerifiedRequiredCourses,
     REQUIRED_SERIES_ORDER,
     getCourseById
-} from '@/Database';
+} from '@/lib/legacy-db-shim';

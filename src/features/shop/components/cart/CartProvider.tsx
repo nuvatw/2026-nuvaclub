@@ -11,7 +11,7 @@ import {
 } from 'react';
 import type { Cart, CartItem, ProductType, CartItemIdentifier } from '@/features/shop/types';
 import { cartItemsMatch, getCartItemKey } from '@/features/shop/types';
-// import { getShopProductById as getProductById } from '@/Database';
+// import { getShopProductById as getProductById } from '@/lib/legacy-db-shim';
 import { useShopCatalog } from '@/lib/hooks/domain/useShopCatalog';
 
 const CART_STORAGE_KEY = 'nuvaclub_cart';

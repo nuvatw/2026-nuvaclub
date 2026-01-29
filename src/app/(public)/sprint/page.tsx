@@ -15,7 +15,7 @@ import {
   getCurrentSeason,
   getSprintsBySeasonId,
   getProjectsWithSeasonInfo,
-} from '@/Database';
+} from '@/lib/legacy-db-shim';
 import type { SortOption, SeasonFilter } from '@/features/sprint/types';
 import { getSprintPhase } from '@/features/sprint/utils';
 import { PageTransition } from '@/components/molecules/PageTransition';

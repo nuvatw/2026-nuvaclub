@@ -1,5 +1,5 @@
 /**
- * @deprecated Import from '@/Database' or '@/lib/types/legacy-shim/products' instead.
+ * @deprecated Import from '@/lib/legacy-db-shim' or '@/lib/types/legacy-shim/products' instead.
  *
  * This file is a compatibility re-export. All shop product data now lives in Database/tables/products.ts.
  *
@@ -8,7 +8,7 @@
  *   import { getAllShopProducts, EVENTS } from '@/features/shop/data/products';
  *
  *   // New
- *   import { getAllShopProducts, EVENTS } from '@/Database';
+ *   import { getAllShopProducts, EVENTS } from '@/lib/legacy-db-shim';
  */
 
 export * from '@/lib/types/legacy-shim/products';

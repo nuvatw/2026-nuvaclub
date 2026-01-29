@@ -1,8 +1,6 @@
 'use client';
 
-import { useMemo, useCallback } from 'react';
-import { useDB, useDBContext } from '@/lib/db';
-import { useAuth } from '@/features/auth';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 // Constants
 export const MAX_VOTES_PER_SPRINT = 5;
@@ -19,34 +17,29 @@ export interface VotingState {
 }
 
 export interface UseSprintVotingReturn extends VotingState {
-  toggleVote: (projectId: string) => { success: boolean; message: string };
+  toggleVote: (projectId: string) => Promise<{ success: boolean; message: string }>;
   getProjectVoteCount: (projectId: string) => number;
   isLoading: boolean;
 }
 
 interface UseSprintVotingOptions {
-  /** Project IDs that belong to this sprint (from mock data) */
   projectIds?: string[];
-  /** Whether voting is open for this sprint (from mock data) */
   isVotingOpenOverride?: boolean;
 }
 
 /**
- * Hook to manage voting for a sprint with 5-vote limit
- *
- * The hook tracks votes per sprint using the provided project IDs as the scope.
- * Votes are stored in localStorage via the MockDB.
+ * Hook to manage voting for a sprint via BFF
  */
 export function useSprintVoting(
   sprintId: string,
   options: UseSprintVotingOptions = {}
 ): UseSprintVotingReturn {
   const { projectIds: projectIdsOverride, isVotingOpenOverride } = options;
+  const [votedProjectIds, setVotedProjectIds] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const db = useDB();
-  const { refresh } = useDBContext();
-  const { user } = useAuth();
-  const userId = user?.id;
+  // Hardcoded user ID (would come from auth in real app)
+  const userId = 'user-1';
 
   // Check if voting deadline has passed
   const isDeadlinePassed = useMemo(() => {
@@ -54,40 +47,29 @@ export function useSprintVoting(
   }, []);
 
   // Determine if voting is open
-  // Prefer override from mock data, otherwise check DB sprint status
   const isVotingOpen = useMemo(() => {
     if (typeof isVotingOpenOverride === 'boolean') {
       return isVotingOpenOverride && !isDeadlinePassed;
     }
-    // Fallback: check DB
-    if (!db) return false;
-    const sprint = db.sprints.findById(sprintId);
-    if (!sprint) return true; // Default to open if sprint not found in DB
-    return sprint.status === 'voting' && !isDeadlinePassed;
-  }, [isVotingOpenOverride, isDeadlinePassed, db, sprintId]);
+    return !isDeadlinePassed;
+  }, [isVotingOpenOverride, isDeadlinePassed]);
 
-  // Use provided project IDs or fallback to DB lookup
-  const sprintProjectIds = useMemo(() => {
-    if (projectIdsOverride && projectIdsOverride.length > 0) {
-      return projectIdsOverride;
-    }
-    if (!db) return [];
-    const projects = db.projects.findMany({ where: { sprintId } });
-    return projects.map((p) => p.id);
-  }, [projectIdsOverride, db, sprintId]);
+  // Fetch user's votes
+  useEffect(() => {
+    if (!userId) return;
 
-  // Get user's votes for projects in this sprint
-  // We use sprintId as part of a virtual "vote scope" key in localStorage
-  const userVotesInSprint = useMemo(() => {
-    if (!db || !userId) return [];
-    const allUserVotes = db.projectVotes.findMany({ where: { userId } });
-    // Filter to only include votes for projects in this sprint
-    return allUserVotes.filter((v) => sprintProjectIds.includes(v.projectId));
-  }, [db, userId, sprintProjectIds]);
-
-  const votedProjectIds = useMemo(() => {
-    return userVotesInSprint.map((v) => v.projectId);
-  }, [userVotesInSprint]);
+    fetch(`/api/bff/sprint/vote?userId=${userId}&sprintId=${sprintId}`)
+      .then(res => res.json())
+      .then(data => {
+        const projectIds = Array.isArray(data) ? data.map((v: any) => v.projectId) : [];
+        setVotedProjectIds(projectIds);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch votes:', err);
+        setIsLoading(false);
+      });
+  }, [userId, sprintId]);
 
   const totalVotes = votedProjectIds.length;
   const remainingVotes = MAX_VOTES_PER_SPRINT - totalVotes;
@@ -102,16 +84,15 @@ export function useSprintVoting(
 
   const getProjectVoteCount = useCallback(
     (projectId: string) => {
-      if (!db) return 0;
-      const stats = db.projectStats.findFirst({ where: { projectId } });
-      return stats?.voteCount ?? 0;
+      // Would fetch from BFF in real implementation
+      return 0;
     },
-    [db]
+    []
   );
 
   const toggleVote = useCallback(
-    (projectId: string): { success: boolean; message: string } => {
-      if (!db || !userId) {
+    async (projectId: string): Promise<{ success: boolean; message: string }> => {
+      if (!userId) {
         return { success: false, message: 'Please sign in first' };
       }
 
@@ -129,66 +110,33 @@ export function useSprintVoting(
         return { success: false, message: 'You have used all 5 votes. Remove a vote first.' };
       }
 
-      // Check if project belongs to this sprint
-      if (!sprintProjectIds.includes(projectId)) {
-        return { success: false, message: 'This project does not belong to this sprint' };
-      }
-
-      // Get existing vote
-      const existingVote = db.projectVotes.findFirst({
-        where: { projectId, userId },
-      });
-
-      // Get or create project stats
-      let projectStats = db.projectStats.findFirst({
-        where: { projectId },
-      });
-
-      if (existingVote) {
-        // Remove vote
-        db.projectVotes.delete(existingVote.id);
-        if (projectStats) {
-          db.projectStats.update(projectStats.id, {
-            voteCount: Math.max(0, projectStats.voteCount - 1),
-            lastUpdatedAt: new Date(),
-          });
-        }
-        db.persist();
-        refresh();
-        return { success: true, message: 'Vote removed' };
-      } else {
-        // Add vote
-        db.projectVotes.create({
-          projectId,
-          userId,
-          weight: 1,
-          createdAt: new Date(),
+      try {
+        const res = await fetch('/api/bff/sprint/vote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ projectId, sprintId }),
         });
 
-        // Create or update stats
-        if (projectStats) {
-          db.projectStats.update(projectStats.id, {
-            voteCount: projectStats.voteCount + 1,
-            lastUpdatedAt: new Date(),
-          });
-        } else {
-          // Create new stats record for this project
-          db.projectStats.create({
-            projectId,
-            voteCount: 1,
-            viewCount: 0,
-            starCount: 0,
-            commentCount: 0,
-            lastUpdatedAt: new Date(),
-          });
-        }
+        if (res.ok) {
+          const data = await res.json();
 
-        db.persist();
-        refresh();
-        return { success: true, message: 'Vote submitted!' };
+          // Update local state
+          if (data.action === 'added') {
+            setVotedProjectIds(prev => [...prev, projectId]);
+            return { success: true, message: 'Vote submitted!' };
+          } else {
+            setVotedProjectIds(prev => prev.filter(id => id !== projectId));
+            return { success: true, message: 'Vote removed' };
+          }
+        } else {
+          return { success: false, message: 'Failed to toggle vote' };
+        }
+      } catch (err) {
+        console.error('Failed to toggle vote:', err);
+        return { success: false, message: 'Failed to toggle vote' };
       }
     },
-    [db, userId, isDeadlinePassed, isVotingOpen, hasVotedFor, remainingVotes, sprintProjectIds, refresh]
+    [userId, isDeadlinePassed, isVotingOpen, hasVotedFor, remainingVotes, sprintId]
   );
 
   return {
@@ -201,6 +149,6 @@ export function useSprintVoting(
     hasVotedFor,
     toggleVote,
     getProjectVoteCount,
-    isLoading: !db,
+    isLoading,
   };
 }

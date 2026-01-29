@@ -1,7 +1,7 @@
 /**
- * @deprecated Import from '@/Database/config/youtube' instead.
+ * @deprecated Import from '@/lib/config/youtube' instead.
  *
  * This file is a compatibility re-export.
  */
 
-export * from '@/Database/config/youtube';
+export * from '@/lib/config/youtube';

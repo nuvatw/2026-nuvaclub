@@ -15,7 +15,7 @@ export function useDomainSpace() {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch('/api/domain/space/request', {
+            const res = await fetch('/api/bff/space/request', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(params),
@@ -37,7 +37,7 @@ export function useDomainSpace() {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch('/api/domain/space/accept', {
+            const res = await fetch('/api/bff/space/accept', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ relationshipId }),

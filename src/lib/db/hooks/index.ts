@@ -20,7 +20,6 @@ export {
   useNunuProfile,
   useNunuProfiles,
   useNunuApplications,
-  type NunuApplicationWithUser,
   type NunuProfileWithUser,
 } from './useNunuProfile';
 export {
@@ -61,6 +60,7 @@ export { useBookmark } from './useBookmark';
 export { useTrackView } from './useTrackView';
 export { useShare } from './useShare';
 export { useUserPoints, useLeaderboard } from './useUserPoints';
+export type { LeaderboardEntry, UserPointsRecord } from './useUserPoints';
 
 // Learn - Video Progress hooks
 export {

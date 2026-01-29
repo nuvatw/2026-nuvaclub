@@ -8,7 +8,7 @@ import { motion } from 'motion/react';
 import { Button, Badge, Card, CardContent } from '@/components/atoms';
 import { PlaySolidIcon, PlayIcon, LockIcon, CheckIcon } from '@/components/icons';
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import { getCourseById } from '@/Database';
+import { getCourseById } from '@/lib/legacy-db-shim';
 import { cn } from '@/lib/utils';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { CourseDetailSkeleton } from '@/components/skeletons';

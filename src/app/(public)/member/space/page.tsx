@@ -266,7 +266,7 @@ export default function MySpacePage() {
                       {agreement.post?.title || 'Mentorship Agreement'}
                     </p>
                     <p className="text-xs text-neutral-500">
-                      {formatMonths(agreement.agreedMonths)} • {formatCurrency(agreement.agreedPrice)}/mo
+                      {formatMonths(agreement.agreedMonths)} • {formatCurrency(agreement.agreedPrice || 0)}/mo
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0">
@@ -319,7 +319,7 @@ export default function MySpacePage() {
                       {agreement.post?.title || 'Mentorship Agreement'}
                     </p>
                     <p className="text-xs text-neutral-500">
-                      {formatMonths(agreement.agreedMonths)} • {formatCurrency(agreement.agreedPrice)}/mo
+                      {formatMonths(agreement.agreedMonths)} • {formatCurrency(agreement.agreedPrice || 0)}/mo
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0">

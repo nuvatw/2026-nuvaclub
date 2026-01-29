@@ -8,7 +8,7 @@ export function useDomainGate(resource: GateResource, action: GateAction, resour
     useEffect(() => {
         async function checkGate() {
             try {
-                const res = await fetch('/api/domain/gate', {
+                const res = await fetch('/api/bff/check-access', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ resource, action, resourceId }),

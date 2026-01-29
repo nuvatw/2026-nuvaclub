@@ -31,7 +31,7 @@ import {
   useBookmark,
   type SortOption,
 } from '@/lib/db/hooks';
-import type { PostWithRelations } from '@/lib/db/repositories/PostRepository';
+import type { ForumPost } from '@/lib/db/hooks/usePosts';
 import {
   POST_CATEGORY_LABELS,
   POST_CATEGORY_COLORS,
@@ -310,18 +310,20 @@ function FeedToolbar({
 // POST CARD (REDDIT-STYLE)
 // ============================================================================
 
+interface PostCardProps {
+  post: ForumPost;
+  index: number;
+  userId?: string | null;
+}
+
 function RedditPostCard({
   post,
   index,
   userId,
-}: {
-  post: PostWithRelations;
-  index: number;
-  userId?: string | null;
-}) {
+}: PostCardProps) {
   const { share, showCopied } = useShare(post.id, userId);
   const { isBookmarked, toggleBookmark, canBookmark } = useBookmark(post.id, userId ?? null);
-  const authorIdentity = (post.author?.identityType || 'explorer') as IdentityType;
+  const authorIdentity = (post.author?.identity || post.author?.identityType || 'explorer') as IdentityType;
   const [isHovered, setIsHovered] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -453,10 +455,10 @@ function RedditPostCard({
               <span className="flex items-center gap-1 text-[#d7dadc] font-medium">
                 u/{post.author?.name ?? 'Unknown'}
                 <span className={cn('w-1.5 h-1.5 rounded-full', IDENTITY_COLORS[authorIdentity])}
-                      title={IDENTITY_LABELS[authorIdentity]} />
+                  title={IDENTITY_LABELS[authorIdentity]} />
               </span>
               <span className="text-[#818384]">
-                {formatTimeAgo(post.createdAt, 'en-US')}
+                {formatTimeAgo(post.createdAt instanceof Date ? post.createdAt.toISOString() : post.createdAt, 'en-US')}
               </span>
             </div>
 
@@ -588,7 +590,7 @@ export default function ForumPage() {
   const { posts, isLoading } = usePostsFiltered({
     sort: sortBy,
     timeFilter: 'all', // Always use 'all' since we removed time filters
-    category: selectedCategory as ForumPostCategory | undefined,
+    category: selectedCategory as any,
   });
 
   return (

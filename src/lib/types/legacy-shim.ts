@@ -8,39 +8,39 @@
 export type {
     User,
     UserIdentity
-} from '@/Database/tables/users';
+} from '@/lib/types/legacy-tables/users';
 
 export type {
     Season
-} from '@/Database/tables/seasons';
+} from '@/lib/types/legacy-tables/seasons';
 
 export type {
     Companion,
     CompanionType
-} from '@/Database/tables/companions';
+} from '@/lib/types/legacy-tables/companions';
 
 export type {
     PlanProduct,
     PlanType,
     BillingCycle
-} from '@/Database/tables/plans';
+} from '@/lib/types/legacy-tables/plans';
 
 export type {
     MerchandiseProduct,
     MerchandiseVariant
-} from '@/Database/tables/merchandise';
+} from '@/lib/types/legacy-tables/merchandise';
 
 export type {
     ForumPost,
     Post,
     PostAuthor,
     PostCategory
-} from '@/Database/tables/forumPosts';
+} from '@/lib/types/legacy-tables/forumPosts';
 
 export type {
     Comment,
     CommentAuthor
-} from '@/Database/tables/comments';
+} from '@/lib/types/legacy-tables/comments';
 
 export type {
     EventProduct,
@@ -48,13 +48,13 @@ export type {
     EventAgendaItem,
     EventFAQItem,
     EventSortBy
-} from '@/Database/tables/events';
+} from '@/lib/types/legacy-tables/events';
 
 export type {
     DuoProduct,
     DuoVariant,
     NunuTier
-} from '@/Database/tables/duo';
+} from '@/lib/types/legacy-tables/duo';
 
 export type {
     Course,
@@ -65,15 +65,15 @@ export type {
     Chapter,
     Lesson,
     Trailer
-} from '@/Database/tables/courses';
+} from '@/lib/types/legacy-tables/courses';
 
 export type {
     Sprint,
     Project
-} from '@/Database/tables/sprints';
+} from '@/lib/types/legacy-tables/sprints';
 
 export type {
     Product,
     ShopProduct,
     ProductCategory
-} from '@/Database/tables/products';
+} from '@/lib/types/legacy-tables/products';

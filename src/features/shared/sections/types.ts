@@ -1,5 +1,5 @@
 import type { IdentityType } from '@/features/auth/types';
-import type { ModuleType } from '@/data/types';
+import type { ModuleType } from '@/lib/types/legacy-user-state';
 
 export type SectionType = 'continue-watching' | 'free-content' | 'recommendations' | 'category';
 

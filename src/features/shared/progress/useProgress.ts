@@ -1,9 +1,9 @@
 'use client';
 
 import { useCallback, useMemo, useState, useEffect } from 'react';
-import type { ModuleType } from '@/data/types';
-import type { WatchProgress } from '@/data/types/user';
-import { MOCK_USER_PROGRESS } from '@/data/user-data/progress';
+import type { ModuleType } from '@/lib/types/legacy-user-state';
+import type { WatchProgress } from '@/lib/types/legacy-user-state';
+import { MOCK_USER_PROGRESS } from '@/lib/types/legacy-user-state/progress';
 import { getEffectiveUserId } from '@/features/auth/components/AuthProvider';
 
 const PROGRESS_STORAGE_KEY = 'nuva-user-progress';

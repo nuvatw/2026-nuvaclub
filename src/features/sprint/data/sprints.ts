@@ -1,5 +1,5 @@
 /**
- * @deprecated Import from '@/Database' or '@/lib/types/legacy-shim/sprints' instead.
+ * @deprecated Import from '@/lib/legacy-db-shim' or '@/lib/types/legacy-shim/sprints' instead.
  *
  * This file is a compatibility re-export. All sprint/project data now lives in Database/tables/sprints.ts.
  *
@@ -8,7 +8,7 @@
  *   import { MOCK_SPRINTS, getSprintById } from '@/features/sprint/data/sprints';
  *
  *   // New
- *   import { SprintsTable, getSprintById } from '@/Database';
+ *   import { SprintsTable, getSprintById } from '@/lib/legacy-db-shim';
  */
 
 export * from '@/lib/types/legacy-shim/sprints';

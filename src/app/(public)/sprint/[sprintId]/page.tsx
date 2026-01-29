@@ -16,7 +16,7 @@ import {
   getProjectsBySprintId,
   getProjectById,
   MOCK_SPRINTS,
-} from '@/Database';
+} from '@/lib/legacy-db-shim';
 import { Dropdown } from '@/components/molecules';
 import {
   VotingCountdown,
@@ -128,20 +128,19 @@ export default function SprintDetailPage({ params }: SprintDetailPageProps) {
     }));
   }, [sortedProjects]);
 
-  const handleVote = useCallback((projectId: string) => {
+  const handleVote = useCallback(async (projectId: string) => {
     if (!user) {
       return;
     }
-    const result = toggleVote(projectId);
+    const result = await toggleVote(projectId);
     // If vote was successful and we're in the modal, close it and scroll to My Votes
     if (result.success && isModalOpen) {
       setIsModalOpen(false);
       setSelectedProject(null);
       // Scroll to My Votes section after a short delay for animation
       setTimeout(() => {
-        myVotesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        myVotesRef.current?.focus();
-      }, 200);
+        document.getElementById('my-votes-section')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     }
   }, [user, toggleVote, isModalOpen]);
 

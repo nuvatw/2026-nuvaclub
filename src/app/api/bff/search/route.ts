@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 // In real app, these services would be SearchService
-import { getAllCourses, getAllShopProducts, getProjectsWithSeasonInfo } from '@/Database';
+import { getAllCourses, getAllShopProducts, getProjectsWithSeasonInfo } from '@/lib/legacy-db-shim';
 
 export async function GET() {
     // Simple aggregation for Phase 1

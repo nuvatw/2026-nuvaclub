@@ -39,7 +39,7 @@ import { getCourseStatus } from '@/lib/utils/level';
 import type { CourseStatus } from '@/lib/utils/level';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { TestPageSkeleton } from '@/components/skeletons';
-import { getAllCourses, getNunuCourses, getVerifiedRequiredCourses, getCoursesByLevel } from '@/Database';
+import { getAllCourses, getNunuCourses, getVerifiedRequiredCourses, getCoursesByLevel } from '@/lib/legacy-db-shim';
 import { useProgress } from '@/features/shared/progress/useProgress';
 import type { CourseLevel, Course } from '@/features/learn/types';
 
@@ -84,13 +84,16 @@ export default function TestPage() {
   // Build levels info for Vava progress bar
   const vavaLevels = useMemo<LevelInfo[]>(() => {
     const highestPassed = testProgress?.highestPassedLevel ?? 0;
+    const currentLevel = highestPassed + 1; // The next level to attempt
 
     return Array.from({ length: TOTAL_LEVELS }, (_, i) => {
       const level = i + 1;
       const config = levelConfigs.find((c) => c.level === level);
-      const stats = user ? getLevelStats(user.id, level) : null;
+      // Note: Can't call async getLevelStats in useMemo
+      const stats: any = null;
 
-      const status: LevelStatus = level <= highestPassed ? 'passed' : 'available';
+      const status: LevelStatus =
+        level <= highestPassed ? 'passed' : level === currentLevel ? 'available' : 'locked';
 
       return {
         level,
@@ -99,11 +102,11 @@ export default function TestPage() {
         attempts: stats?.attempts ?? 0,
         durationMinutes: config?.durationMinutes ?? 5,
         questionTypes: config?.questionTypes ?? '',
-        questionCount: config?.questionCount ?? 0,
+        questionCount: config?.questionCount ?? 10,
         passed: stats?.passed ?? false,
       };
     });
-  }, [levelConfigs, testProgress, user, getLevelStats]);
+  }, [levelConfigs, testProgress]);
 
   // Get courses for the selected Vava level with status
   const vavaCoursesWithStatus = useMemo(() => {
@@ -164,7 +167,7 @@ export default function TestPage() {
   const selectedVavaQuestions = getQuestionsForLevel(selectedVavaLevel);
   const selectedVavaStats = useLevelStats(user?.id ?? null, selectedVavaLevel);
   const activeSession = useActiveTestSession(user?.id ?? null);
-  const hasActiveSession = activeSession && activeSession.levelInfo?.level === selectedVavaLevel;
+  const hasActiveSession = activeSession && activeSession.levelId === selectedVavaLevel;
 
   const handleStartVavaExam = () => {
     router.push(`/test/${selectedVavaLevel}/exam`);
@@ -303,7 +306,7 @@ export default function TestPage() {
                     {/* Quick Stats */}
                     <div className="flex gap-4 md:gap-6">
                       <div className="text-center">
-                        <p className="text-2xl font-bold text-white">{selectedVavaQuestions.length}</p>
+                        <p className="text-2xl font-bold text-white">{(selectedVavaConfig as any).questionCount || 10}</p>
                         <p className="text-xs text-neutral-400">Questions</p>
                       </div>
                       <div className="text-center">

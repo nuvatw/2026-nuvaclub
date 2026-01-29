@@ -6,7 +6,7 @@ import { motion } from 'motion/react';
 import Image from 'next/image';
 import { Button, Badge } from '@/components/atoms';
 import { Gate } from '@/features/auth/components/Gate';
-import { MOCK_EVENTS } from '@/Database';
+import { MOCK_EVENTS } from '@/lib/legacy-db-shim';
 import {
   formatMonthYear,
   formatDayOfWeek,

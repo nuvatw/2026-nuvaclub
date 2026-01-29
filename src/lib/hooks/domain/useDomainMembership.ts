@@ -8,7 +8,7 @@ export function useDomainMembership() {
     useEffect(() => {
         async function fetchMembership() {
             try {
-                const res = await fetch('/api/domain/membership');
+                const res = await fetch('/api/bff/membership');
                 if (res.ok) {
                     const data = await res.json();
                     setMembership(data);

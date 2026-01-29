@@ -13,7 +13,7 @@ import { useLearnSections } from '@/features/learn/sections/useLearnSections';
 import { useMediaPreloadGate, useProgressiveRowLoader } from '@/features/learn/hooks';
 import type { Course } from '@/features/learn/types';
 import { getAllLessons } from '@/features/learn/types';
-import { getCourseById, getFeaturedCourses } from '@/Database';
+import { getCourseById, getFeaturedCourses } from '@/lib/legacy-db-shim';
 import { LearnPageSkeleton } from '@/components/skeletons';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 import { useVideoProgress } from '@/lib/db/hooks';

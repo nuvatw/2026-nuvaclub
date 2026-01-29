@@ -16,7 +16,7 @@ import {
   getProjectById,
   getSprintById,
   getSeasonById,
-} from '@/Database';
+} from '@/lib/legacy-db-shim';
 import { getRankLabel, getRankStyle } from '@/features/sprint/types';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { formatDateMedium } from '@/lib/utils/date';
