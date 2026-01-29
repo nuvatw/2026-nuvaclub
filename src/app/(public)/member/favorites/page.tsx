@@ -6,7 +6,7 @@ import { useAuth } from '@/features/auth/components/AuthProvider';
 import { useDBContext } from '@/lib/db';
 import { cn } from '@/lib/utils';
 import { formatDateCompact } from '@/lib/utils/date';
-import type { FavoriteItemType } from '@/lib/db/schema/user.schema';
+import type { FavoriteItemType } from '@/infra/mock/schema/user.schema';
 
 type TabType = 'all' | 'course' | 'post' | 'product';
 

@@ -11,7 +11,7 @@ import { MatchingPostDetail } from './MatchingPostDetail';
 import { cn } from '@/lib/utils';
 import { useInvitations } from '../../hooks/useInvitations';
 import { useDuoEntitlement } from '@/features/shop/hooks/useDuoEntitlement';
-import { DUO_VARIANT_LABELS, NUNU_TIER_LABELS } from '@/Database';
+import { DUO_VARIANT_LABELS, NUNU_TIER_LABELS } from '@/lib/constants/duo';
 import type { MatchingPostSortBy, MatchingPostWithRelations } from '@/lib/db/hooks/useMatchingPosts';
 import type { MatchingPostType } from '@/features/space/types';
 import type { NunuTier } from '@/features/shop/types';
@@ -227,10 +227,10 @@ export function MatchingBoardSection() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div>
                 <p className="text-sm font-medium text-green-400">
-                  {DUO_VARIANT_LABELS[currentVariant!]} Active
+                  {DUO_VARIANT_LABELS[currentVariant as keyof typeof DUO_VARIANT_LABELS]} Active
                 </p>
                 <p className="text-xs text-neutral-400">
-                  You can match with: {accessibleTiers.map(t => NUNU_TIER_LABELS[t]).join(', ')}
+                  You can match with: {accessibleTiers.map(t => NUNU_TIER_LABELS[t as keyof typeof NUNU_TIER_LABELS]).join(', ')}
                 </p>
               </div>
               {currentVariant !== 'fly' && (

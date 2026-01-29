@@ -1,20 +1,21 @@
 // Main entry point for the mock database
+// SHIM: Redirecting to src/infra/mock
 
 // Core
-export { MockDB } from './core/MockDB';
-export { Collection } from './core/Collection';
-export type { BaseEntity, Timestamps, WhereClause, QueryOptions, PaginatedResult, DBEvent, DBEventType, DBEventListener } from './core/types';
+export { MockDB } from '@/infra/mock/core/MockDB';
+export { Collection } from '@/infra/mock/core/Collection';
+export type { BaseEntity, Timestamps, WhereClause, QueryOptions, PaginatedResult, DBEvent, DBEventType, DBEventListener } from '@/infra/mock/core/types';
 
 // Adapters
-export type { StorageAdapter } from './adapters/StorageAdapter';
-export { LocalStorageAdapter } from './adapters/LocalStorageAdapter';
-export { InMemoryAdapter } from './adapters/InMemoryAdapter';
+export type { StorageAdapter } from '@/infra/mock/adapters/StorageAdapter';
+export { LocalStorageAdapter } from '@/infra/mock/adapters/LocalStorageAdapter';
+export { InMemoryAdapter } from '@/infra/mock/adapters/InMemoryAdapter';
 
 // Schemas - re-export all schema types
-export * from './schema';
+export * from '@/infra/mock/schema';
 
 // Repositories
-export * from './repositories';
+export * from '@/infra/mock/repositories';
 
 // Provider
 export { DBProvider, useDBContext, useDB, useDBReady } from './provider/DBProvider';
@@ -23,9 +24,9 @@ export { DBProvider, useDBContext, useDB, useDBReady } from './provider/DBProvid
 export * from './hooks';
 
 // Seed functions
-export { seedAll } from './seed';
+export { seedAll } from '@/infra/mock/seed';
 
-import { MockDB as MockDBClass } from './core/MockDB';
+import { MockDB as MockDBClass } from '@/infra/mock/core/MockDB';
 
 /**
  * Get the MockDB singleton instance

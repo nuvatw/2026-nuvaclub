@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import type { QuestionRecord } from '@/lib/db/schema';
+import type { QuestionRecord } from '@/infra/mock/schema';
 
 interface EssayQuestionProps {
   question: QuestionRecord;

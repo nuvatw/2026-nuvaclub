@@ -3,7 +3,7 @@ import type {
   TestSessionRecord,
   UserTestProgressRecord,
   QuestionType,
-} from '@/lib/db/schema';
+} from '@/infra/mock/schema';
 
 export type { QuestionType };
 

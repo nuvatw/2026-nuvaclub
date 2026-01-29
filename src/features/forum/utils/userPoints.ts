@@ -4,7 +4,7 @@
  * Point values, daily caps, and quality gates for the reputation system.
  */
 
-import type { PointActionType, PointCategory } from '@/lib/db/schema/user.schema';
+import type { PointActionType, PointCategory } from '@/infra/mock/schema/user.schema';
 
 // ============================================================================
 // POINT VALUES

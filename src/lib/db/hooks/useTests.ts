@@ -2,14 +2,14 @@
 
 import { useMemo, useState, useCallback, useEffect } from 'react';
 import { useDB } from '../provider/DBProvider';
-import { TestRepository, type TestSessionWithDetails } from '../repositories';
+import { TestRepository, type TestSessionWithDetails } from '@/infra/mock/repositories';
 import type {
   QuestionRecord,
   TestSessionRecord,
   TestLevelRecord,
   UserTestProgressRecord,
   LevelAttemptRecord,
-} from '../schema';
+} from '@/infra/mock/schema';
 import { getLevelDuration } from '@/features/test/constants';
 
 /**

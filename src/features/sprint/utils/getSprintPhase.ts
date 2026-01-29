@@ -9,7 +9,7 @@
  * - Total: 60 days per sprint
  */
 
-import type { Sprint } from '@/Database/schema';
+import type { Sprint } from '@/lib/types/legacy-shim';
 
 export type SprintPhase = 'submissions' | 'voting' | 'ended';
 

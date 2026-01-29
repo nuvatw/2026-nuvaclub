@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button, Card, CardContent } from '@/components/atoms';
-import type { ProjectVisibility } from '@/lib/db/schema/sprint.schema';
+import type { ProjectVisibility } from '@/infra/mock/schema/sprint.schema';
 import { cn } from '@/lib/utils';
 
 interface VisibilitySelectorProps {

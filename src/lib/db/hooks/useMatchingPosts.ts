@@ -11,7 +11,7 @@ import type {
   NunuStatsRecord,
   MatchingPostStatsRecord,
   NunuLevel,
-} from '../schema';
+} from '@/infra/mock/schema';
 import { NUNU_LEVEL_SORT_ORDER } from '@/features/space/types';
 
 export interface MatchingPostWithRelations extends MatchingPostRecord {

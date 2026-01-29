@@ -2,7 +2,7 @@
 
 import { useMemo, useCallback } from 'react';
 import { useDB } from '../provider/DBProvider';
-import type { MatchingCommentRecord } from '../schema';
+import type { MatchingCommentRecord } from '@/infra/mock/schema';
 
 export interface MatchingCommentWithRelations extends MatchingCommentRecord {
   author?: {

@@ -8,7 +8,8 @@ import { cn } from '@/lib/utils';
 import { useKeyboardShortcuts } from '@/features/keyboard-shortcuts';
 
 // Import data sources for each scope
-import { getAllCourses, getAllShopProducts, getProjectsWithSeasonInfo } from '@/Database';
+// import { getAllCourses, getAllShopProducts, getProjectsWithSeasonInfo } from '@/Database';
+import { useGlobalSearch } from '@/lib/hooks/domain/useGlobalSearch';
 import { usePosts } from '@/lib/db/hooks';
 import { useMatchingPosts } from '@/lib/db/hooks/useMatchingPosts';
 
@@ -51,67 +52,7 @@ const SCOPE_LABELS: Record<SearchScope, string> = {
   global: 'Search...',
 };
 
-// Search functions for each scope
-function searchCourses(query: string): SearchResult[] {
-  const courses = getAllCourses();
-  const lowerQuery = query.toLowerCase();
-
-  return courses
-    .filter((course) =>
-      course.title.toLowerCase().includes(lowerQuery) ||
-      course.subtitle.toLowerCase().includes(lowerQuery) ||
-      course.description.toLowerCase().includes(lowerQuery) ||
-      course.instructor.name.toLowerCase().includes(lowerQuery) ||
-      course.tags.some((tag) => tag.toLowerCase().includes(lowerQuery))
-    )
-    .slice(0, 8)
-    .map((course) => ({
-      id: course.id,
-      title: course.title,
-      subtitle: course.instructor.name,
-      href: `/learn/${course.id}`,
-      category: course.category,
-    }));
-}
-
-function searchProducts(query: string): SearchResult[] {
-  const products = getAllShopProducts();
-  const lowerQuery = query.toLowerCase();
-
-  return products
-    .filter((product) =>
-      product.name.toLowerCase().includes(lowerQuery) ||
-      product.description.toLowerCase().includes(lowerQuery)
-    )
-    .slice(0, 8)
-    .map((product) => ({
-      id: product.id,
-      title: product.name,
-      subtitle: `NT$${product.price.toLocaleString()}`,
-      href: product.category === 'event' ? `/shop/events/${product.id}` : '/shop',
-      category: product.category,
-    }));
-}
-
-function searchProjects(query: string): SearchResult[] {
-  const projects = getProjectsWithSeasonInfo();
-  const lowerQuery = query.toLowerCase();
-
-  return projects
-    .filter((project) =>
-      project.title.toLowerCase().includes(lowerQuery) ||
-      project.author.name.toLowerCase().includes(lowerQuery) ||
-      project.description?.toLowerCase().includes(lowerQuery)
-    )
-    .slice(0, 8)
-    .map((project) => ({
-      id: project.id,
-      title: project.title,
-      subtitle: project.author.name,
-      href: `/sprint/project/${project.id}`,
-      category: 'Project',
-    }));
-}
+// Search functions moved inside component to access hook data
 
 // Quick navigation commands shown when no search query
 const QUICK_COMMANDS: SearchResult[] = [
@@ -130,6 +71,13 @@ export function HeaderSearch({ isOpen, onClose }: HeaderSearchProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { openHelp } = useKeyboardShortcuts();
 
+  // Integrated Global Search Hook
+  const {
+    getAllCourses,
+    getAllShopProducts,
+    getProjectsWithSeasonInfo
+  } = useGlobalSearch();
+
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -141,6 +89,69 @@ export function HeaderSearch({ isOpen, onClose }: HeaderSearchProps) {
 
   // Get matching posts for space searching
   const { posts: matchingPosts } = useMatchingPosts({ isActive: true });
+
+  // Search functions using hook data
+  const searchCourses = useCallback((query: string): SearchResult[] => {
+    const courses = getAllCourses();
+    const lowerQuery = query.toLowerCase();
+
+    return courses
+      .filter((course: any) =>
+        course.title.toLowerCase().includes(lowerQuery) ||
+        course.subtitle?.toLowerCase().includes(lowerQuery) ||
+        course.description?.toLowerCase().includes(lowerQuery) ||
+        course.instructor?.name?.toLowerCase().includes(lowerQuery) ||
+        course.tags?.some((tag: string) => tag.toLowerCase().includes(lowerQuery))
+      )
+      .slice(0, 8)
+      .map((course: any) => ({
+        id: course.id,
+        title: course.title,
+        subtitle: course.instructor?.name,
+        href: `/learn/${course.id}`,
+        category: course.category,
+      }));
+  }, [getAllCourses]);
+
+  const searchProducts = useCallback((query: string): SearchResult[] => {
+    const products = getAllShopProducts();
+    const lowerQuery = query.toLowerCase();
+
+    return products
+      .filter((product: any) =>
+        product.name?.toLowerCase().includes(lowerQuery) ||
+        product.title?.toLowerCase().includes(lowerQuery) || // Handles unified field
+        product.description?.toLowerCase().includes(lowerQuery)
+      )
+      .slice(0, 8)
+      .map((product: any) => ({
+        id: product.id,
+        title: product.name || product.title,
+        subtitle: product.price ? `NT$${product.price.toLocaleString()}` : '',
+        href: product.category === 'event' ? `/shop/events/${product.id}` : '/shop',
+        category: product.category,
+      }));
+  }, [getAllShopProducts]);
+
+  const searchProjects = useCallback((query: string): SearchResult[] => {
+    const projects = getProjectsWithSeasonInfo();
+    const lowerQuery = query.toLowerCase();
+
+    return projects
+      .filter((project: any) =>
+        project.title.toLowerCase().includes(lowerQuery) ||
+        project.author?.name?.toLowerCase().includes(lowerQuery) ||
+        project.description?.toLowerCase().includes(lowerQuery)
+      )
+      .slice(0, 8)
+      .map((project: any) => ({
+        id: project.id,
+        title: project.title,
+        subtitle: project.author?.name,
+        href: `/sprint/project/${project.id}`,
+        category: 'Project',
+      }));
+  }, [getProjectsWithSeasonInfo]);
 
   // Keyboard shortcuts command
   const keyboardShortcutsCommand: SearchResult = useMemo(() => ({
@@ -246,7 +257,7 @@ export function HeaderSearch({ isOpen, onClose }: HeaderSearchProps) {
 
     // Combine matching commands with search results
     return [...matchingCommands, ...searchResults];
-  }, [query, scope, searchForumPosts, searchMatchingPosts, keyboardShortcutsCommand]);
+  }, [query, scope, searchForumPosts, searchMatchingPosts, keyboardShortcutsCommand, searchCourses, searchProducts, searchProjects]);
 
   // Focus input when opened
   useEffect(() => {

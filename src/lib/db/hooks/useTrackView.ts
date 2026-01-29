@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useDB } from '../provider/DBProvider';
-import { PostRepository } from '../repositories/PostRepository';
+import { PostRepository } from '@/infra/mock/repositories/PostRepository';
 
 /**
  * Generate a session ID for anonymous view tracking

@@ -2,8 +2,8 @@
 
 import { useMemo } from 'react';
 import { useDB } from '../provider/DBProvider';
-import { ProductRepository, type ProductWithDetails } from '../repositories';
-import type { ProductType } from '../schema';
+import { ProductRepository, type ProductWithDetails } from '@/infra/mock/repositories';
+import type { ProductType } from '@/infra/mock/schema';
 
 /**
  * Hook to access product data from the database

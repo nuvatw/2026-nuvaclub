@@ -38,7 +38,7 @@ import {
   type PostCategory,
 } from '@/features/forum/types';
 import { IDENTITY_COLORS, IDENTITY_LABELS, type IdentityType } from '@/features/auth/types';
-import type { ForumPostCategory } from '@/lib/db/schema/forum.schema';
+import type { ForumPostCategory } from '@/infra/mock/schema/forum.schema';
 import { cn } from '@/lib/utils';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { ForumPageSkeleton } from '@/components/skeletons';

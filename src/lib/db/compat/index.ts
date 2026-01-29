@@ -23,7 +23,7 @@ import type {
   SprintRecord,
   ProjectRecord,
   UserRecord,
-} from '../schema';
+} from '@/infra/mock/schema';
 
 import type { CourseWithRelations } from '../repositories/CourseRepository';
 import type { PostWithRelations, CommentWithAuthor } from '../repositories/PostRepository';

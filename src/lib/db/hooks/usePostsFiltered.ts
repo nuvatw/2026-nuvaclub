@@ -2,8 +2,8 @@
 
 import { useMemo } from 'react';
 import { useDB } from '../provider/DBProvider';
-import { PostRepository, type PostWithRelations } from '../repositories/PostRepository';
-import type { ForumPostCategory } from '../schema/forum.schema';
+import { PostRepository, type PostWithRelations } from '@/infra/mock/repositories/PostRepository';
+import type { ForumPostCategory } from '@/infra/mock/schema/forum.schema';
 
 export type SortOption = 'recent' | 'popular' | 'trending' | 'hot';
 export type TimeFilter = 'all' | 'day' | 'week' | 'month';

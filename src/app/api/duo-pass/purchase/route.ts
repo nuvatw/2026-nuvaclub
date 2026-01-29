@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import type { DuoTicketTier, DuoMonthPassStatus } from '@/lib/db/schema/user.schema';
+import type { DuoTicketTier, DuoMonthPassStatus } from '@/infra/mock/schema/user.schema';
 
 /**
  * Purchase request body

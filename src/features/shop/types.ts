@@ -6,10 +6,14 @@
  */
 
 // Import types for local use
-import type { EventProduct as _EventProduct } from '@/Database/tables/events';
-import type { PlanProduct as _PlanProduct } from '@/Database/tables/plans';
-import type { MerchandiseProduct as _MerchandiseProduct } from '@/Database/tables/merchandise';
-import type { DuoProduct as _DuoProduct } from '@/Database/tables/duo';
+import type {
+  EventProduct as _EventProduct,
+  PlanProduct as _PlanProduct,
+  MerchandiseProduct as _MerchandiseProduct,
+  DuoProduct as _DuoProduct,
+  DuoVariant,
+  NunuTier
+} from '@/lib/types/legacy-shim';
 
 // Re-export entity types from Database (canonical source)
 export type {
@@ -18,32 +22,23 @@ export type {
   EventAgendaItem,
   EventFAQItem,
   EventSortBy,
-} from '@/Database/tables/events';
-
-export type {
   PlanProduct,
   PlanType,
   BillingCycle,
-} from '@/Database/tables/plans';
-
-export type {
   MerchandiseProduct,
   MerchandiseVariant,
-} from '@/Database/tables/merchandise';
-
-export type {
   DuoProduct,
   DuoVariant,
   NunuTier,
-} from '@/Database/tables/duo';
+} from '@/lib/types/legacy-shim';
 
 // Product type discriminators
 export type ProductType = 'plan' | 'event' | 'merchandise' | 'duo';
 export type ProductCategory = 'plan' | 'event' | 'merchant' | 'duo';
 
 // Legacy aliases for backward compatibility
-export type AgendaItem = import('@/Database/tables/events').EventAgendaItem;
-export type FAQ = import('@/Database/tables/events').EventFAQItem;
+export type AgendaItem = import('@/lib/types/legacy-shim').EventAgendaItem;
+export type FAQ = import('@/lib/types/legacy-shim').EventFAQItem;
 
 // Union type for all products
 export type Product = _PlanProduct | _EventProduct | _MerchandiseProduct | _DuoProduct;
@@ -125,6 +120,13 @@ export interface PlanFeature {
   explorer: boolean | string;
   traveler: boolean | string;
   voyager: boolean | string;
+}
+
+// Entitlement types
+export interface DuoEntitlement {
+  variant: DuoVariant;
+  purchasedAt: string; // ISO date string
+  matchAccess: NunuTier[];
 }
 
 // PlanType is re-exported from Database above

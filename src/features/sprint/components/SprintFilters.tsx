@@ -2,7 +2,7 @@
 
 import type { SortOption, SeasonFilter } from '@/features/sprint/types';
 import type { Season, Sprint } from '@/features/sprint/types';
-import { formatSeasonDateRange } from '@/Database';
+import { formatSeasonDateRange } from '@/lib/utils/fmt';
 import { Dropdown } from '@/components/molecules';
 
 export type SprintFilter = 'all' | string;
@@ -33,7 +33,7 @@ export function SprintFilters({
     ...seasons.map((s) => ({
       value: s.id,
       label: s.name,
-      sublabel: formatSeasonDateRange(s),
+      sublabel: formatSeasonDateRange(s.startDate, s.endDate),
     })),
   ];
 

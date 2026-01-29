@@ -7,8 +7,8 @@ import type {
   NunuProfileRecord,
   NunuApplicationStatus,
   NunuLevel,
-} from '../schema';
-import { NUNU_LEVEL_CONFIG } from '../schema';
+} from '@/infra/mock/schema';
+import { NUNU_LEVEL_CONFIG } from '@/infra/mock/schema';
 
 // Situational answers type for form submission
 export interface NunuApplicationSituationalAnswers {

@@ -2,8 +2,8 @@
 
 import { useMemo } from 'react';
 import { useDB } from '../provider/DBProvider';
-import { CompanionRepository, type CompanionWithRelations } from '../repositories';
-import type { CompanionType } from '../schema';
+import { CompanionRepository, type CompanionWithRelations } from '@/infra/mock/repositories';
+import type { CompanionType } from '@/infra/mock/schema';
 
 /**
  * Hook to access companion data from the database

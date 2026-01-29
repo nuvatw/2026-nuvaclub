@@ -2,8 +2,8 @@
 
 import { useMemo } from 'react';
 import { useDB } from '../provider/DBProvider';
-import { PointsRepository, type LeaderboardEntry } from '../repositories/PointsRepository';
-import type { UserPointsRecord } from '../schema/user.schema';
+import { PointsRepository, type LeaderboardEntry } from '@/infra/mock/repositories/PointsRepository';
+import type { UserPointsRecord } from '@/infra/mock/schema/user.schema';
 
 /**
  * Hook to get a user's points

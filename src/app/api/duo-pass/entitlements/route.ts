@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import type { DuoMonthPassRecord } from '@/lib/db/schema/user.schema';
+import type { DuoMonthPassRecord } from '@/infra/mock/schema/user.schema';
 
 // Import the DB singleton and utilities
 // Note: In production, this would use a proper database

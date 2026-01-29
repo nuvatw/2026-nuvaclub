@@ -1,14 +1,12 @@
 /**
- * @deprecated Import from '@/Database' or '@/Database/tables/courses' instead.
- *
- * This file is a compatibility re-export. All course data now lives in Database/tables/courses.ts.
- *
- * Migration guide:
- *   // Old
- *   import { MOCK_COURSES, getCourseById } from '@/features/learn/data/courses';
- *
- *   // New
- *   import { CoursesTable, getCourseById } from '@/Database';
+ * @deprecated Helper shim. Migrate to application/services.
  */
-
-export * from '@/Database/tables/courses';
+export {
+    MOCK_COURSES,
+    getNunuCourses,
+    getFreeCoursesBySeries,
+    getSeriesCourses,
+    getVerifiedRequiredCourses,
+    REQUIRED_SERIES_ORDER,
+    getCourseById
+} from '@/Database';

@@ -6,7 +6,7 @@ import type {
   MentorshipAgreementRecord,
   MentorshipAgreementStatus,
   PaymentStatus,
-} from '../schema';
+} from '@/infra/mock/schema';
 
 export interface MentorshipAgreementWithRelations extends MentorshipAgreementRecord {
   post?: {

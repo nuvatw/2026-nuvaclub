@@ -4,7 +4,7 @@
  * Implements PostPoints and TrendingScore algorithms per the spec.
  */
 
-import type { ForumPostStatsRecord, ForumPostRecord, ForumPostCategory } from '@/lib/db/schema/forum.schema';
+import type { ForumPostStatsRecord, ForumPostRecord, ForumPostCategory } from '@/infra/mock/schema/forum.schema';
 
 // ============================================================================
 // CONSTANTS

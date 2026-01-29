@@ -2,8 +2,8 @@
 
 import { useMemo, useCallback } from 'react';
 import { useDB, useDBContext } from '../provider/DBProvider';
-import { PostRepository, type PostWithRelations } from '../repositories';
-import type { ForumPostCategory } from '../schema';
+import { PostRepository, type PostWithRelations } from '@/infra/mock/repositories';
+import type { ForumPostCategory } from '@/infra/mock/schema';
 
 /**
  * Hook to access forum post data from the database

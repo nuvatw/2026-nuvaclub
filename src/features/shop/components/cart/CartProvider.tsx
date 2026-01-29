@@ -11,7 +11,8 @@ import {
 } from 'react';
 import type { Cart, CartItem, ProductType, CartItemIdentifier } from '@/features/shop/types';
 import { cartItemsMatch, getCartItemKey } from '@/features/shop/types';
-import { getShopProductById as getProductById } from '@/Database';
+// import { getShopProductById as getProductById } from '@/Database';
+import { useShopCatalog } from '@/lib/hooks/domain/useShopCatalog';
 
 const CART_STORAGE_KEY = 'nuvaclub_cart';
 
@@ -55,6 +56,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<Cart>(emptyCart);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
+  const { getProductById } = useShopCatalog(); // Hook usage
 
   // Load cart from localStorage on mount (client-side only)
   useEffect(() => {
@@ -86,7 +88,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       options?: { variant?: string; period?: string; quantity?: number }
     ) => {
       const product = getProductById(productId);
-      if (!product) return;
+      if (!product) {
+        console.warn('Product not found in catalog, cannot add to cart:', productId);
+        return;
+      }
 
       setCart((prev) => {
         const existingIndex = prev.items.findIndex((item) => {
@@ -124,7 +129,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return { items: newItems, totalItems, totalPrice };
       });
     },
-    []
+    [getProductById]
   );
 
   const removeFromCart = useCallback((identifier: CartItemIdentifier) => {

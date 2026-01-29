@@ -2,8 +2,8 @@
 
 import { useMemo } from 'react';
 import { useDB } from '../provider/DBProvider';
-import { CourseRepository, type CourseWithRelations } from '../repositories';
-import type { CourseCategoryRecord } from '../schema';
+import { CourseRepository, type CourseWithRelations } from '@/infra/mock/repositories';
+import type { CourseCategoryRecord } from '@/infra/mock/schema';
 
 /**
  * Hook to access course data from the database

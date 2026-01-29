@@ -1,16 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import type { DuoVariant, NunuTier } from '@/features/shop/types';
-import { getMatchAccessForVariant } from '@/Database';
-
-const DUO_ENTITLEMENT_KEY = 'nuvaclub_duo_entitlement';
-
-export interface DuoEntitlement {
-  variant: DuoVariant;
-  purchasedAt: string; // ISO date string
-  matchAccess: NunuTier[];
-}
+import type { DuoVariant, NunuTier, DuoEntitlement } from '@/features/shop/types';
 
 interface DuoEntitlementState {
   entitlement: DuoEntitlement | null;
@@ -19,7 +10,7 @@ interface DuoEntitlementState {
 
 /**
  * Hook for managing Duo ticket entitlements
- * Stored in localStorage for persistence across sessions
+ * Refactored to fetch from BFF API instead of localStorage
  */
 export function useDuoEntitlement() {
   const [state, setState] = useState<DuoEntitlementState>({
@@ -27,66 +18,78 @@ export function useDuoEntitlement() {
     isLoading: true,
   });
 
-  // Load entitlement from localStorage on mount
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(DUO_ENTITLEMENT_KEY);
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored) as DuoEntitlement;
-          setState({ entitlement: parsed, isLoading: false });
-        } catch {
-          localStorage.removeItem(DUO_ENTITLEMENT_KEY);
-          setState({ entitlement: null, isLoading: false });
-        }
+  const fetchEntitlement = useCallback(async () => {
+    try {
+      const res = await fetch('/api/bff/shop/entitlement');
+      if (res.ok) {
+        const data = await res.json();
+        setState({ entitlement: data, isLoading: false });
       } else {
         setState({ entitlement: null, isLoading: false });
       }
+    } catch (e) {
+      console.error('Failed to fetch entitlement', e);
+      setState({ entitlement: null, isLoading: false });
     }
   }, []);
 
+  // Load entitlement from API on mount
+  useEffect(() => {
+    fetchEntitlement();
+  }, [fetchEntitlement]);
+
   /**
-   * Grant a Duo ticket entitlement (simulates purchase)
+   * Grant a Duo ticket entitlement (via BFF)
    */
-  const grantEntitlement = useCallback((variant: DuoVariant) => {
-    const matchAccess = getMatchAccessForVariant(variant);
-    const entitlement: DuoEntitlement = {
-      variant,
-      purchasedAt: new Date().toISOString(),
-      matchAccess,
-    };
+  const grantEntitlement = useCallback(async (variant: DuoVariant) => {
+    setState(prev => ({ ...prev, isLoading: true }));
+    try {
+      const res = await fetch('/api/bff/shop/entitlement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ variant })
+      });
 
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(DUO_ENTITLEMENT_KEY, JSON.stringify(entitlement));
+      if (res.ok) {
+        const data = await res.json();
+        setState({ entitlement: data, isLoading: false });
+      } else {
+        console.error('Failed to grant entitlement');
+        setState(prev => ({ ...prev, isLoading: false }));
+      }
+    } catch (e) {
+      console.error('Error granting entitlement', e);
+      setState(prev => ({ ...prev, isLoading: false }));
     }
-
-    setState({ entitlement, isLoading: false });
   }, []);
 
   /**
    * Upgrade to a higher tier (keeps the better one)
    */
-  const upgradeEntitlement = useCallback((newVariant: DuoVariant) => {
+  const upgradeEntitlement = useCallback(async (newVariant: DuoVariant) => {
+    // Rely on server-side logic to handle upgrades, or check client-side first
+    // For now, simple client-side check to mimic previous behavior
     const tierOrder: DuoVariant[] = ['go', 'run', 'fly'];
     const currentIndex = state.entitlement
       ? tierOrder.indexOf(state.entitlement.variant)
       : -1;
     const newIndex = tierOrder.indexOf(newVariant);
 
-    // Only upgrade if new tier is higher
     if (newIndex > currentIndex) {
-      grantEntitlement(newVariant);
+      await grantEntitlement(newVariant);
     }
   }, [state.entitlement, grantEntitlement]);
 
   /**
    * Revoke the current entitlement
    */
-  const revokeEntitlement = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(DUO_ENTITLEMENT_KEY);
+  const revokeEntitlement = useCallback(async () => {
+    try {
+      await fetch('/api/bff/shop/entitlement', { method: 'DELETE' });
+      setState({ entitlement: null, isLoading: false });
+    } catch (e) {
+      console.error('Failed to revoke entitlement', e);
     }
-    setState({ entitlement: null, isLoading: false });
   }, []);
 
   /**
@@ -129,20 +132,4 @@ export function useDuoEntitlement() {
     upgradeEntitlement,
     revokeEntitlement,
   };
-}
-
-/**
- * Helper to check entitlement without React hook (for server/non-component use)
- */
-export function getDuoEntitlementFromStorage(): DuoEntitlement | null {
-  if (typeof window === 'undefined') return null;
-
-  const stored = localStorage.getItem(DUO_ENTITLEMENT_KEY);
-  if (!stored) return null;
-
-  try {
-    return JSON.parse(stored) as DuoEntitlement;
-  } catch {
-    return null;
-  }
 }

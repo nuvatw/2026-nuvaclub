@@ -8,14 +8,14 @@
 import type { IdentityType } from '@/features/auth/types';
 
 // Re-export entity types from Database (canonical source)
-export type { ForumPost, PostCategory, PostAuthor } from '@/Database/tables/forumPosts';
-export type { Comment, CommentAuthor } from '@/Database/tables/comments';
+export type { ForumPost, PostCategory, PostAuthor } from '@/lib/types/legacy-shim/forumPosts';
+export type { Comment, CommentAuthor } from '@/lib/types/legacy-shim/comments';
 
 // Alias for backward compatibility
-export type { ForumPost as Post } from '@/Database/tables/forumPosts';
+export type { ForumPost as Post } from '@/lib/types/legacy-shim/forumPosts';
 
 // Feature-specific UI constants
-import type { PostCategory } from '@/Database/tables/forumPosts';
+import type { PostCategory } from '@/lib/types/legacy-shim/forumPosts';
 
 export const POST_CATEGORY_LABELS: Record<PostCategory, string> = {
   discussion: 'Discussion',

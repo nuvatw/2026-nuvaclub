@@ -1,6 +1,6 @@
 'use client';
 
-import type { QuestionRecord, QuestionType } from '@/lib/db/schema';
+import type { QuestionRecord, QuestionType } from '@/infra/mock/schema';
 import { TrueFalseQuestion } from './TrueFalseQuestion';
 import { MultipleChoiceQuestion } from './MultipleChoiceQuestion';
 import { ShortAnswerQuestion } from './ShortAnswerQuestion';

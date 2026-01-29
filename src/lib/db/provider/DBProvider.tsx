@@ -1,8 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { MockDB } from '../core/MockDB';
-import type { DBEvent } from '../core/types';
+import { MockDB } from '@/infra/mock/core/MockDB';
+import type { DBEvent } from '@/infra/mock/core/types';
 
 interface DBContextValue {
   db: MockDB;

@@ -2,7 +2,7 @@
 
 import { useMemo, useCallback, useState } from 'react';
 import { useDB, useDBContext } from '../provider/DBProvider';
-import { PostRepository } from '../repositories/PostRepository';
+import { PostRepository } from '@/infra/mock/repositories/PostRepository';
 
 /**
  * Hook to manage bookmark state for a post

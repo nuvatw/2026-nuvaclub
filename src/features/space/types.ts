@@ -6,10 +6,10 @@
  */
 
 // Re-export entity types from Database (canonical source)
-export type { Companion, CompanionType } from '@/Database/schema';
+export type { Companion, CompanionType } from '@/lib/types/legacy-shim';
 
 // Import for use in constants below
-import type { CompanionType } from '@/Database/schema';
+import type { CompanionType } from '@/lib/types/legacy-shim';
 
 // ==========================================
 // Status Badge Types

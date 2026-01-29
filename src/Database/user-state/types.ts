@@ -6,7 +6,7 @@
  */
 
 // Re-export core types from the canonical source
-export type { BaseEntity, Timestamps } from '@/lib/db/core/types';
+export type { BaseEntity, Timestamps } from '@/infra/mock/core/types';
 
 // ==================== COMMON TYPES ====================
 

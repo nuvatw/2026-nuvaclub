@@ -7,7 +7,7 @@ import type {
   DuoMonthPassRecord,
   DuoTransactionRecord,
   MonthlyMatchStatusRecord,
-} from '@/lib/db/schema/user.schema';
+} from '@/infra/mock/schema/user.schema';
 import type { DuoTier, DuplicateCheckResult, MonthConflict } from '../types';
 import {
   DUO_TIER_CONFIG,

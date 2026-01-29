@@ -6,7 +6,7 @@
  */
 
 // Re-export entity types from Database (canonical source)
-export type { Season, Sprint, Project } from '@/Database/schema';
+export type { Season, Sprint, Project } from '@/lib/types/legacy-shim';
 
 // Feature-specific types
 // Note: 'most-starred' now represents "Most Voted" (votes, not favorites)

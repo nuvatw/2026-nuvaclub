@@ -20,6 +20,44 @@ const eslintConfig = [
     },
   },
   {
+    // Constraint: UI cannot import Domain/Infra/Database/Prisma
+    files: ['src/ui/**/*', 'src/components/**/*', 'src/features/**/*', 'src/app/(public)/**/*'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@/domain/*', '@/Database/*', '@/infra/*', '@prisma/client'],
+              message: 'UI components cannot directly import Domain, Database, or Infra layers. Use BFF endpoints instead.',
+            },
+            {
+              group: ['src/domain/*', 'src/Database/*', 'src/infra/*'],
+              message: 'Do not use relative imports for architecture layers.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    // Constraint: Domain cannot import UI/Next
+    files: ['src/domain/**/*'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['react', 'next/*', '@/ui/*', '@/features/*', '@/components/*'],
+              message: 'Domain layer must be pure TypeScript and independent of UI/Framework.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     ignores: ['node_modules/**', '.next/**', 'out/**', 'build/**', 'dist/**'],
   },
 ];

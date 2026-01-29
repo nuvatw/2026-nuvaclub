@@ -7,7 +7,7 @@ import {
   type SeasonWithSprints,
   type SprintWithProjects,
   type ProjectWithRelations,
-} from '../repositories';
+} from '@/infra/mock/repositories';
 
 /**
  * Hook to access sprint data from the database

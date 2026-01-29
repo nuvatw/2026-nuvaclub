@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useDB } from '../provider/DBProvider';
-import { PostRepository, type PostWithRelations } from '../repositories/PostRepository';
+import { PostRepository, type PostWithRelations } from '@/infra/mock/repositories/PostRepository';
 
 /**
  * Hook to get trending posts with diversity rules applied
