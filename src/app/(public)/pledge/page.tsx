@@ -20,7 +20,7 @@ import {
   FUNDING_TIERS,
   CUSTOM_TIER_CONFIG,
   CROWDFUNDING_CHECKOUT,
-} from '@/Database/content/home-content';
+} from '@/content/home-content';
 
 // ==========================================
 // TYPES

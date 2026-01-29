@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import {
   PLATFORM_PREVIEW_CONTENT,
   PLATFORM_MODULES,
-} from '@/Database/content/home-content';
+} from '@/content/home-content';
 import { ModuleIcon } from '../utils/icons';
 
 export function PlatformPreviewSection() {

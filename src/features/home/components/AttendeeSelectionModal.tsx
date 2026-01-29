@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button, Modal } from '@/components/atoms';
 import { cn } from '@/lib/utils';
 import { SpinnerIcon } from '@/components/icons';
-import { ATTENDEE_SELECTION } from '@/Database/content/home-content';
+import { ATTENDEE_SELECTION } from '@/content/home-content';
 
 interface AttendeeSelectionModalProps {
   isOpen: boolean;

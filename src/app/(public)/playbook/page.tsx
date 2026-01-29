@@ -20,7 +20,7 @@ import {
   getMemberByEmail,
   type PlaybookLogEntry,
   type PlaybookMember,
-} from '@/Database/content/playbook-content';
+} from '@/content/playbook-content';
 
 // Launch date
 const LAUNCH_DATE = '2026-07-01T00:00:00+08:00';

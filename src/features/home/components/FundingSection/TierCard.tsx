@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import { Button, Card, CardContent, Badge } from '@/components/atoms';
 import { ArrowRightIcon, CheckIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
-import { FUNDING_TIERS } from '@/Database/content/home-content';
+import { FUNDING_TIERS } from '@/content/home-content';
 import { PerkIcon } from '../../utils/icons';
 
 interface TierCardProps {

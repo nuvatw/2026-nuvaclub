@@ -1,9 +1,7 @@
-/**
- * Database Content Exports
- *
- * Static content data for the application.
- */
+export * from './types';
+export * from './providers/LocalContentProvider';
 
+// Content Data
 export * from './home-content';
 export * from './nunu-rules';
 export * from './playbook-content';

@@ -1,39 +1,28 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useDomainMembership } from '@/lib/hooks/domain/useDomainMembership';
+// We should eventually remove dependency on useAuth if identity comes from domain
+// But for now, user might still be needed for other things, or we use membership.userId
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import type { IdentityType } from '@/features/auth/types';
-import type { PlanType } from '../types';
-
-// Explicit mapping from identity type to plan type
-// Note: 'solo-traveler' identity maps to 'traveler' plan
-// Duo types are separate from the main plan hierarchy
-const IDENTITY_TO_PLAN: Record<IdentityType, PlanType | null> = {
-  guest: null,
-  explorer: 'explorer',
-  'solo-traveler': 'traveler',
-  voyager: 'voyager',
-  'duo-go': 'traveler', // Duo users have traveler-level access
-  'duo-run': 'traveler',
-  'duo-fly': 'voyager', // Duo Fly has voyager-level access
-};
 
 export function usePlanStatus() {
-  const { identity } = useAuth();
+  const { membership, loading } = useDomainMembership();
+  const { identity } = useAuth(); // Keep for backward compat if purely UI needs it
 
-  const currentPlan = useMemo<PlanType | null>(
-    () => IDENTITY_TO_PLAN[identity],
-    [identity]
-  );
+  // If loading, we might want to return a safe default or loading state
+  // Here we default to falsy/safe values to prevent flashing access
+
+  const tier = membership?.tier;
 
   return {
-    identity,
-    currentPlan,
-    isGuest: identity === 'guest',
-    isPlanExplorer: currentPlan === 'explorer',
-    isTraveler: currentPlan === 'traveler',
-    isVoyager: currentPlan === 'voyager',
-    // Enterprise is handled separately via LINE contact, not through identity system
+    identity, // Preserved for compatibility
+    currentPlan: tier === 'free' ? null : tier, // Mapping 'free' to null to match old expectation if needed, or update consumers
+    isGuest: !membership || membership.status === 'none',
+    isPlanExplorer: tier === 'explorer',
+    isTraveler: tier === 'traveler',
+    isVoyager: tier === 'pro', // Assuming 'pro' maps to voyager in new domain, or update MembershipTier
+    // Enterprise is handled separately
     isEnterprise: false,
+    loading
   };
 }

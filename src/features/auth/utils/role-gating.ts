@@ -1,5 +1,8 @@
 /**
  * Role gating utilities for Learn page and other features
+ * @deprecated Use `useDomainGate` hook for authoritative access checks.
+ * These functions are retained for simple UI conditional rendering based on client-side identity,
+ * but should not be used for critical access control.
  */
 
 import type { IdentityType } from '@/features/auth/types';
@@ -22,25 +25,14 @@ export const PAID_TIER_IDENTITIES: IdentityType[] = [
   'duo-fly',
 ];
 
-/**
- * Check if the identity is Guest or Explorer (free tier)
- * Used for showing the Free Courses row on Learn page
- */
 export function isGuestOrExplorer(identity: IdentityType): boolean {
   return FREE_TIER_IDENTITIES.includes(identity);
 }
 
-/**
- * Check if the identity is Traveler or above (paid tier)
- * These users do NOT see the Free Courses row
- */
 export function isTravelerOrAbove(identity: IdentityType): boolean {
   return PAID_TIER_IDENTITIES.includes(identity);
 }
 
-/**
- * Check if identity is a logged-in user (not guest)
- */
 export function isLoggedIn(identity: IdentityType): boolean {
   return identity !== 'guest';
 }

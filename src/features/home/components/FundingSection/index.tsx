@@ -8,7 +8,7 @@ import {
   FUNDING_CONTENT,
   FUNDING_TIERS,
   CUSTOM_TIER_CONFIG,
-} from '@/Database/content/home-content';
+} from '@/content/home-content';
 import { AnimatedCounter } from './AnimatedCounter';
 import { TierCard } from './TierCard';
 import { CustomTierCard } from './CustomTierCard';

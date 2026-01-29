@@ -1,7 +1,7 @@
 /**
- * @deprecated Import from '@/Database/content/home-content' instead.
+ * @deprecated Import from '@/content/home-content' instead.
  *
  * This file is a compatibility re-export.
  */
 
-export * from '@/Database/content/home-content';
+export * from '@/content/home-content';

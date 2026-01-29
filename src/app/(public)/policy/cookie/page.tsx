@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { MarkdownContent } from '@/components/molecules';
-import { COOKIE_POLICY, COMPANY_INFO } from '@/Database/content/policy-content';
+import { COOKIE_POLICY, COMPANY_INFO } from '@/content/policy-content';
 
 export const metadata: Metadata = {
   title: `Cookie 政策 | ${COMPANY_INFO.name}`,

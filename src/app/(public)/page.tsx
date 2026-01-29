@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'motion/react';
-import { TOAST_MESSAGES } from '@/Database/content/home-content';
+import { TOAST_MESSAGES } from '@/content/home-content';
 import {
   useCampaignState,
   HeroSection,

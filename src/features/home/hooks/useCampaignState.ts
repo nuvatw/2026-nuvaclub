@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { CAMPAIGN_CONFIG } from '@/Database/content/home-content';
+import { CAMPAIGN_CONFIG } from '@/content/home-content';
 
 export function useCampaignState() {
   const [raisedAmount, setRaisedAmount] = useState<number>(CAMPAIGN_CONFIG.initialRaised);

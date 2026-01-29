@@ -1,7 +1,7 @@
 /**
- * @deprecated Import from '@/Database/content/nunu-rules' instead.
+ * @deprecated Import from '@/content/nunu-rules' instead.
  *
  * This file is a compatibility re-export.
  */
 
-export * from '@/Database/content/nunu-rules';
+export * from '@/content/nunu-rules';

@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { COMPANY_INFO } from '@/Database/content/policy-content';
+import { COMPANY_INFO } from '@/content/policy-content';
 import {
   SettingsIcon,
   ShieldIcon,

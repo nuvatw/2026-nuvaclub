@@ -3,7 +3,7 @@
 import { motion } from 'motion/react';
 import { Button } from '@/components/atoms';
 import { ArrowRightIcon, CheckCircleIcon } from '@/components/icons';
-import { FINAL_CTA_CONTENT } from '@/Database/content/home-content';
+import { FINAL_CTA_CONTENT } from '@/content/home-content';
 
 interface FinalCTASectionProps {
   onScrollToTiers: () => void;

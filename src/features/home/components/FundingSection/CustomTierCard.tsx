@@ -5,7 +5,7 @@ import { motion } from 'motion/react';
 import { Button, Card, CardContent } from '@/components/atoms';
 import { CheckIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
-import { CAMPAIGN_CONFIG, CUSTOM_TIER_CONFIG } from '@/Database/content/home-content';
+import { CAMPAIGN_CONFIG, CUSTOM_TIER_CONFIG } from '@/content/home-content';
 import { PerkIcon } from '../../utils/icons';
 
 interface CustomTierCardProps {

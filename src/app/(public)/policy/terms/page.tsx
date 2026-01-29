@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { MarkdownContent } from '@/components/molecules';
-import { TERMS_OF_SERVICE, COMPANY_INFO } from '@/Database/content/policy-content';
+import { TERMS_OF_SERVICE, COMPANY_INFO } from '@/content/policy-content';
 
 export const metadata: Metadata = {
   title: `服務條款 | ${COMPANY_INFO.name}`,

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/components/atoms';
 import { ChevronLeftIcon, ChevronRightIcon, CopyIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
-import { CELEBRATION_CONTENT } from '@/Database/content/home-content';
+import { CELEBRATION_CONTENT } from '@/content/home-content';
 import { FlowingGradientOrb } from './FlowingGradientOrb';
 import { ConfettiEffect } from './ConfettiEffect';
 import { InstagramIcon, LineIcon, DownloadIcon } from './SocialIcons';

@@ -9,7 +9,7 @@ import {
   HERO_CONTENT,
   HERO_VIDEO_ID,
   STATS,
-} from '@/Database/content/home-content';
+} from '@/content/home-content';
 import { CountdownTimer } from './CountdownTimer';
 
 interface HeroSectionProps {

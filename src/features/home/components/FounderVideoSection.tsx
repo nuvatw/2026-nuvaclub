@@ -2,7 +2,7 @@
 
 import { motion } from 'motion/react';
 import { Badge } from '@/components/atoms';
-import { FOUNDER_VIDEO_CONTENT } from '@/Database/content/home-content';
+import { FOUNDER_VIDEO_CONTENT } from '@/content/home-content';
 
 interface FounderVideoSectionProps {
   videoRef: React.RefObject<HTMLElement | null>;

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Card, CardContent } from '@/components/atoms';
 import { ChevronDownIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
-import { FAQ_CONTENT, FAQ_ITEMS } from '@/Database/content/home-content';
+import { FAQ_CONTENT, FAQ_ITEMS } from '@/content/home-content';
 
 function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [isOpen, setIsOpen] = useState(false);
