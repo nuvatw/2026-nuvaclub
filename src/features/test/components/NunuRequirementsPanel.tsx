@@ -18,9 +18,6 @@ import {
   NUNU_LEVEL_PROGRESSION,
   SPRINT_SPECIAL_MONTHS,
   MISSION_STREAK_REQUIRED,
-  calculateEligibility,
-  calculateMissionProgress,
-  checkVerifiedEligibility,
   formatDiscount,
   getNunuLevelColor,
   getNunuLevelBgColor,
@@ -79,25 +76,16 @@ function LevelPanel({
 
   // Calculate eligibility for next level if user is logged in
   const eligibility = useMemo(() => {
-    if (!userStats) return null;
-    // Only calculate if this is the current level or the next level user would apply for
-    const targetLevel = userStats.currentNunuLevel
-      ? NUNU_LEVEL_PROGRESSION[userStats.currentNunuLevel]
-      : 'Nx';
-    if (targetLevel === level || userStats.currentNunuLevel === level) {
-      return calculateEligibility(userStats);
-    }
-    return null;
+    if (!userStats || !level) return null;
+    // @ts-ignore - eligibilityResults is provided by BFF but not in legacy type yet
+    return userStats.eligibilityResults?.[level] || null;
   }, [userStats, level]);
 
   // Calculate monthly mission progress
   const missionProgress = useMemo(() => {
-    if (!userStats) return null;
-    // Show mission progress for the user's current level
-    if (userStats.currentNunuLevel === level) {
-      return calculateMissionProgress(userStats, level);
-    }
-    return null;
+    if (!userStats || !level) return null;
+    // @ts-ignore - missionStatus is provided by BFF but not in legacy type yet
+    return userStats.missionStatus?.[level] || null;
   }, [userStats, level]);
 
   const isCurrentLevel = userStats?.currentNunuLevel === level;
@@ -241,7 +229,12 @@ function VerifiedPanel({
 }) {
   const verifiedStatus = useMemo(() => {
     if (!userStats) return null;
-    return checkVerifiedEligibility(userStats);
+    // Verified eligibility is now simplified: check if passed 5 courses
+    return {
+      eligible: userStats.verifiedCoursesCompleted >= 5,
+      coursesCompleted: userStats.verifiedCoursesCompleted,
+      coursesRequired: 5,
+    };
   }, [userStats]);
 
   return (
@@ -374,7 +367,7 @@ function MonthlyMissionsTable({
     mentoredActiveMax: number;
   };
   userStats: NunuUserStats | null;
-  missionProgress: ReturnType<typeof calculateMissionProgress> | null;
+  missionProgress: any | null;
 }) {
   const rows = [
     {
@@ -429,7 +422,7 @@ function MonthlyMissionsTable({
         </thead>
         <tbody>
           {rows.map((row) => {
-            const progressItem = missionProgress?.missions.find((m) => m.key === row.key);
+            const progressItem = missionProgress?.missions?.find((m: any) => m.key === row.key);
             const met = progressItem?.completed ?? false;
 
             return (
@@ -483,7 +476,7 @@ function MonthlyMissionsTable({
           )}>
             {missionProgress.allCompleted
               ? '✓ All missions completed this month!'
-              : `${missionProgress.missions.filter((m) => m.completed && !m.isCapacity).length} of ${missionProgress.missions.filter((m) => !m.isCapacity).length} missions completed`}
+              : `${missionProgress.missions?.filter((m: any) => m.completed && !m.isCapacity).length || 0} of ${missionProgress.missions?.filter((m: any) => !m.isCapacity).length || 0} missions completed`}
           </span>
         </div>
       )}
@@ -590,7 +583,7 @@ function EligibilityPanel({
   eligibility,
   level,
 }: {
-  eligibility: ReturnType<typeof calculateEligibility>;
+  eligibility: any;
   level: NunuLevel;
 }) {
   return (
@@ -617,7 +610,7 @@ function EligibilityPanel({
           </h4>
           {!eligibility.eligible && eligibility.missingRequirements.length > 0 && (
             <ul className="text-sm text-neutral-300 space-y-1">
-              {eligibility.missingRequirements.map((req) => (
+              {eligibility.missingRequirements?.map((req: any) => (
                 <li key={req.key} className="flex items-center gap-2">
                   <XCircleIcon size="sm" className="text-red-400 flex-shrink-0" />
                   <span>

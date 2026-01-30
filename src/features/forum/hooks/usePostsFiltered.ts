@@ -1,16 +1,16 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import type { ForumPost } from '@/lib/legacy-db-shim';
+import type { PostCategory } from '@/features/forum/types';
+import type { PostWithRelations as ForumPost } from '../types';
 
 export type SortOption = 'recent' | 'popular' | 'trending' | 'hot';
 export type TimeFilter = 'all' | 'day' | 'week' | 'month';
-export type ForumPostCategory = 'announcement' | 'discussion' | 'question' | 'showcase';
 
 interface UsePostsFilteredOptions {
   sort?: SortOption;
   timeFilter?: TimeFilter;
-  category?: ForumPostCategory;
+  category?: PostCategory;
   searchQuery?: string;
 }
 
@@ -86,7 +86,7 @@ export function usePostsFiltered(options: UsePostsFilteredOptions = {}) {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       }
       if (sort === 'popular') {
-        return (b.upvotes || 0) - (a.upvotes || 0);
+        return (b.stats?.upvotes || 0) - (a.stats?.upvotes || 0);
       }
       // 'trending' and 'hot' logic would need engagement metrics
       return 0;

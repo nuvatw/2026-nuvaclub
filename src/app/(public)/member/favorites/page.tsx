@@ -1,12 +1,10 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import { useDBContext } from '@/lib/db';
 import { cn } from '@/lib/utils';
 import { formatDateCompact } from '@/lib/utils/date';
-import type { FavoriteItemType } from '@/infra/mock/schema/user.schema';
 
 type TabType = 'all' | 'course' | 'post' | 'product';
 
@@ -51,9 +49,9 @@ const TABS: { key: TabType; label: string; icon: React.ReactNode }[] = [
 
 interface FavoriteItem {
   id: string;
-  type: FavoriteItemType;
+  type: string;
   itemId: string;
-  addedAt: Date;
+  addedAt: string | Date;
   title: string;
   subtitle: string;
   thumbnail?: string;
@@ -63,76 +61,27 @@ interface FavoriteItem {
 
 export default function FavoritesPage() {
   const { user } = useAuth();
-  const { db, isReady } = useDBContext();
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [activeTab, setActiveTab] = useState<TabType>('all');
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Get favorites with details
-  const favorites = useMemo((): FavoriteItem[] => {
-    if (!isReady || !db || !user) return [];
+  // Get favorites from BFF
+  useEffect(() => {
+    if (!user) return;
 
-    const rawFavorites = db.userFavorites.findMany({ where: { userId: user.id } });
-
-    return rawFavorites.map((fav) => {
-      let item: FavoriteItem | null = null;
-
-      switch (fav.itemType) {
-        case 'course': {
-          const course = db.courses.findById(fav.itemId);
-          const instructor = course ? db.instructors.findById(course.instructorId) : null;
-          if (course) {
-            item = {
-              id: fav.id,
-              type: 'course',
-              itemId: fav.itemId,
-              addedAt: fav.createdAt,
-              title: course.title,
-              subtitle: course.subtitle,
-              thumbnail: course.thumbnailUrl,
-              href: `/learn/${course.id}`,
-              meta: instructor?.name,
-            };
-          }
-          break;
+    let mounted = true;
+    fetch(`/api/bff/member/favorites?userId=${user.id}`)
+      .then(res => res.json())
+      .then(data => {
+        if (mounted) {
+          setFavorites(data);
+          setIsLoading(false);
         }
-        case 'post': {
-          const post = db.forumPosts.findById(fav.itemId);
-          if (post) {
-            const author = db.users.findById(post.authorId);
-            item = {
-              id: fav.id,
-              type: 'post',
-              itemId: fav.itemId,
-              addedAt: fav.createdAt,
-              title: post.title,
-              subtitle: post.content.substring(0, 100) + '...',
-              href: `/forum/${post.id}`,
-              meta: author?.name,
-            };
-          }
-          break;
-        }
-        case 'product': {
-          const product = db.products.findById(fav.itemId);
-          if (product) {
-            item = {
-              id: fav.id,
-              type: 'product',
-              itemId: fav.itemId,
-              addedAt: fav.createdAt,
-              title: product.name,
-              subtitle: product.description.substring(0, 100) + '...',
-              thumbnail: product.imageUrl,
-              href: `/shop/${product.id}`,
-              meta: `$${product.price.toFixed(2)}`,
-            };
-          }
-          break;
-        }
-      }
+      })
+      .catch(err => console.error('Failed to fetch favorites', err));
 
-      return item;
-    }).filter((item): item is FavoriteItem => item !== null);
-  }, [db, isReady, user]);
+    return () => { mounted = false; };
+  }, [user]);
 
   // Filter by tab
   const filteredFavorites = useMemo(() => {
@@ -150,9 +99,16 @@ export default function FavoritesPage() {
     };
   }, [favorites]);
 
-  const removeFavorite = (id: string) => {
-    if (db) {
-      db.userFavorites.delete(id);
+  const removeFavorite = async (id: string) => {
+    try {
+      const response = await fetch(`/api/bff/member/favorites?favoriteId=${id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        setFavorites(prev => prev.filter(f => f.id !== id));
+      }
+    } catch (error) {
+      console.error('Failed to remove favorite', error);
     }
   };
 
@@ -204,10 +160,10 @@ export default function FavoritesPage() {
             {activeTab === 'course'
               ? 'Save courses you want to watch later.'
               : activeTab === 'post'
-              ? 'Bookmark interesting forum posts to read later.'
-              : activeTab === 'product'
-              ? 'Save products you want to purchase later.'
-              : 'Start saving items to access them quickly.'}
+                ? 'Bookmark interesting forum posts to read later.'
+                : activeTab === 'product'
+                  ? 'Save products you want to purchase later.'
+                  : 'Start saving items to access them quickly.'}
           </p>
           <Link
             href={activeTab === 'course' ? '/learn' : activeTab === 'post' ? '/forum' : activeTab === 'product' ? '/shop' : '/'}
@@ -250,7 +206,7 @@ export default function FavoritesPage() {
                       )}>
                         {item.type}
                       </span>
-                      <span className="text-xs text-neutral-500">Saved {formatDateCompact(item.addedAt)}</span>
+                      <span className="text-xs text-neutral-500">Saved {formatDateCompact(new Date(item.addedAt))}</span>
                     </div>
                     <h3 className="font-semibold text-white group-hover:text-primary-400 transition-colors truncate">
                       {item.title}

@@ -10,26 +10,17 @@ import {
   VideoPlayer,
 } from '@/features/learn/components';
 import { useLearnSections } from '@/features/learn/sections/useLearnSections';
-import { useMediaPreloadGate, useProgressiveRowLoader } from '@/features/learn/hooks';
+import { useMediaPreloadGate } from '@/features/learn/hooks';
 import type { Course } from '@/features/learn/types';
 import { getAllLessons } from '@/features/learn/types';
-import { getCourseById, getFeaturedCourses } from '@/lib/legacy-db-shim';
 import { LearnPageSkeleton } from '@/components/skeletons';
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import { useVideoProgress } from '@/lib/db/hooks';
+import { useVideoProgress } from '@/features/learn/hooks';
 import { LearnVideoPlayerContext } from '@/features/learn/context/LearnVideoPlayerContext';
 
-// Constants for progressive rendering
-// Show 1 row initially (Continue Watching or Most Popular)
-const INITIAL_VISIBLE_ROWS = 1;
 
 export default function LearnPage() {
-  const { sections, isHydrated } = useLearnSections();
-  const featuredCourses = getFeaturedCourses();
-
-  // Progressive row display state - start with 3 rows for 2.5 visible effect
-  const [visibleRowCount, setVisibleRowCount] = useState(INITIAL_VISIBLE_ROWS);
-  const [hasInitialized, setHasInitialized] = useState(false);
+  const { sections, heroCourse, isHydrated } = useLearnSections();
 
   // Video player state
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
@@ -42,9 +33,6 @@ export default function LearnPage() {
   const userId = currentAccountId !== 'guest' ? currentAccountId : null;
   const { getResumePoint, saveTrailerProgress, saveLessonProgress } = useVideoProgress(userId);
 
-  // Use "ChatGPT Complete Beginner's Guide" as the hero course
-  const heroCourse = getCourseById('c2') || featuredCourses[0];
-
   // Get first row thumbnail URLs for preloading
   const firstRowThumbnails = useMemo(() => {
     if (sections.length === 0) return [];
@@ -55,44 +43,10 @@ export default function LearnPage() {
 
   // Media preload gate - waits for hero + first row thumbnails
   const { isReady: mediaReady } = useMediaPreloadGate({
-    heroVideoId: 'dLRdaUda8Ho',
+    heroVideoId: heroCourse?.trailer?.youtubeId || 'dLRdaUda8Ho',
     thumbnailUrls: firstRowThumbnails,
     timeout: 2500,
   });
-
-  // Prepare rows for progressive loading
-  const rowMediaData = useMemo(() => {
-    return sections.map((section) => ({
-      thumbnailUrls: section.courses.slice(0, 6).map((c) => c.thumbnailUrl),
-    }));
-  }, [sections]);
-
-  // Progressive row loader for background preloading
-  const { loadedRows } = useProgressiveRowLoader({
-    rows: rowMediaData,
-    startFromRow: 1, // Skip first row (already preloaded)
-    enabled: mediaReady && hasInitialized,
-  });
-
-  // Progressive row reveal after hydration
-  // First row shown immediately, rest revealed with fast stagger
-  useEffect(() => {
-    if (isHydrated && !hasInitialized && sections.length > 0) {
-      setHasInitialized(true);
-
-      // Progressively reveal remaining rows (after initial 1)
-      const revealRows = async () => {
-        for (let i = INITIAL_VISIBLE_ROWS + 1; i <= sections.length; i++) {
-          await new Promise((resolve) => setTimeout(resolve, 60)); // Fast stagger
-          setVisibleRowCount(i);
-        }
-      };
-
-      // Start revealing immediately
-      revealRows();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHydrated, sections.length]);
 
   // Open video player with smart resume logic
   const openPlayer = useCallback((course: Course) => {
@@ -137,10 +91,7 @@ export default function LearnPage() {
 
   // Determine which sections to display
   // All sections are now shown (no "Show More" button)
-  const visibleSections = useMemo(() => {
-    // Show all sections, using progressive reveal animation
-    return sections.slice(0, visibleRowCount);
-  }, [sections, visibleRowCount]);
+  const visibleSections = sections;
 
   // Show skeleton only if data is not hydrated (brief SSR/hydration wait)
   // Once hydrated, show rows immediately - don't wait for media preload
@@ -159,7 +110,12 @@ export default function LearnPage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4 }}
           >
-            <VideoHero course={heroCourse} videoId="dLRdaUda8Ho" />
+            {heroCourse ? (
+              <VideoHero course={heroCourse} videoId="dLRdaUda8Ho" />
+            ) : (
+              // Fallback hero skeleton if courses aren't loaded yet
+              <div className="relative h-[65vh] min-h-[450px] max-h-[650px] bg-neutral-900 animate-pulse" />
+            )}
           </motion.div>
 
           {/* Course Rows - Netflix-style layout with 2.5 rows visible on load */}

@@ -6,7 +6,7 @@ import { motion } from 'motion/react';
 import Image from 'next/image';
 import { Button, Badge } from '@/components/atoms';
 import { Gate } from '@/features/auth/components/Gate';
-import { MOCK_EVENTS } from '@/lib/legacy-db-shim';
+import { useEvents } from '@/features/shop/hooks/useShopData';
 import {
   formatMonthYear,
   formatDayOfWeek,
@@ -364,6 +364,7 @@ function Pagination({
 }
 
 export default function EventsPage() {
+  const { items: MOCK_EVENTS, loading } = useEvents();
   const [eventType, setEventType] = useState<'all' | 'in-person' | 'online'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -434,6 +435,8 @@ export default function EventsPage() {
 
     return result;
   }, [currentPageEvents]);
+
+  if (loading) return <div className="p-8 text-center text-neutral-500">Loading events...</div>;
 
   return (
     <div className="rounded-2xl p-6 md:p-8 border border-neutral-700 bg-neutral-800/30">

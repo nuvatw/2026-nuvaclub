@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button, Card, CardContent } from '@/components/atoms';
-import type { ProjectVisibility } from '@/infra/mock/schema/sprint.schema';
+import type { ProjectVisibility } from '../types';
 import { cn } from '@/lib/utils';
 
 interface VisibilitySelectorProps {
@@ -21,22 +21,22 @@ const visibilityOptions: {
   icon: string;
   recommended?: boolean;
 }[] = [
-  {
-    value: 'nuvaclub-only',
-    label: 'NuvaClub Members Only',
-    description:
-      'Only logged-in NuvaClub members can view your project. Perfect for portfolio pieces you want to keep within the community.',
-    icon: '🔒',
-  },
-  {
-    value: 'public',
-    label: 'Public for Everyone',
-    description:
-      'Anyone can view your project, even without logging in. Great for sharing on social media, portfolios, and job applications. Includes shareable link for external promotion.',
-    icon: '🌍',
-    recommended: true,
-  },
-];
+    {
+      value: 'nuvaclub-only',
+      label: 'NuvaClub Members Only',
+      description:
+        'Only logged-in NuvaClub members can view your project. Perfect for portfolio pieces you want to keep within the community.',
+      icon: '🔒',
+    },
+    {
+      value: 'public',
+      label: 'Public for Everyone',
+      description:
+        'Anyone can view your project, even without logging in. Great for sharing on social media, portfolios, and job applications. Includes shareable link for external promotion.',
+      icon: '🌍',
+      recommended: true,
+    },
+  ];
 
 export function VisibilitySelector({
   isOpen,

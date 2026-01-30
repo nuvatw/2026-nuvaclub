@@ -26,14 +26,14 @@ export function useInvitations() {
   };
 
   return {
-    invitations: [], // TODO: Need GET endpoint for list
+    invitations: [] as MatchInvitation[],
     isHydrated: true,
-    getInvitationsForUser: () => [],
-    getInvitationsSentByUser: () => [],
-    getPendingCount: () => 0,
+    getInvitationsForUser: (): MatchInvitation[] => [],
+    getInvitationsSentByUser: (): MatchInvitation[] => [],
+    getPendingCount: (): number => 0,
     sendInvitation,
     updateInvitationStatus,
-    getInvitationById: () => undefined,
+    getInvitationById: (id: string): MatchInvitation | undefined => undefined,
     loading
   };
 }

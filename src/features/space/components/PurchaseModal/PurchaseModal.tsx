@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback } from 'react';
 import Image from 'next/image';
 import { Modal, Button } from '@/components/atoms';
 import { cn } from '@/lib/utils';
-import type { MatchingPostWithRelations } from '@/lib/db/hooks/useMatchingPosts';
+import type { MatchingPostWithRelations } from '../../hooks';
 import { formatPrice, getNunuLevelConfig } from '@/features/space/types';
 import type { NunuLevel, PriceType } from '@/features/space/types';
 

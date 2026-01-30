@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import { useDBContext } from '@/lib/db';
+import { useDBContext } from '@/infra/mock/provider/DBProvider';
 import {
   SpinnerIcon,
   UsersIcon,
@@ -82,11 +82,11 @@ export default function AdminUsersPage() {
         }),
         nunu: nunuId
           ? (() => {
-              const nunuUser = userMap.get(nunuId);
-              return nunuUser
-                ? { id: nunuUser.id, name: nunuUser.name, avatar: nunuUser.avatar }
-                : { id: nunuId, name: 'Unknown', avatar: undefined };
-            })()
+            const nunuUser = userMap.get(nunuId);
+            return nunuUser
+              ? { id: nunuUser.id, name: nunuUser.name, avatar: nunuUser.avatar }
+              : { id: nunuId, name: 'Unknown', avatar: undefined };
+          })()
           : undefined,
       };
     });

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import type { Course } from '@/lib/legacy-db-shim';
+import type { Course } from '../types';
 
 export type CourseCategory = {
   id: string;

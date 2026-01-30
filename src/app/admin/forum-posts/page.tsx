@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import { useDBContext } from '@/lib/db';
+import { useDBContext } from '@/infra/mock/provider/DBProvider';
 import { Button } from '@/components/atoms';
 import {
   TrashIcon,

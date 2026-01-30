@@ -3,8 +3,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { motion } from 'motion/react';
 import { useAuth, getEffectiveUserId } from '@/features/auth/components/AuthProvider';
-import { useMentorships } from '@/lib/db/hooks/useMentorships';
-import { useDBContext } from '@/lib/db';
+import { useMentorships, useNunuProfiles } from '../../hooks';
 import { PairingCard } from './PairingCard';
 import { EmptyPairingState } from './EmptyPairingState';
 import { ExtendRelationshipModal } from './ExtendRelationshipModal';
@@ -20,33 +19,29 @@ interface MyNunuSectionProps {
  * Uses deterministic selection based on user ID for consistency.
  */
 function useFallbackNunu(userId: string | undefined) {
-  const { db, isReady } = useDBContext();
+  const { profiles, isReady } = useNunuProfiles();
 
   return useMemo(() => {
-    if (!isReady || !db || !userId) return null;
+    if (!isReady || !userId || profiles.length === 0) return null;
 
-    // Get all Nunu profiles
-    const nunuProfiles = db.nunuProfiles.findAll().filter((p) => p.isAvailable);
+    // Get available Nunu profiles
+    const nunuProfiles = profiles.filter((p) => p.isAvailable);
     if (nunuProfiles.length === 0) return null;
 
     // Deterministic selection: hash user ID to select a Nunu
     const hash = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const selectedProfile = nunuProfiles[hash % nunuProfiles.length];
 
-    // Get the user record for the selected Nunu
-    const nunuUser = db.users.findById(selectedProfile.userId);
-    if (!nunuUser) return null;
-
     // Create a default mentorship-like structure
     return {
       nunu: {
-        id: nunuUser.id,
-        name: nunuUser.name,
-        avatar: nunuUser.avatar,
+        id: selectedProfile.userId,
+        name: selectedProfile.userName || 'Unknown Nunu',
+        avatar: selectedProfile.userAvatar,
         level: selectedProfile.level as NunuLevel,
         type: selectedProfile.type as NunuType,
-        discordId: nunuUser.discordId,
-        githubUsername: nunuUser.githubUsername,
+        discordId: selectedProfile.discordId,
+        githubUsername: selectedProfile.githubUsername,
       },
       mentorship: {
         // Default months: current month + next 2 months
@@ -56,7 +51,7 @@ function useFallbackNunu(userId: string | undefined) {
         status: 'active' as const,
       },
     };
-  }, [db, isReady, userId]);
+  }, [profiles, isReady, userId]);
 }
 
 /**

@@ -1,36 +1,12 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import type { MatchingPost as BaseMatchingPost } from '@/features/space/types';
 
-// Local types
-export interface MatchingPost {
-  id: string;
-  authorId: string;
-  type: string;
-  title: string;
-  description: string;
-  isVerifiedNunuOnly: boolean;
-  isActive: boolean;
-  priceType?: string;
-  priceAmount?: number;
-  availableMonths?: string[];
-  createdAt: string;
-}
+export type MatchingPost = BaseMatchingPost;
 
 export interface MatchingPostWithRelations extends MatchingPost {
-  tags: string[];
-  commentCount: number;
-  viewCount: number;
-  author?: {
-    id: string;
-    name: string;
-    avatar?: string;
-    nunuLevel?: string;
-    nunuType?: string;
-    rating?: number;
-    totalRatings?: number;
-    mentoredMonths?: number;
-  };
+  // BaseMatchingPost already has tags, viewCount, commentCount, but we can extend if needed.
 }
 
 export interface MatchingPostFilters {

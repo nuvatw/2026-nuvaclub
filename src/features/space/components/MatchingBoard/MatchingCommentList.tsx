@@ -7,7 +7,7 @@ import { Badge } from '@/components/atoms';
 import { cn } from '@/lib/utils';
 import { formatTimeAgo } from '@/lib/utils/date';
 import { MatchingCommentForm } from './MatchingCommentForm';
-import type { MatchingCommentWithRelations } from '@/lib/db/hooks/useMatchingComments';
+import type { MatchingCommentWithRelations } from '../../hooks';
 
 interface MatchingCommentListProps {
   comments: MatchingCommentWithRelations[];

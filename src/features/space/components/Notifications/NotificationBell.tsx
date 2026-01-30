@@ -20,8 +20,8 @@ export function NotificationBell() {
 
   const isHydrated = invitationsHydrated && notificationsHydrated;
 
-  const invitations = user ? getInvitationsForUser(user.id) : [];
-  const pendingInvitationCount = user ? getPendingCount(user.id) : 0;
+  const invitations = user ? getInvitationsForUser() : [];
+  const pendingInvitationCount = user ? getPendingCount() : 0;
 
   const notifications = user ? getNotificationsForUser(user.id) : [];
   const unreadNotificationCount = user ? getUnreadCount(user.id) : 0;

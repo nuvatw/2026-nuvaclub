@@ -1,14 +1,8 @@
 'use client';
 
 import { useMemo, useCallback, useEffect, useState } from 'react';
-import { useDBContext } from '@/lib/db';
 import { useAuth, getEffectiveUserId } from '@/features/auth/components/AuthProvider';
-import type {
-  DuoMonthPassRecord,
-  DuoTransactionRecord,
-  MonthlyMatchStatusRecord,
-} from '@/infra/mock/schema/user.schema';
-import type { DuoTier, DuplicateCheckResult, MonthConflict } from '../types';
+import type { DuoTier, DuplicateCheckResult, MonthConflict, DuoMonthPass, DuoTransaction, MonthlyMatchStatus } from '../types';
 import {
   DUO_TIER_CONFIG,
   DUO_TIER_RANK,
@@ -18,12 +12,10 @@ import {
   getCurrentMonth,
   getNextMonths,
   isMonthPast,
-  isMonthCurrent,
   addMonths,
-  dateToMonth,
 } from '../utils/month-utils';
 
-export interface DuoMonthPassWithMeta extends DuoMonthPassRecord {
+export interface DuoMonthPassWithMeta extends DuoMonthPass {
   isExpired: boolean;
   isCurrent: boolean;
   slotsAvailable: number;
@@ -36,136 +28,52 @@ export interface TimelineMonth {
   status: 'none' | 'active' | 'expired' | 'upgraded' | 'refunded';
   isCurrentMonth: boolean;
   isPast: boolean;
-  /** When the pass was purchased (if owned) */
-  purchasedAt?: Date;
-  /** When the pass was refunded (if refunded) */
-  refundedAt?: Date;
+  purchasedAt?: Date | string;
+  refundedAt?: Date | string;
 }
 
 export function useDuoMonthPasses() {
-  const { db, isReady } = useDBContext();
-  const { user, currentAccountId } = useAuth();
+  const { currentAccountId } = useAuth();
+  const [data, setData] = useState<{
+    passes: DuoMonthPass[],
+    transactions: DuoTransaction[],
+    matchStatuses: MonthlyMatchStatus[]
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Get the effective user ID for database lookups
-  // This maps test account IDs (e.g., 'test-explorer-solo-1') to user IDs (e.g., 'user-5')
   const effectiveUserId = useMemo(() => {
     return getEffectiveUserId(currentAccountId);
   }, [currentAccountId]);
 
-  // Process auto-refunds on mount and when data changes
-  const processAutoRefunds = useCallback(async () => {
-    if (!db || !effectiveUserId) return;
-
-    const now = new Date();
-    const currentMonth = getCurrentMonth();
-
-    // Get all active passes for this user
-    const allPasses = db.duoMonthPasses.findMany({
-      where: { userId: effectiveUserId },
-    });
-
-    let hasChanges = false;
-
-    for (const pass of allPasses) {
-      // Only process active passes for months that have started (current or past)
-      if (pass.status !== 'active') continue;
-      if (pass.month > currentMonth) continue; // Future month, skip
-
-      // Check if this month has started (is current or past)
-      const isMonthStarted = pass.month <= currentMonth;
-      if (!isMonthStarted) continue;
-
-      // Check match status for this month
-      const matchStatus = db.monthlyMatchStatus.findFirst({
-        where: { userId: effectiveUserId, month: pass.month },
-      });
-
-      // If no match status exists or matched is false, process refund
-      if (!matchStatus || !matchStatus.matched) {
-        // Mark pass as refunded
-        db.duoMonthPasses.update(pass.id, {
-          status: 'refunded',
-          updatedAt: now,
-        });
-
-        // Check if refund transaction already exists
-        const existingRefund = db.duoTransactions.findFirst({
-          where: {
-            userId: effectiveUserId,
-            passId: pass.id,
-            type: 'refund',
-          },
-        });
-
-        if (!existingRefund) {
-          // Create refund transaction
-          const tierConfig = DUO_TIER_CONFIG[pass.tier];
-          db.duoTransactions.create({
-            id: `dtx_refund_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-            userId: effectiveUserId,
-            passId: pass.id,
-            type: 'refund',
-            amount: tierConfig.price,
-            currency: 'TWD',
-            month: pass.month,
-            tier: pass.tier,
-            reason: 'Automatic refund - no match before month start',
-            createdAt: now,
-          });
-        }
-
-        hasChanges = true;
-      }
-    }
-
-    if (hasChanges) {
-      await db.persist();
-      setRefreshKey((k) => k + 1);
-    }
-  }, [db, effectiveUserId]);
-
-  // Process auto-refunds on mount
   useEffect(() => {
-    if (isReady && db && effectiveUserId) {
-      processAutoRefunds();
+    if (!effectiveUserId) {
+      setLoading(false);
+      return;
     }
-  }, [isReady, db, effectiveUserId, processAutoRefunds]);
+    let mounted = true;
+    fetch(`/api/bff/duo/passes?userId=${effectiveUserId}`)
+      .then(res => res.json())
+      .then(d => {
+        if (mounted && !d.error) {
+          setData(d);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        if (mounted) setLoading(false);
+      });
+    return () => { mounted = false; };
+  }, [effectiveUserId, refreshKey]);
 
-  // Get all passes for the current user
-  const passes = useMemo(() => {
-    if (!isReady || !db || !effectiveUserId) return [];
+  const passes = data?.passes || [];
+  const transactions = data?.transactions || [];
 
-    const userPasses = db.duoMonthPasses.findMany({
-      where: { userId: effectiveUserId },
-    });
-
-    // Sort by month
-    return userPasses.sort((a, b) => a.month.localeCompare(b.month));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [db, isReady, effectiveUserId, refreshKey]);
-
-  // Get all transactions for the current user
-  const transactions = useMemo(() => {
-    if (!isReady || !db || !effectiveUserId) return [];
-
-    const userTxs = db.duoTransactions.findMany({
-      where: { userId: effectiveUserId },
-    });
-
-    // Sort by date descending
-    return userTxs.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [db, isReady, effectiveUserId, refreshKey]);
-
-  // Get active passes (not expired, not refunded, not upgraded)
   const activePasses = useMemo(() => {
     return passes.filter((p) => p.status === 'active');
   }, [passes]);
 
-  // Get passes with metadata for display
   const passesWithMeta = useMemo((): DuoMonthPassWithMeta[] => {
     const currentMonth = getCurrentMonth();
     return passes.map((p) => ({
@@ -177,18 +85,15 @@ export function useDuoMonthPasses() {
     }));
   }, [passes]);
 
-  // Get pass for a specific month (active only)
   const getPassForMonth = useCallback(
-    (month: string): DuoMonthPassRecord | undefined => {
+    (month: string): DuoMonthPass | undefined => {
       return passes.find((p) => p.month === month && p.status === 'active');
     },
     [passes]
   );
 
-  // Get any pass for a month (including refunded/upgraded for display)
   const getAnyPassForMonth = useCallback(
-    (month: string): DuoMonthPassRecord | undefined => {
-      // Prefer active, then refunded, then upgraded
+    (month: string): DuoMonthPass | undefined => {
       return (
         passes.find((p) => p.month === month && p.status === 'active') ||
         passes.find((p) => p.month === month && p.status === 'refunded') ||
@@ -198,35 +103,29 @@ export function useDuoMonthPasses() {
     [passes]
   );
 
-  // Get available months (starting from NEXT month, 12 months)
   const availableMonths = useMemo(() => {
-    const months = getNextMonths(13); // Get current + 12 more
-    return months.slice(1); // Skip current month - can only buy next month onward
+    const months = getNextMonths(13);
+    return months.slice(1);
   }, []);
 
-  // Get months that user has active passes for
   const ownedMonths = useMemo(() => {
     return activePasses.map((p) => p.month);
   }, [activePasses]);
 
-  // Get timeline months for display (-24 to +12 months from now)
-  // This provides 2+ years of history for users to review
   const timelineMonths = useMemo((): TimelineMonth[] => {
     const currentMonth = getCurrentMonth();
     const months: TimelineMonth[] = [];
 
-    // Generate 37 months: -24 to +12 (2 years back, 1 year forward)
     for (let i = -24; i <= 12; i++) {
       const month = addMonths(currentMonth, i);
       const pass = getAnyPassForMonth(month);
 
-      // Find refund transaction if refunded
       let refundedAt: Date | undefined;
       if (pass?.status === 'refunded') {
         const refundTx = transactions.find(
           (tx) => tx.month === month && tx.type === 'refund'
         );
-        refundedAt = refundTx?.createdAt;
+        refundedAt = refundTx?.createdAt ? new Date(refundTx.createdAt) : undefined;
       }
 
       months.push({
@@ -243,7 +142,6 @@ export function useDuoMonthPasses() {
     return months;
   }, [getAnyPassForMonth, transactions]);
 
-  // Check for duplicate purchases
   const checkDuplicatePurchase = useCallback(
     (selectedMonths: string[], newTier: DuoTier): DuplicateCheckResult => {
       const conflicts: MonthConflict[] = [];
@@ -251,7 +149,6 @@ export function useDuoMonthPasses() {
       const currentMonth = getCurrentMonth();
 
       for (const month of selectedMonths) {
-        // Enforce "next month only" rule
         if (month <= currentMonth) {
           conflicts.push({
             month,
@@ -298,175 +195,48 @@ export function useDuoMonthPasses() {
     [getPassForMonth]
   );
 
-  // Create new passes with transactions (direct purchase)
   const createPasses = useCallback(
     async (
       months: string[],
       tier: DuoTier,
       orderId?: string
-    ): Promise<DuoMonthPassRecord[]> => {
-      if (!db || !effectiveUserId) return [];
-
-      const now = new Date();
-      const tierConfig = DUO_TIER_CONFIG[tier];
-      const newPasses: DuoMonthPassRecord[] = [];
-      const currentMonth = getCurrentMonth();
-
-      // Filter out invalid months (current or past)
-      const validMonths = months.filter((m) => m > currentMonth);
-
-      for (const month of validMonths) {
-        // Check if upgrading existing pass
-        const existing = getPassForMonth(month);
-
-        if (existing && DUO_TIER_RANK[tier] > DUO_TIER_RANK[existing.tier]) {
-          // Mark existing as upgraded
-          db.duoMonthPasses.update(existing.id, {
-            status: 'upgraded',
-            updatedAt: now,
-          });
-        }
-
-        const passId = `dmp_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-        const newPass: DuoMonthPassRecord = {
-          id: passId,
-          userId: effectiveUserId,
-          month,
-          tier,
-          status: 'active',
-          orderId,
-          maxCompanions: tierConfig.maxCompanions,
-          currentCompanions: existing?.currentCompanions ?? 0,
-          purchasedAt: now,
-          createdAt: now,
-          updatedAt: now,
-        };
-
-        // Update existing pass reference
-        if (existing) {
-          db.duoMonthPasses.update(existing.id, {
-            upgradedToId: newPass.id,
-          });
-
-          // Create upgrade charge transaction (difference)
-          const upgradeCost = calculateUpgradePrice(existing.tier, tier);
-          db.duoTransactions.create({
-            id: `dtx_upgrade_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-            userId: effectiveUserId,
-            passId,
-            type: 'upgrade_charge',
-            amount: upgradeCost,
-            currency: 'TWD',
-            month,
-            tier,
-            createdAt: now,
-          });
-        } else {
-          // Create new charge transaction
-          db.duoTransactions.create({
-            id: `dtx_charge_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-            userId: effectiveUserId,
-            passId,
-            type: 'charge',
-            amount: tierConfig.price,
-            currency: 'TWD',
-            month,
-            tier,
-            createdAt: now,
-          });
-        }
-
-        // Create match status entry (default to not matched)
-        const existingMatchStatus = db.monthlyMatchStatus.findFirst({
-          where: { userId: effectiveUserId, month },
-        });
-
-        if (!existingMatchStatus) {
-          db.monthlyMatchStatus.create({
-            id: `dms_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-            userId: effectiveUserId,
-            month,
-            matched: false,
-            createdAt: now,
-            updatedAt: now,
-          });
-        }
-
-        db.duoMonthPasses.create(newPass);
-        newPasses.push(newPass);
-      }
-
-      await db.persist();
-      setRefreshKey((k) => k + 1);
-      return newPasses;
+    ): Promise<DuoMonthPass[]> => {
+      const res = await fetch('/api/bff/duo/purchase', {
+        method: 'POST',
+        body: JSON.stringify({ months, tier, orderId })
+      });
+      const result = await res.json();
+      setRefreshKey(k => k + 1);
+      return result.passes || [];
     },
-    [db, effectiveUserId, getPassForMonth]
+    []
   );
 
-  // Increment companion count for a month
   const incrementCompanionCount = useCallback(
     async (month: string): Promise<boolean> => {
-      if (!db) return false;
-
-      const pass = getPassForMonth(month);
-      if (!pass) return false;
-
-      // Check if slots available
-      if (pass.currentCompanions >= pass.maxCompanions) {
-        return false;
-      }
-
-      db.duoMonthPasses.update(pass.id, {
-        currentCompanions: pass.currentCompanions + 1,
-        updatedAt: new Date(),
+      const res = await fetch('/api/bff/duo/companion/increment', {
+        method: 'POST',
+        body: JSON.stringify({ month })
       });
-
-      await db.persist();
-      setRefreshKey((k) => k + 1);
-      return true;
+      setRefreshKey(k => k + 1);
+      return res.ok;
     },
-    [db, getPassForMonth]
+    []
   );
 
-  // Set match status for a month (for testing/dev)
+  const processAutoRefunds = useCallback(async () => { }, []);
+
   const setMatchStatus = useCallback(
     async (month: string, matched: boolean, matchedWithUserId?: string): Promise<void> => {
-      if (!db || !effectiveUserId) return;
-
-      const now = new Date();
-      const existing = db.monthlyMatchStatus.findFirst({
-        where: { userId: effectiveUserId, month },
+      await fetch('/api/bff/duo/match', {
+        method: 'POST',
+        body: JSON.stringify({ month, matched, matchedWithUserId })
       });
-
-      if (existing) {
-        db.monthlyMatchStatus.update(existing.id, {
-          matched,
-          matchedAt: matched ? now : undefined,
-          matchedWithUserId: matched ? matchedWithUserId : undefined,
-          updatedAt: now,
-        });
-      } else {
-        db.monthlyMatchStatus.create({
-          id: `dms_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-          userId: effectiveUserId,
-          month,
-          matched,
-          matchedAt: matched ? now : undefined,
-          matchedWithUserId: matched ? matchedWithUserId : undefined,
-          createdAt: now,
-          updatedAt: now,
-        });
-      }
-
-      await db.persist();
-
-      // Re-process refunds in case status changed
-      await processAutoRefunds();
+      setRefreshKey(k => k + 1);
     },
-    [db, effectiveUserId, processAutoRefunds]
+    []
   );
 
-  // Get highest tier for a specific month
   const getHighestTierForMonth = useCallback(
     (month: string): DuoTier | null => {
       const pass = getPassForMonth(month);
@@ -475,7 +245,6 @@ export function useDuoMonthPasses() {
     [getPassForMonth]
   );
 
-  // Check if user can access a companion type for a specific month
   const canAccessCompanionForMonth = useCallback(
     (
       month: string,
@@ -496,7 +265,6 @@ export function useDuoMonthPasses() {
     [getPassForMonth]
   );
 
-  // Get months where user can invite a specific companion type
   const getMonthsForCompanionType = useCallback(
     (companionType: 'nunu' | 'certified-nunu' | 'shangzhe'): string[] => {
       const companionRank: Record<string, number> = {
@@ -517,7 +285,6 @@ export function useDuoMonthPasses() {
     [activePasses]
   );
 
-  // Refresh data (force re-fetch)
   const refresh = useCallback(() => {
     setRefreshKey((k) => k + 1);
   }, []);
@@ -541,5 +308,6 @@ export function useDuoMonthPasses() {
     getMonthsForCompanionType,
     processAutoRefunds,
     refresh,
+    loading
   };
 }

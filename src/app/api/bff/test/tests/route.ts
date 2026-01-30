@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import {
     getQuestionsForLevel
-} from '@/lib/legacy-db-shim';
+} from '@/infra/mock/legacy';
 import { getLevelDuration } from '@/features/test/constants';
 
 /**

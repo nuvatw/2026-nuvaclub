@@ -8,10 +8,10 @@ import { cn } from '@/lib/utils';
 import { useKeyboardShortcuts } from '@/features/keyboard-shortcuts';
 
 // Import data sources for each scope
-// import { getAllCourses, getAllShopProducts, getProjectsWithSeasonInfo } from '@/lib/legacy-db-shim';
+// Search functionality delegated to useGlobalSearch and domain hooks
 import { useGlobalSearch } from '@/lib/hooks/domain/useGlobalSearch';
-import { usePosts } from '@/lib/db/hooks';
-import { useMatchingPosts } from '@/lib/db/hooks/useMatchingPosts';
+import { usePosts } from '@/features/forum/hooks';
+import { useMatchingPosts } from '@/features/space/hooks';
 
 // Types for search results
 interface SearchResult {

@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
-import type { MatchingPostWithRelations } from '@/lib/db/hooks/useMatchingPosts';
+import type { MatchingPostWithRelations } from '../../hooks';
 import { getNunuLevelConfig } from '@/features/space/types';
 import type { NunuLevel } from '@/features/space/types';
 

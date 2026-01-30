@@ -197,9 +197,9 @@ export function LearnHoverPreview() {
 
       {/* Tags */}
       <div className="flex flex-wrap gap-1">
-        {course.tags.slice(0, 3).map((tag) => (
+        {course.tags.slice(0, 3).map((tag, index) => (
           <span
-            key={tag}
+            key={`${tag}-${index}`}
             className="px-2 py-0.5 rounded text-xs bg-neutral-800 text-neutral-300 border border-neutral-700"
           >
             {tag}

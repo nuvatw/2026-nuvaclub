@@ -1,3 +1,4 @@
+import { IBaseRepository } from '@/application/ports/IBaseRepository';
 import type { Collection } from '../core/Collection';
 import type { MockDB } from '../core/MockDB';
 import type { BaseEntity, QueryOptions, PaginatedResult } from '../core/types';
@@ -6,7 +7,7 @@ import type { BaseEntity, QueryOptions, PaginatedResult } from '../core/types';
  * Base repository class providing common CRUD operations
  * Extend this class for specific entity repositories
  */
-export abstract class BaseRepository<T extends BaseEntity> {
+export abstract class BaseRepository<T extends BaseEntity> implements IBaseRepository<T> {
   protected collection: Collection<T>;
   protected db: MockDB;
 

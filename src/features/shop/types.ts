@@ -6,42 +6,112 @@
  */
 
 // Import types for local use
-import type {
-  EventProduct as _EventProduct,
-  PlanProduct as _PlanProduct,
-  MerchandiseProduct as _MerchandiseProduct,
-  DuoProduct as _DuoProduct,
-  DuoVariant,
-  NunuTier
-} from '@/lib/types/legacy-shim';
+// Product entity types (localized from infra to ensure boundary integrity)
+export type EventType = 'online' | 'in-person';
 
-// Re-export entity types from Database (canonical source)
-export type {
-  EventProduct,
-  EventType,
-  EventAgendaItem,
-  EventFAQItem,
-  EventSortBy,
-  PlanProduct,
-  PlanType,
-  BillingCycle,
-  MerchandiseProduct,
-  MerchandiseVariant,
-  DuoProduct,
-  DuoVariant,
-  NunuTier,
-} from '@/lib/types/legacy-shim';
+export interface EventAgendaItem {
+  time: string;
+  title: string;
+  description?: string;
+}
+
+export interface EventFAQItem {
+  question: string;
+  answer: string;
+}
+
+export interface EventProduct {
+  id: string;
+  type: 'event';
+  eventType: EventType;
+  isLiveQA?: boolean;
+  name: string;
+  description: string;
+  date: Date;
+  endDate?: Date;
+  location: string;
+  price: number;
+  capacity: number;
+  remainingSeats: number;
+  imageUrl: string;
+  rating: number;
+  reviewCount: number;
+  hotScore?: number;
+  overview: string;
+  whatYouWillLearn: string[];
+  whoIsItFor: string[];
+  agenda: EventAgendaItem[];
+  faqs?: EventFAQItem[];
+}
+
+export type EventSortBy = 'hot' | 'date' | 'price-low' | 'price-high';
+
+export type PlanType = 'explorer' | 'traveler' | 'voyager' | 'enterprise';
+export type BillingCycle = 'monthly' | 'yearly';
+
+export interface PlanProduct {
+  id: string;
+  type: 'plan';
+  planType: PlanType;
+  name: string;
+  description: string;
+  price: number;
+  yearlyPrice: number;
+  billingCycle: BillingCycle;
+  features: string[];
+  imageUrl: string;
+  rating: number;
+  reviewCount: number;
+  ctaText: string;
+  ctaLink?: string;
+  ctaExternal?: boolean;
+  isPopular?: boolean;
+  badge?: string;
+  promoted?: boolean;
+}
+
+export interface MerchandiseVariant {
+  name: string;
+  stock: number;
+}
+
+export interface MerchandiseProduct {
+  id: string;
+  type: 'merchandise';
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  rating: number;
+  reviewCount: number;
+  variants?: MerchandiseVariant[];
+}
+
+export type DuoVariant = 'go' | 'run' | 'fly';
+export type NunuTier = 'nunu' | 'verified_nunu' | 'super_nunu';
+
+export interface DuoProduct {
+  id: string;
+  type: 'duo';
+  duoVariant: DuoVariant;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  rating: number;
+  reviewCount: number;
+  matchAccess: NunuTier[];
+  features: string[];
+  isPopular?: boolean;
+  badge?: string;
+}
 
 // Product type discriminators
 export type ProductType = 'plan' | 'event' | 'merchandise' | 'duo';
 export type ProductCategory = 'plan' | 'event' | 'merchant' | 'duo';
 
-// Legacy aliases for backward compatibility
-export type AgendaItem = import('@/lib/types/legacy-shim').EventAgendaItem;
-export type FAQ = import('@/lib/types/legacy-shim').EventFAQItem;
-
 // Union type for all products
-export type Product = _PlanProduct | _EventProduct | _MerchandiseProduct | _DuoProduct;
+export type Product = PlanProduct | EventProduct | MerchandiseProduct | DuoProduct;
 
 // Unified shop product interface for display purposes
 export interface ShopProduct {

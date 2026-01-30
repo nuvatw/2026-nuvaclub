@@ -1,3 +1,4 @@
+import { IPostRepository } from '@/application/ports/IPostRepository';
 import { BaseRepository } from './BaseRepository';
 import type { MockDB } from '../core/MockDB';
 import type {
@@ -53,7 +54,7 @@ export interface CommentWithAuthor extends ForumCommentRecord {
   };
 }
 
-export class PostRepository extends BaseRepository<ForumPostRecord> {
+export class PostRepository extends BaseRepository<ForumPostRecord> implements IPostRepository {
   constructor(db: MockDB) {
     super(db.forumPosts, db);
   }
@@ -147,10 +148,10 @@ export class PostRepository extends BaseRepository<ForumPostRecord> {
           : undefined,
         stats: commentStats
           ? {
-              upvotes: commentStats.upvotes,
-              downvotes: commentStats.downvotes,
-              score: commentStats.score,
-            }
+            upvotes: commentStats.upvotes,
+            downvotes: commentStats.downvotes,
+            score: commentStats.score,
+          }
           : undefined,
       };
     });
@@ -484,7 +485,7 @@ export class PostRepository extends BaseRepository<ForumPostRecord> {
       },
       post: {
         category: post.category,
-        createdAt: post.createdAt,
+        createdAt: post.createdAt as any,
       },
       authorTotalPoints: authorPoints?.totalPoints ?? 0,
     });
@@ -619,11 +620,11 @@ export class PostRepository extends BaseRepository<ForumPostRecord> {
     const user = this.db.users.findById(post.authorId);
     const author: PostAuthor | undefined = user
       ? {
-          id: user.id,
-          name: user.name,
-          avatar: user.avatar,
-          identityType: user.identityType,
-        }
+        id: user.id,
+        name: user.name,
+        avatar: user.avatar,
+        identityType: user.identityType,
+      }
       : undefined;
 
     const tagRecords = this.db.forumPostTags.findMany({
@@ -642,17 +643,17 @@ export class PostRepository extends BaseRepository<ForumPostRecord> {
       tags,
       stats: postStats
         ? {
-            upvotes: postStats.upvotes,
-            downvotes: postStats.downvotes,
-            score: postStats.score,
-            commentCount: postStats.commentCount,
-            viewCount: postStats.viewCount,
-            bookmarkCount: postStats.bookmarkCount ?? 0,
-            shareCount: postStats.shareCount ?? 0,
-            reportCount: postStats.reportCount ?? 0,
-            postPoints: postStats.postPoints ?? 0,
-            trendingScore: postStats.trendingScore ?? 0,
-          }
+          upvotes: postStats.upvotes,
+          downvotes: postStats.downvotes,
+          score: postStats.score,
+          commentCount: postStats.commentCount,
+          viewCount: postStats.viewCount,
+          bookmarkCount: postStats.bookmarkCount ?? 0,
+          shareCount: postStats.shareCount ?? 0,
+          reportCount: postStats.reportCount ?? 0,
+          postPoints: postStats.postPoints ?? 0,
+          trendingScore: postStats.trendingScore ?? 0,
+        }
         : undefined,
     };
 

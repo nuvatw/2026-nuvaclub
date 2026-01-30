@@ -16,8 +16,7 @@ import {
 } from '@/components/icons';
 import { Gate } from '@/features/auth/components/Gate';
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import { usePost } from '@/lib/db/hooks/usePosts';
-import { useTrackView, useBookmark, useShare } from '@/lib/db/hooks';
+import { usePost, useTrackView, useBookmark, useShare } from '@/features/forum/hooks';
 import { POST_CATEGORY_LABELS, POST_CATEGORY_COLORS } from '@/features/forum/types';
 import { IDENTITY_LABELS, IDENTITY_COLORS, type IdentityType } from '@/features/auth/types';
 import { cn } from '@/lib/utils';

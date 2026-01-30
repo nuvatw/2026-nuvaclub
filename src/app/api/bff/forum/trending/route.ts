@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAllPosts } from '@/lib/legacy-db-shim';
+import { getAllPosts } from '@/infra/mock/legacy';
 
 /**
  * BFF Endpoint for Trending Posts

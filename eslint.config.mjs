@@ -32,6 +32,10 @@ const eslintConfig = [
               message: 'UI/Client components cannot directly import Domain, Database, or Infra layers. Use BFF endpoints instead.',
             },
             {
+              group: ['@/infra/mock/legacy', '@/infra/mock/legacy/*'],
+              message: 'DEPRECATED: Using the legacy database shim in UI components is strictly forbidden. Please use services via BFF instead.',
+            },
+            {
               group: ['src/domain/*', 'src/Database/*', 'src/infra/*'],
               message: 'Do not use relative imports for architecture layers.',
             },

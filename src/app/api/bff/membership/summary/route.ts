@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getMembershipSummaryService } from '@/application/services/GetMembershipSummaryService';
+import { getMembershipSummaryService } from '@/app/api/bff/composition';
 
 // Mock Auth - real implementation would get from session
 async function getAuthenticatedUserId(): Promise<string | null> {

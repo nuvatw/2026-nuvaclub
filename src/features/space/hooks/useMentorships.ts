@@ -2,33 +2,14 @@
 
 import { useState, useEffect, useMemo } from 'react';
 
-// Local types
-export interface Mentorship {
-  id: string;
-  nunuId: string;
-  vavaId: string;
-  status: string;
-  sessionCount: number;
-  months?: string[];
-}
+import type { Mentorship as BaseMentorship } from '@/features/space/types';
+
+export type Mentorship = BaseMentorship;
 
 export interface MentorshipWithRelations extends Mentorship {
-  nunu?: {
-    id: string;
-    name: string;
-    avatar?: string;
-    level?: string;
-    type?: string;
-    discordId?: string;
-    githubUsername?: string;
-  };
-  vava?: {
-    id: string;
-    name: string;
-    avatar?: string;
-    discordId?: string;
-    githubUsername?: string;
-  };
+  // BaseMentorship already has basic nunu and vava sub-structures,
+  // but we can keep the specialized ones here if they have extra fields.
+  // Actually, let's just make sure they match what's expected.
 }
 
 /**

@@ -3,62 +3,22 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { getLevelDuration } from '@/features/test/constants';
 
-// Local types (avoid infra imports)
-export interface QuestionRecord {
-  id: string;
-  levelId: string;
-  type: 'true-false' | 'multiple-choice' | 'short-answer' | 'essay';
-  content: string;
-  level: number;
-  question: string;
-  options?: string[];
-  correctAnswer: string;
-  points: number;
-  difficulty: 'easy' | 'medium' | 'hard';
-  isRandomized: boolean;
-  isActive: boolean;
-  explanation?: string;
-  createdAt: Date | string;
-  updatedAt: Date | string;
-}
+import type {
+  Question,
+  QuestionOption,
+  TestSession,
+  UserProgress,
+  LevelStats,
+  LevelConfig,
+} from '../types';
 
-export interface TestSessionRecord {
-  id: string;
-  userId: string;
-  levelId: number;
-  status: 'in_progress' | 'completed' | 'abandoned';
-  score: number | null;
-  startedAt: string | Date;
-  completedAt: string | Date | null;
-  expiresAt: string | Date;
-  maxScore?: number;
-  passed?: boolean;
-  timeSpentSeconds?: number;
-  passingScore?: number;
-}
-
-export interface UserTestProgressRecord {
-  userId: string;
-  currentLevel: number;
-  highestUnlockedLevel: number;
-  highestPassedLevel?: number; // Alias for compatibility
-  totalAttempts: number;
-  passedLevels: number[];
-}
-
-export interface LevelStats {
-  attempts: number;
-  bestScore: number | null;
-  passed: boolean;
-  averageTime: number | null;
-}
-
-export interface LevelConfig {
-  level: number;
-  durationMinutes: number;
-  questionTypes: string;
-  questionCount: number;
-}
+// Aliases for compatibility with existing consumers
+export type QuestionRecord = Question;
+export type QuestionOptionRecord = QuestionOption;
+export type QuestionWithOptions = Question;
+export type TestSessionRecord = TestSession;
+export type UserTestProgressRecord = UserProgress;
+export type { LevelStats, LevelConfig };
 
 /**
  * Hook to access test data and operations via BFF
@@ -70,7 +30,7 @@ export function useTests() {
     setIsReady(typeof window !== 'undefined');
   }, []);
 
-  const getQuestionsForLevel = useCallback(async (level: number): Promise<QuestionRecord[]> => {
+  const getQuestionsForLevel = useCallback(async (level: number): Promise<Question[]> => {
     try {
       const res = await fetch(`/api/bff/test/tests?level=${level}`);
       if (!res.ok) return [];
@@ -81,7 +41,7 @@ export function useTests() {
     }
   }, []);
 
-  const getUserProgress = useCallback(async (userId: string): Promise<UserTestProgressRecord | null> => {
+  const getUserProgress = useCallback(async (userId: string): Promise<UserProgress | null> => {
     try {
       const res = await fetch(`/api/bff/test/progress?userId=${userId}`);
       if (!res.ok) return null;
@@ -123,8 +83,8 @@ export function useTests() {
  * Hook to manage a test session via BFF
  */
 export function useTestSession(userId: string | null) {
-  const [session, setSession] = useState<TestSessionRecord | null>(null);
-  const [questions, setQuestions] = useState<QuestionRecord[]>([]);
+  const [session, setSession] = useState<TestSession | null>(null);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -319,8 +279,8 @@ export function useTestSession(userId: string | null) {
 /**
  * Hook to get user's test progress via BFF
  */
-export function useUserTestProgress(userId: string | null): UserTestProgressRecord | null {
-  const [progress, setProgress] = useState<UserTestProgressRecord | null>(null);
+export function useUserTestProgress(userId: string | null): UserProgress | null {
+  const [progress, setProgress] = useState<UserProgress | null>(null);
 
   useEffect(() => {
     if (!userId) return;
@@ -360,8 +320,8 @@ export function useLevelStats(userId: string | null, level: number): LevelStats 
 /**
  * Hook to check if user has an active session via BFF
  */
-export function useActiveTestSession(userId: string | null): TestSessionRecord | null {
-  const [activeSession, setActiveSession] = useState<TestSessionRecord | null>(null);
+export function useActiveTestSession(userId: string | null): TestSession | null {
+  const [activeSession, setActiveSession] = useState<TestSession | null>(null);
 
   useEffect(() => {
     if (!userId) return;

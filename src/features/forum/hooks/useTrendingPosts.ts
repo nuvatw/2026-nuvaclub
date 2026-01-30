@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { ForumPost } from '@/lib/legacy-db-shim';
+import type { PostWithRelations } from '../types';
 
 /**
  * Hook to get trending posts via BFF
  */
 export function useTrendingPosts(limit = 5) {
-  const [posts, setPosts] = useState<ForumPost[]>([]);
+  const [posts, setPosts] = useState<PostWithRelations[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

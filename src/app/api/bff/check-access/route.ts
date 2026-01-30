@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { gateEngine } from '@/domain/gate/GateEngine';
+import { accessService } from '../composition';
 import { GateAction, GateResource } from '@/domain/gate/types';
 import { Ids } from '@/domain/shared/ids';
 
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
         const userId = await getUserId(request);
         const domainUserId = userId ? Ids.User(userId) : null;
 
-        const result = await gateEngine.evaluate(
+        const result = await accessService.evaluateAccess(
             domainUserId,
             resource as GateResource,
             action as GateAction,
@@ -30,6 +30,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json(result);
     } catch (error) {
+        console.error('BFF check-access failed:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }

@@ -3,7 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import { useLevelStats, useTests, useActiveTestSession, useUserTestProgress, useLevelConfigs } from '@/lib/db/hooks';
+import { useLevelStats, useTests, useActiveTestSession, useUserTestProgress, useLevelConfigs } from '@/features/test/hooks';
 import { Button } from '@/components/atoms';
 import { ChevronLeftIcon, ClipboardIcon, TagIcon, LightBulbIcon, CheckIcon } from '@/components/icons';
 import {

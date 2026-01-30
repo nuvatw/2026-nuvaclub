@@ -9,7 +9,14 @@
  * - Total: 60 days per sprint
  */
 
-import type { Sprint } from '@/lib/types/legacy-shim';
+// Update import to use local feature types which match the BFF response (strings)
+import type { Sprint } from '../types';
+
+// Helper to ensure we have a Date object
+const toDate = (d: string | Date | undefined): Date => {
+  if (!d) return new Date();
+  return typeof d === 'string' ? new Date(d) : d;
+};
 
 export type SprintPhase = 'submissions' | 'voting' | 'ended';
 
@@ -32,7 +39,7 @@ const VOTING_DAYS = 15;
  * Calculate voting dates from sprint start date
  * Voting period starts 45 days after sprint start and lasts 15 days
  */
-export function calculateVotingDates(sprintStartDate: Date): {
+export function calculateVotingDates(sprintStartDate: string | Date): {
   votingStartDate: Date;
   votingEndDate: Date;
 } {
@@ -51,9 +58,10 @@ export function calculateVotingDates(sprintStartDate: Date): {
 export function isInVotingPeriod(sprint: Sprint, now: Date = new Date()): boolean {
   // If sprint has explicit votingStartDate, use it
   if (sprint.votingStartDate) {
-    const votingEndDate = new Date(sprint.votingStartDate);
+    const votingStart = toDate(sprint.votingStartDate);
+    const votingEndDate = new Date(votingStart);
     votingEndDate.setDate(votingEndDate.getDate() + VOTING_DAYS);
-    return now >= sprint.votingStartDate && now <= votingEndDate;
+    return now >= votingStart && now <= votingEndDate;
   }
 
   // Otherwise calculate from sprint start date using 45+15 rule
@@ -65,11 +73,11 @@ export function isInVotingPeriod(sprint: Sprint, now: Date = new Date()): boolea
  * Check if sprint is in submission period
  */
 export function isInSubmissionPeriod(sprint: Sprint, now: Date = new Date()): boolean {
-  if (now < sprint.startDate) return false;
+  if (now < toDate(sprint.startDate)) return false;
 
   // If sprint has explicit votingStartDate, submissions are open until then
   if (sprint.votingStartDate) {
-    return now < sprint.votingStartDate;
+    return now < toDate(sprint.votingStartDate);
   }
 
   // Otherwise calculate from sprint start date
@@ -88,15 +96,16 @@ export function getSprintPhase(sprint: Sprint, now: Date = new Date()): SprintPh
   // Calculate voting dates
   const { votingStartDate, votingEndDate } = sprint.votingStartDate
     ? {
-        votingStartDate: sprint.votingStartDate,
-        votingEndDate: new Date(
-          sprint.votingStartDate.getTime() + VOTING_DAYS * 24 * 60 * 60 * 1000
-        ),
-      }
+      votingStartDate: toDate(sprint.votingStartDate),
+      votingEndDate: new Date(
+        toDate(sprint.votingStartDate).getTime() + VOTING_DAYS * 24 * 60 * 60 * 1000
+      ),
+    }
     : calculateVotingDates(sprint.startDate);
 
   // Check if sprint has ended (past voting end date or explicit end date)
-  const sprintEnded = now > votingEndDate || now > sprint.endDate;
+  const sprintEndDate = toDate(sprint.endDate);
+  const sprintEnded = now > votingEndDate || now > sprintEndDate;
 
   if (sprintEnded) {
     return {
@@ -112,8 +121,9 @@ export function getSprintPhase(sprint: Sprint, now: Date = new Date()): SprintPh
 
   // Check if we're in voting period
   const inVotingPeriod = now >= votingStartDate && now <= votingEndDate;
+  const isVotingOpen = 'isVotingOpen' in sprint ? (sprint as any).isVotingOpen : false;
 
-  if (inVotingPeriod || sprint.isVotingOpen) {
+  if (inVotingPeriod || isVotingOpen) {
     const daysRemaining = Math.ceil(
       (votingEndDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)
     );

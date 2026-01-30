@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import { useDBContext } from '@/lib/db';
 import { cn } from '@/lib/utils';
 import { formatDateCompact } from '@/lib/utils/date';
 
@@ -13,19 +12,15 @@ interface CourseProgressItem {
   id: string;
   courseId: string;
   progressPercent: number;
-  completedAt?: Date;
-  lastAccessedAt: Date;
-  course: {
-    id: string;
-    title: string;
-    subtitle: string;
-    thumbnailUrl: string;
-    totalDurationSeconds: number;
-    instructorId: string;
-    categoryId: string;
-  } | null;
-  instructor: { name: string; avatar: string } | null;
-  category: { name: string } | null;
+  completedAt?: Date | string;
+  lastAccessedAt: Date | string;
+  courseTitle: string;
+  courseSubtitle: string;
+  thumbnailUrl: string;
+  instructorName: string;
+  instructorAvatar: string;
+  categoryName: string;
+  totalDurationSeconds: number; // Added this back as it's used in formatDuration and stats
 }
 
 function formatDuration(seconds: number): string {
@@ -39,28 +34,44 @@ function formatDuration(seconds: number): string {
 
 export default function MyCoursesPage() {
   const { user } = useAuth();
-  const { db, isReady } = useDBContext();
+  const [coursesWithProgress, setCoursesWithProgress] = useState<CourseProgressItem[]>([]);
   const [filter, setFilter] = useState<FilterType>('all');
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Get course progress with course details
-  const coursesWithProgress = useMemo((): CourseProgressItem[] => {
-    if (!isReady || !db || !user) return [];
+  useEffect(() => {
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
 
-    const progress = db.userCourseEnrollments.findMany({ where: { userId: user.id } });
+    let mounted = true;
+    setIsLoading(true);
+    fetch(`/api/bff/member/enrollments?userId=${user.id}`)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (mounted) {
+          // Ensure dates are Date objects if formatDateCompact expects them
+          const processedData = data.map((item: any) => ({
+            ...item,
+            completedAt: item.completedAt ? new Date(item.completedAt) : undefined,
+            lastAccessedAt: new Date(item.lastAccessedAt),
+          }));
+          setCoursesWithProgress(processedData);
+          setIsLoading(false);
+        }
+      })
+      .catch(err => {
+        console.error('Failed to fetch enrollments', err);
+        if (mounted) setIsLoading(false);
+      });
 
-    return progress.map((p) => {
-      const course = db.courses.findById(p.courseId);
-      const instructor = course ? db.instructors.findById(course.instructorId) : null;
-      const category = course ? db.courseCategories.findById(course.categoryId) : null;
-
-      return {
-        ...p,
-        course,
-        instructor,
-        category,
-      } as CourseProgressItem;
-    }).filter((p): p is CourseProgressItem => p.course !== null);
-  }, [db, isReady, user]);
+    return () => { mounted = false; };
+  }, [user]);
 
   // Filter courses
   const filteredCourses = useMemo(() => {
@@ -79,10 +90,7 @@ export default function MyCoursesPage() {
     const completed = coursesWithProgress.filter((p) => p.completedAt).length;
     const inProgress = coursesWithProgress.filter((p) => !p.completedAt && p.progressPercent > 0).length;
     const totalWatchTime = coursesWithProgress.reduce((sum, p) => {
-      if (p.course) {
-        return sum + (p.course.totalDurationSeconds * p.progressPercent / 100);
-      }
-      return sum;
+      return sum + (p.totalDurationSeconds * p.progressPercent / 100);
     }, 0);
 
     return { completed, inProgress, totalWatchTime };
@@ -147,8 +155,8 @@ export default function MyCoursesPage() {
             {filter === 'completed'
               ? "You haven't completed any courses yet. Keep learning!"
               : filter === 'in-progress'
-              ? "You don't have any courses in progress."
-              : "Start your learning journey by exploring our courses."}
+                ? "You don't have any courses in progress."
+                : "Start your learning journey by exploring our courses."}
           </p>
           <Link
             href="/learn"
@@ -172,8 +180,8 @@ export default function MyCoursesPage() {
                 {/* Thumbnail */}
                 <div className="sm:w-48 h-32 sm:h-auto relative">
                   <img
-                    src={item.course!.thumbnailUrl}
-                    alt={item.course!.title}
+                    src={item.thumbnailUrl}
+                    alt={item.courseTitle}
                     className="w-full h-full object-cover"
                   />
                   {item.completedAt && (
@@ -192,7 +200,7 @@ export default function MyCoursesPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs text-neutral-500">{item.category?.name}</span>
+                        <span className="text-xs text-neutral-500">{item.categoryName}</span>
                         {item.completedAt && (
                           <span className="px-2 py-0.5 rounded text-xs font-medium bg-green-500/10 text-green-400">
                             Completed
@@ -200,18 +208,18 @@ export default function MyCoursesPage() {
                         )}
                       </div>
                       <h3 className="text-lg font-semibold text-white group-hover:text-primary-400 transition-colors">
-                        {item.course!.title}
+                        {item.courseTitle}
                       </h3>
-                      <p className="text-sm text-neutral-400 mt-1">{item.course!.subtitle}</p>
+                      <p className="text-sm text-neutral-400 mt-1">{item.courseSubtitle}</p>
 
                       {/* Instructor */}
                       <div className="flex items-center gap-2 mt-3">
                         <img
-                          src={item.instructor?.avatar}
-                          alt={item.instructor?.name}
+                          src={item.instructorAvatar}
+                          alt={item.instructorName}
                           className="w-6 h-6 rounded-full"
                         />
-                        <span className="text-sm text-neutral-400">{item.instructor?.name}</span>
+                        <span className="text-sm text-neutral-400">{item.instructorName}</span>
                       </div>
                     </div>
 
@@ -234,11 +242,11 @@ export default function MyCoursesPage() {
                       />
                     </div>
                     <div className="flex items-center justify-between mt-2 text-xs text-neutral-500">
-                      <span>{formatDuration(item.course!.totalDurationSeconds)}</span>
+                      <span>{formatDuration(item.totalDurationSeconds)}</span>
                       <span>
                         {item.completedAt
-                          ? `Completed on ${formatDateCompact(item.completedAt)}`
-                          : `Last accessed ${formatDateCompact(item.lastAccessedAt)}`}
+                          ? `Completed on ${formatDateCompact(new Date(item.completedAt))}`
+                          : `Last accessed ${formatDateCompact(new Date(item.lastAccessedAt))}`}
                       </span>
                     </div>
                   </div>

@@ -3,7 +3,7 @@
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import { useTestSession } from '@/lib/db/hooks';
+import { useTestSession } from '@/features/test/hooks';
 import {
   TestTimer,
   TestProgressBar,

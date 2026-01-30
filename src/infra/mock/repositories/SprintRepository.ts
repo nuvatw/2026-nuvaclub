@@ -1,3 +1,4 @@
+import { ISprintRepository } from '@/application/ports/ISprintRepository';
 import { BaseRepository } from './BaseRepository';
 import type { MockDB } from '../core/MockDB';
 import type {
@@ -7,6 +8,13 @@ import type {
   SprintStatsRecord,
   ProjectStatsRecord,
 } from '../schema';
+import {
+  DEMO_SEASON_RECORDS,
+  DEMO_SPRINT_RECORDS,
+  DEMO_PROJECT_RECORDS,
+  DEMO_SPRINT_STATS,
+  DEMO_PROJECT_STATS,
+} from '../sprint/demoSprints';
 
 export interface SeasonWithSprints extends SeasonRecord {
   sprints?: SprintRecord[];
@@ -40,9 +48,15 @@ export interface ProjectWithRelations extends ProjectRecord {
   };
 }
 
-export class SprintRepository extends BaseRepository<SprintRecord> {
+export class SprintRepository extends BaseRepository<SprintRecord> implements ISprintRepository {
   constructor(db: MockDB) {
     super(db.sprints, db);
+  }
+
+  override findById(id: string): SprintRecord | undefined {
+    const sprint = super.findById(id);
+    if (sprint) return sprint;
+    return DEMO_SPRINT_RECORDS[id];
   }
 
   // ==========================================
@@ -56,6 +70,15 @@ export class SprintRepository extends BaseRepository<SprintRecord> {
     const seasons = this.db.seasons.findMany({
       orderBy: { field: 'startDate', direction: 'desc' },
     });
+
+    // Merge with demo seasons if not already present
+    const seasonIds = new Set(seasons.map(s => s.id));
+    Object.values(DEMO_SEASON_RECORDS).forEach(ds => {
+      if (!seasonIds.has(ds.id)) {
+        seasons.push(ds);
+      }
+    });
+
     return seasons.map((s) => this.enrichSeason(s));
   }
 
@@ -73,7 +96,10 @@ export class SprintRepository extends BaseRepository<SprintRecord> {
    * Find season by ID with sprints
    */
   findSeasonById(id: string): SeasonWithSprints | undefined {
-    const season = this.db.seasons.findById(id);
+    let season = this.db.seasons.findById(id);
+    if (!season) {
+      season = DEMO_SEASON_RECORDS[id];
+    }
     if (!season) return undefined;
     return this.enrichSeason(season);
   }
@@ -222,11 +248,20 @@ export class SprintRepository extends BaseRepository<SprintRecord> {
     // Get stats from separate table
     const sprintStats = this.db.sprintStats.findFirst({
       where: { sprintId: sprint.id },
-    });
+    }) || DEMO_SPRINT_STATS[sprint.id];
 
     const projects = this.db.projects.findMany({
       where: { sprintId: sprint.id },
     });
+
+    // Add demo projects if this is a demo sprint and no projects in DB
+    if (projects.length === 0) {
+      Object.values(DEMO_PROJECT_RECORDS).forEach(dp => {
+        if (dp.sprintId === sprint.id) {
+          projects.push(dp);
+        }
+      });
+    }
 
     const enrichedProjects = projects.map((p) => this.enrichProject(p));
     enrichedProjects.sort((a, b) => (b.stats?.voteCount ?? 0) - (a.stats?.voteCount ?? 0));
@@ -238,10 +273,10 @@ export class SprintRepository extends BaseRepository<SprintRecord> {
       isVotingOpen,
       stats: sprintStats
         ? {
-            projectCount: sprintStats.projectCount,
-            participantCount: sprintStats.participantCount,
-            totalVotes: sprintStats.totalVotes,
-          }
+          projectCount: sprintStats.projectCount,
+          participantCount: sprintStats.participantCount,
+          totalVotes: sprintStats.totalVotes,
+        }
         : undefined,
     };
   }
@@ -267,10 +302,9 @@ export class SprintRepository extends BaseRepository<SprintRecord> {
       ? { id: user.id, name: user.name, avatar: user.avatar }
       : undefined;
 
-    // Get stats from separate table
     const projectStats = this.db.projectStats.findFirst({
       where: { projectId: project.id },
-    });
+    }) || DEMO_PROJECT_STATS[project.id];
 
     return {
       ...project,
@@ -279,11 +313,11 @@ export class SprintRepository extends BaseRepository<SprintRecord> {
       author,
       stats: projectStats
         ? {
-            voteCount: projectStats.voteCount,
-            viewCount: projectStats.viewCount,
-            starCount: projectStats.starCount,
-            commentCount: projectStats.commentCount,
-          }
+          voteCount: projectStats.voteCount,
+          viewCount: projectStats.viewCount,
+          starCount: projectStats.starCount,
+          commentCount: projectStats.commentCount,
+        }
         : undefined,
     };
   }

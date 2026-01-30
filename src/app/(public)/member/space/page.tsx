@@ -5,12 +5,16 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { UsersIcon, ChevronRightIcon } from '@/components/icons';
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import { useDBContext } from '@/lib/db';
 import {
+  useNunuProfiles,
+  useNunuProfile,
+  useMatchingPosts,
+  useMentorships,
+  useCompanions,
   useMentorshipAgreements,
   useNunuEarnings,
   useVavaSpending,
-} from '@/lib/db/hooks/useMentorshipAgreements';
+} from '@/features/space/hooks';
 import { cn } from '@/lib/utils';
 import { formatDateCompact } from '@/lib/utils/date';
 import { getStatusBadge } from '@/features/space/types';
@@ -62,31 +66,21 @@ function getPaymentStatusBadge(status: string) {
 
 export default function MySpacePage() {
   const { user, identity } = useAuth();
-  const { db, isReady } = useDBContext();
 
   // Space is now open to all logged-in users (Explorer+)
   const hasSpaceAccess = identity !== 'guest';
 
-  // Get mentorship relationships
+  // Get data via hooks (which use BFF)
+  const { mentorshipsAsNunu, mentorshipsAsVava, isReady: isMentorshipsReady } = useMentorships(user?.id);
+  const { isNunu, isReady: isProfileReady } = useNunuProfile(user?.id);
+
+  // Map mentorships for UI
   const mentorships = useMemo(() => {
-    if (!isReady || !db || !user) return { asNunu: [], asVava: [] };
-
-    const asNunu = db.userMentorships.findMany({ where: { nunuId: user.id } });
-    const asVava = db.userMentorships.findMany({ where: { vavaId: user.id } });
-
-    // Get user details for each relationship
-    const asNunuWithUsers = asNunu.map(m => ({
-      ...m,
-      partner: db.users.findById(m.vavaId),
-    }));
-
-    const asVavaWithUsers = asVava.map(m => ({
-      ...m,
-      partner: db.users.findById(m.nunuId),
-    }));
-
-    return { asNunu: asNunuWithUsers, asVava: asVavaWithUsers };
-  }, [db, isReady, user]);
+    return {
+      asNunu: mentorshipsAsNunu.map(m => ({ ...m, partner: m.vava })),
+      asVava: mentorshipsAsVava.map(m => ({ ...m, partner: m.nunu }))
+    };
+  }, [mentorshipsAsNunu, mentorshipsAsVava]);
 
   // Get marketplace agreements (as Nunu and as Vava)
   const { agreements: nunuAgreements } = useMentorshipAgreements({ nunuId: user?.id });
@@ -96,14 +90,7 @@ export default function MySpacePage() {
   const earnings = useNunuEarnings(user?.id);
   const spending = useVavaSpending(user?.id);
 
-  // Check if user is a Nunu
-  const isNunu = useMemo(() => {
-    if (!db || !user) return false;
-    const profile = db.nunuProfiles.findFirst({ where: { userId: user.id } });
-    return !!profile;
-  }, [db, user]);
-
-  if (!user) return null;
+  if (!user || !isMentorshipsReady || !isProfileReady) return null;
 
   if (!hasSpaceAccess) {
     return (

@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import Image from 'next/image';
 import { Button, Card, CardContent } from '@/components/atoms';
 import { Gate } from '@/features/auth/components/Gate';
-import { MERCHANDISE } from '@/lib/legacy-db-shim';
+import { useMerchandise } from '@/features/shop/hooks/useShopData';
 import {
   InformationCircleIcon,
   QuestionMarkCircleIcon,
@@ -24,6 +24,10 @@ const MERCHANDISE_INFO = {
 };
 
 export default function MerchandisePage() {
+  const { items: MERCHANDISE, loading } = useMerchandise();
+
+  if (loading) return <div className="p-8 text-center text-neutral-500">Loading merchandise...</div>;
+
   return (
     <div className="rounded-2xl p-6 md:p-8 border border-neutral-700 bg-neutral-800/30">
       {/* Merchandise Grid Section */}
@@ -40,7 +44,7 @@ export default function MerchandisePage() {
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {MERCHANDISE.map((item, index) => (
+          {(MERCHANDISE || []).map((item: any, index: number) => (
             <motion.div
               key={item.id}
               initial={{ opacity: 0, y: 20 }}

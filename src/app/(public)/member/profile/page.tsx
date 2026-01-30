@@ -1,17 +1,15 @@
-'use client';
-
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 import { getMembershipDetails } from '@/features/auth/types';
-import { useDBContext } from '@/lib/db';
 import { Modal, Button } from '@/components/atoms';
 import { EditIcon, CheckIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
 import { formatDateMedium } from '@/lib/utils/date';
 
 export default function ProfilePage() {
-  const { user, identity } = useAuth();
-  const { db, isReady } = useDBContext();
+  const { user } = useAuth();
+  const [profileData, setProfileData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Edit profile modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -21,6 +19,26 @@ export default function ProfilePage() {
     discordId: '',
   });
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+
+    let mounted = true;
+    fetch(`/api/bff/member/profile?userId=${user.id}`)
+      .then(res => res.json())
+      .then(data => {
+        if (mounted) {
+          setProfileData(data);
+          setIsLoading(false);
+        }
+      })
+      .catch(err => {
+        console.error('Failed to fetch profile', err);
+        if (mounted) setIsLoading(false);
+      });
+
+    return () => { mounted = false; };
+  }, [user]);
 
   const handleOpenEditModal = useCallback(() => {
     if (user) {
@@ -34,59 +52,45 @@ export default function ProfilePage() {
   }, [user]);
 
   const handleSaveProfile = useCallback(async () => {
-    if (!db || !user) return;
+    if (!user) return;
 
     setIsSaving(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Update user in database
-      db.users.update(user.id, {
-        name: editForm.name,
-        bio: editForm.bio,
-        discordId: editForm.discordId,
-        updatedAt: new Date(),
+      const response = await fetch('/api/bff/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          name: editForm.name,
+          bio: editForm.bio,
+          discordId: editForm.discordId,
+        }),
       });
 
-      setIsEditModalOpen(false);
-      // Force re-render by triggering a state update
-      window.location.reload();
+      if (response.ok) {
+        setIsEditModalOpen(false);
+        // Reload profile data
+        const updatedProfile = await response.json();
+        setProfileData((prev: any) => ({ ...prev, user: updatedProfile }));
+        window.location.reload(); // Still reloading to update AuthContext for now
+      }
     } catch (error) {
       console.error('Failed to save profile:', error);
     } finally {
       setIsSaving(false);
     }
-  }, [db, user, editForm]);
+  }, [user, editForm]);
 
-  if (!user) {
+  if (!user || isLoading || !profileData) {
     return null;
   }
 
+  const { subscription, duoTicket, enrollments, favoritesCount } = profileData;
+  const identity = profileData.user.identityType;
   const membership = getMembershipDetails(identity);
 
-  // Get subscription info
-  const subscription = isReady && db
-    ? db.userSubscriptions.findFirst({ where: { userId: user.id, status: 'active' } })
-    : null;
-
-  // Get duo ticket info
-  const duoTicket = isReady && db
-    ? db.userDuoTickets.findFirst({ where: { userId: user.id, status: 'active' } })
-    : null;
-
-  // Get user stats
-  const courseProgress = isReady && db
-    ? db.userCourseEnrollments.findMany({ where: { userId: user.id } })
-    : [];
-
-  const completedCourses = courseProgress.filter(p => p.completedAt);
-  const inProgressCourses = courseProgress.filter(p => !p.completedAt && p.progressPercent > 0);
-
-  // Get favorites count
-  const favorites = isReady && db
-    ? db.userFavorites.findMany({ where: { userId: user.id } })
-    : [];
+  const completedCourses = enrollments.filter((p: any) => p.completedAt);
+  const inProgressCourses = enrollments.filter((p: any) => !p.completedAt && p.progressPercent > 0);
 
   return (
     <div className="space-y-6">
@@ -194,12 +198,12 @@ export default function ProfilePage() {
           <div className="text-sm text-neutral-400 mt-1">In Progress</div>
         </div>
         <div className="bg-neutral-900 rounded-xl border border-neutral-800 p-4">
-          <div className="text-3xl font-bold text-white">{favorites.length}</div>
+          <div className="text-3xl font-bold text-white">{favoritesCount}</div>
           <div className="text-sm text-neutral-400 mt-1">Favorites</div>
         </div>
         <div className="bg-neutral-900 rounded-xl border border-neutral-800 p-4">
           <div className="text-3xl font-bold text-primary-400">
-            {Math.round(courseProgress.reduce((sum, p) => sum + p.progressPercent, 0) / Math.max(courseProgress.length, 1))}%
+            {Math.round(enrollments.reduce((sum: number, p: any) => sum + p.progressPercent, 0) / Math.max(enrollments.length, 1))}%
           </div>
           <div className="text-sm text-neutral-400 mt-1">Avg. Progress</div>
         </div>

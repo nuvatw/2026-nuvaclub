@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'motion/react';
 import { Badge } from '@/components/atoms';
@@ -9,14 +9,7 @@ import {
   SprintFilters,
 } from '@/features/sprint/components';
 import type { SprintFilter } from '@/features/sprint/components';
-import {
-  MOCK_SEASONS,
-  MOCK_SPRINTS,
-  getCurrentSeason,
-  getSprintsBySeasonId,
-  getProjectsWithSeasonInfo,
-} from '@/lib/legacy-db-shim';
-import type { SortOption, SeasonFilter } from '@/features/sprint/types';
+import type { SortOption, SeasonFilter, ProjectWithRelations, SeasonWithSprints, SprintWithProjects } from '@/features/sprint/types';
 import { getSprintPhase } from '@/features/sprint/utils';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { SprintPageSkeleton } from '@/components/skeletons';
@@ -28,44 +21,77 @@ export default function SprintPage() {
   const [selectedSprint, setSelectedSprint] = useState<SprintFilter>('all');
   const [sortBy, setSortBy] = useState<SortOption>('most-viewed');
 
-  // Get current season
-  const currentSeason = getCurrentSeason();
-  const currentSprints = currentSeason
-    ? getSprintsBySeasonId(currentSeason.id)
-    : [];
+  const [currentSeason, setCurrentSeason] = useState<SeasonWithSprints | null>(null);
+  const [currentSprints, setCurrentSprints] = useState<SprintWithProjects[]>([]);
+  const [allSeasons, setAllSeasons] = useState<SeasonWithSprints[]>([]);
+  const [allProjects, setAllProjects] = useState<ProjectWithRelations[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Get all projects with season info
-  const allProjectsWithSeasonInfo = getProjectsWithSeasonInfo();
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [activeRes, projectsRes, allSeasonsRes] = await Promise.all([
+          fetch('/api/bff/sprint/sprints?active=true'),
+          fetch('/api/bff/sprint/projects'),
+          fetch('/api/bff/sprint/sprints')
+        ]);
+
+        if (activeRes.ok) {
+          const active = await activeRes.json();
+          if (active) {
+            setCurrentSeason(active);
+            setCurrentSprints(active.sprints || []);
+          }
+        }
+
+        if (projectsRes.ok) {
+          const projects = await projectsRes.json();
+          setAllProjects(projects);
+        }
+
+        if (allSeasonsRes.ok) {
+          const seasons = await allSeasonsRes.json();
+          setAllSeasons(seasons);
+        }
+      } catch (err) {
+        console.error('Failed to fetch sprint data', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
 
   // Get all past seasons for the filter
-  const pastSeasons = MOCK_SEASONS.filter((s) => !s.isActive);
+  const pastSeasons = useMemo(() =>
+    allSeasons.filter((s) => s.status === 'ended' || (currentSeason && s.id !== currentSeason.id)),
+    [allSeasons, currentSeason]);
 
-  // Get all past sprints for the filter
-  const pastSprints = MOCK_SPRINTS.filter((s) =>
-    pastSeasons.some((season) => season.id === s.seasonId)
-  );
+  // All past sprints (simplified for logic)
+  const pastSprints = useMemo(() => {
+    const sprints: SprintWithProjects[] = [];
+    pastSeasons.forEach(s => {
+      if (s.sprints) sprints.push(...(s.sprints as any));
+    });
+    return sprints;
+  }, [pastSeasons]);
 
   // Filter and sort archived projects
   const archivedProjects = useMemo(() => {
-    // Get past season IDs
-    const pastSeasonIds = pastSeasons.map((s) => s.id);
-
-    // Get sprint IDs that belong to past seasons
-    const pastSprintIds = MOCK_SPRINTS.filter((s) =>
-      pastSeasonIds.includes(s.seasonId)
-    ).map((s) => s.id);
-
-    // Filter projects from past sprints
-    let projects = allProjectsWithSeasonInfo.filter((p) =>
-      pastSprintIds.includes(p.sprintId)
-    );
+    // Filter projects from past seasons
+    const pastSeasonIds = pastSeasons.map(s => s.id);
+    let projects = allProjects.filter(p => {
+      // Find if this project's sprint belongs to a past season
+      const sprint = pastSprints.find(s => s.id === p.sprintId);
+      return !!sprint;
+    });
 
     // Apply season filter
     if (selectedSeason !== 'all') {
-      const seasonSprintIds = MOCK_SPRINTS.filter(
-        (s) => s.seasonId === selectedSeason
-      ).map((s) => s.id);
-      projects = projects.filter((p) => seasonSprintIds.includes(p.sprintId));
+      projects = projects.filter(p => {
+        const sprint = pastSprints.find(s => s.id === p.sprintId);
+        return sprint?.seasonId === selectedSeason;
+      });
     }
 
     // Apply sprint filter
@@ -74,16 +100,16 @@ export default function SprintPage() {
     }
 
     // Apply sorting
-    // Note: "most-starred" now means "Most Voted" - sort by voteCount
     return projects.sort((a, b) => {
       if (sortBy === 'most-viewed') {
-        return b.viewCount - a.viewCount;
+        return (b.stats?.viewCount ?? 0) - (a.stats?.viewCount ?? 0);
       } else {
-        // Sort by voteCount (votes), not starCount (favorites)
-        return b.voteCount - a.voteCount;
+        return (b.stats?.voteCount ?? 0) - (a.stats?.voteCount ?? 0);
       }
     });
-  }, [allProjectsWithSeasonInfo, pastSeasons, selectedSeason, selectedSprint, sortBy]);
+  }, [allProjects, pastSeasons, pastSprints, selectedSeason, selectedSprint, sortBy]);
+
+  if (loading) return <SprintPageSkeleton />;
 
   return (
     <PageTransition skeleton={<SprintPageSkeleton />}>

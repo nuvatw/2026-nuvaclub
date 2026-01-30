@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
+import { learnService } from '@/app/api/bff/composition';
 
 // Mock Auth
 async function getUserId(request: Request): Promise<string | null> {
+    // In a real app, read from headers or session
     return 'user-1';
 }
-
-// Simple in-memory store (replace with real persistence later)
-const progressStore: Record<string, any> = {};
 
 /**
  * BFF Endpoint for Video Progress
@@ -24,24 +23,12 @@ export async function GET(request: Request) {
     const courseId = searchParams.get('courseId');
 
     try {
-        if (courseId) {
-            // Get progress for specific course
-            const key = `${userId}-${courseId}`;
-            const progress = progressStore[key] || {
-                courseId,
-                lessons: {},
-                trailer: null,
-                lastWatched: null,
-            };
-            return NextResponse.json(progress);
+        if (!courseId) {
+            return NextResponse.json({ error: 'courseId required' }, { status: 400 });
         }
 
-        // Get all progress for user
-        const userProgress = Object.entries(progressStore)
-            .filter(([key]) => key.startsWith(`${userId}-`))
-            .map(([_, value]) => value);
-
-        return NextResponse.json(userProgress);
+        const progress = await learnService.getCourseProgress(userId, courseId);
+        return NextResponse.json(progress);
     } catch (error) {
         console.error('Error fetching progress:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
@@ -62,45 +49,15 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'courseId required' }, { status: 400 });
         }
 
-        const key = `${userId}-${courseId}`;
-        const existing = progressStore[key] || {
+        const progress = await learnService.saveProgress(userId, {
             courseId,
-            lessons: {},
-            trailer: null,
-            lastWatched: null,
-        };
+            lessonId,
+            watchedSeconds,
+            totalDuration,
+            type: type || 'lesson'
+        });
 
-        const progressPercent = totalDuration > 0
-            ? Math.min(100, (watchedSeconds / totalDuration) * 100)
-            : 0;
-        const isCompleted = progressPercent >= 90;
-        const now = new Date().toISOString();
-
-        if (type === 'trailer') {
-            // Save trailer progress
-            existing.trailer = {
-                watchedSeconds,
-                totalDuration,
-                progressPercent,
-                isCompleted,
-                lastWatchedAt: now,
-            };
-        } else if (lessonId) {
-            // Save lesson progress
-            existing.lessons[lessonId] = {
-                lessonId,
-                watchedSeconds,
-                totalDuration,
-                progressPercent,
-                isCompleted,
-                lastWatchedAt: now,
-            };
-            existing.lastWatched = { lessonId, timestamp: now };
-        }
-
-        progressStore[key] = existing;
-
-        return NextResponse.json({ success: true, progress: existing });
+        return NextResponse.json({ success: true, progress });
     } catch (error) {
         console.error('Error saving progress:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
@@ -121,8 +78,7 @@ export async function DELETE(request: Request) {
     }
 
     try {
-        const key = `${userId}-${courseId}`;
-        delete progressStore[key];
+        await learnService.resetProgress(userId, courseId);
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error('Error deleting progress:', error);

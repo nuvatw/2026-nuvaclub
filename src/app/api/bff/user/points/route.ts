@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { MockDB } from '@/infra/mock/core/MockDB';
-import { PointsRepository } from '@/infra/mock/repositories/PointsRepository';
+import { pointsService } from '../../composition';
 
 // Mock Auth
 async function getUserId(request: Request): Promise<string | null> {
@@ -14,10 +13,7 @@ export async function GET(request: Request) {
     }
 
     try {
-        const db = MockDB.getInstance();
-        await db.initialize();
-        const repo = new PointsRepository(db);
-        const points = repo.getOrCreateUserPoints(userId);
+        const points = await pointsService.getOrCreateUserPoints(userId);
         return NextResponse.json(points);
     } catch (error) {
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

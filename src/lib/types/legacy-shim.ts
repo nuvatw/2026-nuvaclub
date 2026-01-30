@@ -8,39 +8,39 @@
 export type {
     User,
     UserIdentity
-} from '@/lib/types/legacy-tables/users';
+} from '@/infra/mock/data/users';
 
 export type {
     Season
-} from '@/lib/types/legacy-tables/seasons';
+} from '@/infra/mock/data/seasons';
 
 export type {
     Companion,
     CompanionType
-} from '@/lib/types/legacy-tables/companions';
+} from '@/infra/mock/data/companions';
 
 export type {
     PlanProduct,
     PlanType,
     BillingCycle
-} from '@/lib/types/legacy-tables/plans';
+} from '@/infra/mock/data/plans';
 
 export type {
     MerchandiseProduct,
     MerchandiseVariant
-} from '@/lib/types/legacy-tables/merchandise';
+} from '@/infra/mock/data/merchandise';
 
 export type {
     ForumPost,
     Post,
     PostAuthor,
     PostCategory
-} from '@/lib/types/legacy-tables/forumPosts';
+} from '@/infra/mock/data/forumPosts';
 
 export type {
     Comment,
     CommentAuthor
-} from '@/lib/types/legacy-tables/comments';
+} from '@/infra/mock/data/comments';
 
 export type {
     EventProduct,
@@ -48,13 +48,13 @@ export type {
     EventAgendaItem,
     EventFAQItem,
     EventSortBy
-} from '@/lib/types/legacy-tables/events';
+} from '@/infra/mock/data/events';
 
 export type {
     DuoProduct,
     DuoVariant,
     NunuTier
-} from '@/lib/types/legacy-tables/duo';
+} from '@/infra/mock/data/duo';
 
 export type {
     Course,
@@ -65,15 +65,15 @@ export type {
     Chapter,
     Lesson,
     Trailer
-} from '@/lib/types/legacy-tables/courses';
+} from '@/infra/mock/data/courses';
 
 export type {
     Sprint,
     Project
-} from '@/lib/types/legacy-tables/sprints';
+} from '@/infra/mock/data/sprints';
 
 export type {
     Product,
     ShopProduct,
     ProductCategory
-} from '@/lib/types/legacy-tables/products';
+} from '@/infra/mock/data/products';

@@ -1,3 +1,4 @@
+import { IProductRepository } from '@/application/ports/IProductRepository';
 import { BaseRepository } from './BaseRepository';
 import type { MockDB } from '../core/MockDB';
 import type {
@@ -42,7 +43,7 @@ export interface ProductWithDetails extends ProductRecord {
   };
 }
 
-export class ProductRepository extends BaseRepository<ProductRecord> {
+export class ProductRepository extends BaseRepository<ProductRecord> implements IProductRepository {
   constructor(db: MockDB) {
     super(db.products, db);
   }

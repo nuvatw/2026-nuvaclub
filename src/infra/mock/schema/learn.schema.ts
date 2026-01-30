@@ -101,6 +101,7 @@ export interface CourseRecord {
 
   // Course Information
   title: string;
+  slug: string;
   subtitle: string;
   description: string;
 
@@ -124,6 +125,12 @@ export interface CourseRecord {
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
+
+  // Domain fields for type compatibility in repositories
+  totalDuration?: number;
+  courseType?: 'vava' | 'nunu';
+  isFree?: boolean;
+  verifiedRequired?: boolean;
 }
 
 // Index: categoryId, instructorId, level, isPublished, isFeatured
@@ -147,6 +154,31 @@ export interface CourseTagRecord {
 // Index: courseId, tag
 
 // ==========================================
+// COURSE CHAPTERS TABLE
+// Grouping for lessons
+// ==========================================
+export interface ChapterRecord {
+  // Primary Key
+  id: string;
+
+  // Foreign Keys
+  courseId: string; // FK -> courses.id
+
+  // Chapter Information
+  title: string;
+  description?: string;
+
+  // Ordering
+  sortOrder: number;
+
+  // Timestamps
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Index: courseId, sortOrder
+
+// ==========================================
 // LESSONS TABLE
 // Individual course lessons/videos
 // ==========================================
@@ -156,6 +188,7 @@ export interface LessonRecord {
 
   // Foreign Keys
   courseId: string; // FK -> courses.id
+  chapterId: string; // FK -> chapters.id
 
   // Lesson Information
   title: string;

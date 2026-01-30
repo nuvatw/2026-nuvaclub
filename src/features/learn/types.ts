@@ -46,15 +46,14 @@ export interface Course {
   totalDuration: number;
   lessonCount: number;
   isFeatured: boolean;
-  createdAt: Date;
+  createdAt: string; // From DTO
   // Course type: 'vava' for learner courses, 'nunu' for mentor training
   courseType: CourseType;
   // Tool tags for Vava courses (e.g., ['ChatGPT', 'Zapier'])
-  // Used for grouping courses in Learn page. Nunu courses don't use this.
   toolTags?: string[];
-  // Whether this course is free (hidden in UI, used for filtering/gating)
-  isFree?: boolean;
-  // Track for Nunu/Vava curriculum (optional, default: 'general') - legacy field
+  // Whether this course is free
+  isFree: boolean;
+  // Track for Nunu/Vava curriculum (legacy field)
   track?: CourseTrack;
   // Whether this course is required for Verified Nunu certification
   verifiedRequired?: boolean;

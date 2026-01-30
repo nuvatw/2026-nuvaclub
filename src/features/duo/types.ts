@@ -3,40 +3,55 @@
 // Monthly Duo Pass System
 // ============================================================================
 
+// Redefined locally to match BFF response (Date -> string)
 export type DuoTier = 'go' | 'run' | 'fly';
 export type DuoMonthPassStatus = 'active' | 'expired' | 'upgraded' | 'refunded';
 
-// ==========================================
-// DUO MONTH PASS RECORD
-// Each pass represents access for a specific month
-// ==========================================
-export interface DuoMonthPassRecord {
+export interface DuoMonthPass {
   id: string;
   userId: string;
-
-  // Month specification (YYYY-MM format)
-  month: string; // e.g., "2026-03"
-
-  // Tier for this specific month
-  tier: DuoTier;
-
-  // Purchase tracking
-  purchasedAt: Date;
   orderId?: string;
-
-  // Status
+  month: string;
+  tier: DuoTier;
   status: DuoMonthPassStatus;
-
-  // If upgraded, reference to new pass
   upgradedToId?: string;
-
-  // Matching capacity for this month
-  maxCompanions: number; // Based on tier: 1/5/unlimited (use 999 for unlimited)
+  maxCompanions: number;
   currentCompanions: number;
-
-  createdAt: Date;
-  updatedAt: Date;
+  purchasedAt: string | Date;
+  createdAt: string | Date;
+  updatedAt: string | Date;
 }
+
+export type DuoTransactionType = 'charge' | 'refund' | 'upgrade_charge';
+
+export interface DuoTransaction {
+  id: string;
+  userId: string;
+  passId?: string;
+  type: DuoTransactionType;
+  amount: number;
+  currency: 'TWD';
+  month: string;
+  tier: DuoTier;
+  reason?: string;
+  createdAt: string | Date;
+}
+
+export interface MonthlyMatchStatus {
+  id: string;
+  userId: string;
+  month: string;
+  matched: boolean;
+  matchedAt?: string | Date;
+  matchedWithUserId?: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+}
+
+/**
+ * @deprecated Use DuoMonthPass
+ */
+export interface DuoMonthPassRecord extends DuoMonthPass { }
 
 // ==========================================
 // TIER CONFIGURATION

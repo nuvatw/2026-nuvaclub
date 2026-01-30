@@ -1,6 +1,6 @@
 'use client';
 
-import type { QuestionRecord, QuestionType } from '@/infra/mock/schema';
+import type { Question, QuestionType } from '../../types';
 import { TrueFalseQuestion } from './TrueFalseQuestion';
 import { MultipleChoiceQuestion } from './MultipleChoiceQuestion';
 import { ShortAnswerQuestion } from './ShortAnswerQuestion';
@@ -22,7 +22,7 @@ const QUESTION_TYPE_VARIANTS: Record<QuestionType, 'success' | 'primary' | 'warn
 };
 
 interface QuestionRendererProps {
-  question: QuestionRecord;
+  question: Question;
   questionNumber: number;
   answer?: string;
   onAnswer: (answer: string) => void;

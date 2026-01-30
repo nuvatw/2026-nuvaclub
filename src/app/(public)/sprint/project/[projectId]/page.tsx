@@ -12,11 +12,7 @@ import {
   ChevronUpIcon,
   ExternalLinkIcon,
 } from '@/components/icons';
-import {
-  getProjectById,
-  getSprintById,
-  getSeasonById,
-} from '@/lib/legacy-db-shim';
+import { useProject, useSprint, useSeason } from '@/features/sprint/hooks/useSprints';
 import { getRankLabel, getRankStyle } from '@/features/sprint/types';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { formatDateMedium } from '@/lib/utils/date';
@@ -27,13 +23,15 @@ export default function ProjectDetailPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = use(params);
-  const project = getProjectById(projectId);
+  const project = useProject(projectId);
+  const sprint = useSprint(project?.sprintId || '');
+  const season = useSeason(sprint?.seasonId || '');
 
   if (!project) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">Project Not Found</h1>
+        <div className="text-center text-neutral-400">
+          <p className="mb-4">Loading project details...</p>
           <Link href="/sprint" className="text-primary-400 hover:text-primary-300">
             Back to Sprint
           </Link>
@@ -41,9 +39,6 @@ export default function ProjectDetailPage({
       </div>
     );
   }
-
-  const sprint = getSprintById(project.sprintId);
-  const season = sprint ? getSeasonById(sprint.seasonId) : undefined;
 
   return (
     <PageTransition skeleton={<div className="min-h-screen bg-neutral-900 animate-pulse" />}>
@@ -114,7 +109,7 @@ export default function ProjectDetailPage({
 
             {/* Author Info */}
             <div className="flex items-center gap-4 mb-6">
-              {project.author.avatar && (
+              {project?.author?.avatar && (
                 <Image
                   src={project.author.avatar}
                   alt={project.author.name}
@@ -124,9 +119,9 @@ export default function ProjectDetailPage({
                 />
               )}
               <div>
-                <p className="text-white font-medium text-lg">{project.author.name}</p>
+                <p className="text-white font-medium text-lg">{project?.author?.name || 'Anonymous'}</p>
                 <p className="text-neutral-500">
-                  Submitted on {formatDateMedium(project.createdAt)}
+                  Submitted on {project ? formatDateMedium(project.createdAt) : ''}
                 </p>
               </div>
             </div>
@@ -135,17 +130,17 @@ export default function ProjectDetailPage({
             <div className="flex flex-wrap items-center gap-6 mb-6 pb-6 border-b border-neutral-800">
               <div className="flex items-center gap-2">
                 <EyeIcon size="md" className="text-neutral-400" />
-                <span className="text-white font-medium">{project.viewCount.toLocaleString()}</span>
+                <span className="text-white font-medium">{(project as any).viewCount?.toLocaleString() ?? 0}</span>
                 <span className="text-neutral-500">views</span>
               </div>
               <div className="flex items-center gap-2">
                 <StarIcon size="md" className="text-yellow-400" />
-                <span className="text-white font-medium">{project.starCount.toLocaleString()}</span>
+                <span className="text-white font-medium">{(project as any).starCount?.toLocaleString() ?? 0}</span>
                 <span className="text-neutral-500">stars</span>
               </div>
               <div className="flex items-center gap-2">
                 <ChevronUpIcon size="md" className="text-primary-400" />
-                <span className="text-white font-medium">{project.voteCount}</span>
+                <span className="text-white font-medium">{(project as any).voteCount ?? 0}</span>
                 <span className="text-neutral-500">votes</span>
               </div>
             </div>
@@ -154,7 +149,7 @@ export default function ProjectDetailPage({
             <div className="mb-6">
               <h3 className="text-sm font-medium text-neutral-500 mb-3">Tech Stack</h3>
               <div className="flex flex-wrap gap-2">
-                {project.techStack.map((tech) => (
+                {project?.techStack?.map((tech: string) => (
                   <span
                     key={tech}
                     className="px-3 py-1.5 text-sm bg-neutral-800 text-neutral-300 rounded-lg border border-neutral-700"

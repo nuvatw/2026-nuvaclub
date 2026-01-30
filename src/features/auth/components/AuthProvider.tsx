@@ -16,7 +16,6 @@ import {
   hasAnyPermission,
   type Permission,
 } from '@/features/auth/permissions';
-import { useDBContext } from '@/lib/db';
 import {
   TEST_ACCOUNTS,
   type TestAccount,
@@ -45,7 +44,6 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { db, isReady } = useDBContext();
   const [currentAccountId, setCurrentAccountId] = useState<string>('guest');
   const [user, setUser] = useState<User | null>(null);
   const [identity, setIdentityState] = useState<IdentityType>('guest');
@@ -54,62 +52,74 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Compute isAdmin from user role
   const isAdmin = useMemo(() => user?.role === 'admin', [user?.role]);
 
-  // Load user from test account or database when account changes
+  // Load user from test account or BFF when account changes
   useEffect(() => {
-    if (currentAccountId === 'test-guest') {
-      setUser(null);
-      setIdentityState('guest');
-      return;
-    }
+    let mounted = true;
 
-    // For test accounts (IDs starting with 'test-'), use TestAccount data directly
-    const testAccount = TEST_ACCOUNTS.find((a) => a.id === currentAccountId);
-    if (testAccount && testAccount.id.startsWith('test-')) {
-      if (testAccount.identity === 'guest') {
+    async function loadUser() {
+      if (currentAccountId === 'test-guest') {
         setUser(null);
         setIdentityState('guest');
-      } else {
-        const testUser: User = {
-          id: testAccount.id,
-          name: testAccount.name,
-          email: `${testAccount.id}@nuvaclub.test`,
-          identity: testAccount.identity,
-          role: 'user', // Test accounts are regular users by default
-          createdAt: new Date(),
-        };
-        setUser(testUser);
-        setIdentityState(testAccount.identity);
+        return;
       }
-      return;
+
+      // For test accounts (IDs starting with 'test-'), use TestAccount data directly
+      const testAccount = TEST_ACCOUNTS.find((a) => a.id === currentAccountId);
+      if (testAccount && testAccount.id.startsWith('test-')) {
+        if (testAccount.identity === 'guest') {
+          setUser(null);
+          setIdentityState('guest');
+        } else {
+          const testUser: User = {
+            id: testAccount.id,
+            name: testAccount.name,
+            email: `${testAccount.id}@nuvaclub.test`,
+            identity: testAccount.identity,
+            role: 'user', // Test accounts are regular users by default
+            createdAt: new Date(),
+          };
+          setUser(testUser);
+          setIdentityState(testAccount.identity);
+        }
+        return;
+      }
+
+      // For database-backed users, load from BFF
+      if (currentAccountId === 'guest') {
+        setUser(null);
+        setIdentityState('guest');
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/bff/auth/session?userId=${currentAccountId}`);
+        if (response.ok) {
+          const userData = await response.json();
+          if (mounted) {
+            setUser(userData);
+            setIdentityState(userData.identity);
+          }
+        } else {
+          console.error('Failed to load user session');
+          if (mounted) {
+            setUser(null);
+            setIdentityState('guest');
+          }
+        }
+      } catch (error) {
+        console.error('BFF Session Fetch Error:', error);
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
     }
 
-    // For database-backed users, load from DB
-    if (!isReady || !db) return;
+    loadUser();
 
-    if (currentAccountId === 'guest') {
-      setUser(null);
-      setIdentityState('guest');
-      return;
-    }
-
-    const userRecord = db.users.findById(currentAccountId);
-    if (userRecord) {
-      const mappedIdentity = userRecord.identityType as IdentityType;
-
-      const mappedUser: User = {
-        id: userRecord.id,
-        name: userRecord.name,
-        email: userRecord.email,
-        avatar: userRecord.avatar,
-        identity: mappedIdentity,
-        role: 'user',
-        createdAt: userRecord.createdAt,
-      };
-
-      setUser(mappedUser);
-      setIdentityState(mappedIdentity);
-    }
-  }, [currentAccountId, db, isReady]);
+    return () => {
+      mounted = false;
+    };
+  }, [currentAccountId]);
 
   const switchAccount = useCallback((accountId: string) => {
     setIsLoading(true);

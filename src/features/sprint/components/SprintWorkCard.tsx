@@ -4,11 +4,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, Badge } from '@/components/atoms';
 import { StarSolidIcon } from '@/components/icons';
-import type { Project } from '@/features/sprint/types';
+import type { ProjectWithRelations } from '@/features/sprint/types';
 import { cn } from '@/lib/utils';
 
 interface SprintWorkCardProps {
-  project: Project & { seasonName?: string };
+  project: ProjectWithRelations & { seasonName?: string };
   showSeason?: boolean;
   className?: string;
 }
@@ -60,7 +60,7 @@ export function SprintWorkCard({
 
           {/* Author */}
           <div className="flex items-center gap-2 mb-3">
-            {project.author.avatar && (
+            {project.author?.avatar && (
               <Image
                 src={project.author.avatar}
                 alt={project.author.name}
@@ -69,7 +69,7 @@ export function SprintWorkCard({
                 className="rounded-full"
               />
             )}
-            <span className="text-xs text-neutral-500">{project.author.name}</span>
+            <span className="text-xs text-neutral-500">{project.author?.name ?? 'Anonymous'}</span>
           </div>
 
           {/* Stats - Star icon now represents votes */}
@@ -94,18 +94,18 @@ export function SprintWorkCard({
                   d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                 />
               </svg>
-              <span>{project.viewCount.toLocaleString()}</span>
+              <span>{project.stats?.viewCount?.toLocaleString() ?? '0'}</span>
             </div>
             {/* Star icon = Votes */}
             <div className="flex items-center gap-1" title="Votes">
               <StarSolidIcon size="sm" className="text-amber-400 w-3.5 h-3.5" />
-              <span>{project.voteCount.toLocaleString()}</span>
+              <span>{project.stats?.voteCount?.toLocaleString() ?? '0'}</span>
             </div>
           </div>
 
           {/* Tech Stack */}
           <div className="flex flex-wrap gap-1.5 mt-3">
-            {project.techStack.slice(0, 3).map((tech) => (
+            {project.techStack?.slice(0, 3).map((tech) => (
               <span
                 key={tech}
                 className="px-1.5 py-0.5 text-xs bg-neutral-800 text-neutral-400 rounded"

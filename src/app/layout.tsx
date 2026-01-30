@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { DBProvider } from '@/lib/db';
 import { AuthProvider } from '@/features/auth/components/AuthProvider';
 import { CartProvider } from '@/features/shop/components/cart';
 import { AdminThemeProvider } from '@/features/admin/components/AdminThemeProvider';
@@ -19,17 +18,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased min-h-screen bg-neutral-950">
-        <DBProvider>
-          <AuthProvider>
-            <AdminThemeProvider>
-              <CartProvider>
-                <KeyboardShortcutsProvider>
-                  {children}
-                </KeyboardShortcutsProvider>
-              </CartProvider>
-            </AdminThemeProvider>
-          </AuthProvider>
-        </DBProvider>
+        <AuthProvider>
+          <AdminThemeProvider>
+            <CartProvider>
+              <KeyboardShortcutsProvider>
+                {children}
+              </KeyboardShortcutsProvider>
+            </CartProvider>
+          </AdminThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

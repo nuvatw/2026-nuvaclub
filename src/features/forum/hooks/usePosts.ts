@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import type { PostCategory } from '@/features/forum/types';
+import type { IdentityType } from '@/features/auth/types';
 
 // Local type definition
 export interface ForumPost {
   id: string;
   title: string;
   content: string;
-  category: string;
+  category: PostCategory;
   createdAt: string | Date;
   isPinned?: boolean;
   tags?: string[];
@@ -16,8 +18,8 @@ export interface ForumPost {
     id: string;
     name: string;
     avatar?: string;
-    identity?: string;
-    identityType?: string; // Support both property names for compatibility
+    identity?: IdentityType;
+    identityType?: IdentityType; // Support both property names for compatibility
   };
   stats?: {
     upvotes?: number;
@@ -42,7 +44,6 @@ export interface ForumPost {
   }>;
 }
 
-export type ForumPostCategory = 'announcement' | 'discussion' | 'question' | 'showcase';
 
 /**
  * Hook to access forum post data via BFF
@@ -95,7 +96,7 @@ export function usePosts() {
     return posts.find(p => p.id === id);
   }, [posts]);
 
-  const getPostsByCategory = useCallback((category: ForumPostCategory) => {
+  const getPostsByCategory = useCallback((category: PostCategory) => {
     return posts.filter(p => p.category === category);
   }, [posts]);
 

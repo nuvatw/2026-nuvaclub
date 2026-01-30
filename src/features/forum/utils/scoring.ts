@@ -4,7 +4,7 @@
  * Implements PostPoints and TrendingScore algorithms per the spec.
  */
 
-import type { ForumPostStatsRecord, ForumPostRecord, ForumPostCategory } from '@/infra/mock/schema/forum.schema';
+import type { PostStats as ForumPostStats, ForumPost, PostCategory as ForumPostCategory } from '../types';
 
 // ============================================================================
 // CONSTANTS
@@ -108,8 +108,8 @@ export function computePostPoints(stats: PostPointsInput): number {
 // ============================================================================
 
 interface TrendingInput {
-  stats: Pick<ForumPostStatsRecord, 'upvotes' | 'downvotes' | 'commentCount' | 'viewCount' | 'bookmarkCount' | 'shareCount' | 'reportCount'>;
-  post: Pick<ForumPostRecord, 'category' | 'createdAt'>;
+  stats: Pick<ForumPostStats, 'upvotes' | 'downvotes' | 'commentCount' | 'viewCount' | 'bookmarkCount' | 'shareCount' | 'reportCount'>;
+  post: Pick<ForumPost, 'category' | 'createdAt'>;
   authorTotalPoints: number;
 }
 

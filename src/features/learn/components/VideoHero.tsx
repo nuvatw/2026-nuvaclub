@@ -10,7 +10,7 @@ import type { Course } from '@/features/learn/types';
 import { LEVEL_BADGE_VARIANTS, getAllLessons } from '@/features/learn/types';
 import { getLvLabel } from '@/lib/utils/level';
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import { useVideoProgress } from '@/lib/db/hooks';
+import { useVideoProgress } from '../hooks';
 
 interface VideoHeroProps {
   course: Course;
@@ -114,7 +114,7 @@ export function VideoHero({ course, videoId }: VideoHeroProps) {
         >
           <div className="max-w-2xl">
             <div className="flex items-center gap-2 mb-4">
-              <Badge variant="primary">{course.category}</Badge>
+              <Badge variant="primary">{course.category || '未分類'}</Badge>
               <Badge variant={LEVEL_BADGE_VARIANTS[course.level]} size="md">
                 {getLvLabel(course.level)}
               </Badge>

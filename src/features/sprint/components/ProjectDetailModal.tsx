@@ -14,7 +14,7 @@ import {
   ShareIcon,
 } from '@/components/icons';
 import { MarkdownContent } from '@/features/document/components/MarkdownContent';
-import type { ProjectWithRelations } from '@/lib/db/repositories';
+import type { ProjectWithRelations } from '@/features/sprint/types';
 import { getRankLabel, getRankStyle } from '@/features/sprint/types';
 import { formatDateMedium } from '@/lib/utils/date';
 import { cn } from '@/lib/utils';

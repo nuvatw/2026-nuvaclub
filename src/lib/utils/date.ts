@@ -119,8 +119,8 @@ export function formatDateWithTime(date: Date | string, locale: SupportedLocale 
 /**
  * Format a date range as "MMM d, yyyy - MMM d, yyyy"
  */
-export function formatDateRange(start: Date, end: Date, locale: SupportedLocale = 'en-US'): string {
-  return `${formatDateCompact(start, locale)} - ${formatDateCompact(end, locale)}`;
+export function formatDateRange(start: Date | string, end: Date | string, locale: SupportedLocale = 'en-US'): string {
+  return `${formatDateCompact(start as any, locale)} - ${formatDateCompact(end as any, locale)}`;
 }
 
 /**

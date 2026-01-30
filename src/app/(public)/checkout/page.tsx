@@ -7,7 +7,6 @@ import { Button } from '@/components/atoms';
 import { useCart } from '@/features/shop/components/cart';
 import { CheckoutProvider, useCheckout } from '@/features/checkout/context';
 import { useDuoEntitlement } from '@/features/shop/hooks/useDuoEntitlement';
-import { getDuoProductById } from '@/lib/legacy-db-shim';
 import type { CartItem } from '@/features/checkout/types';
 import type { DuoVariant } from '@/features/shop/types';
 
@@ -52,7 +51,7 @@ export default function CheckoutPage() {
   const { cart, clearCart } = useCart();
   const [isComplete, setIsComplete] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
-  const { grantEntitlement, upgradeEntitlement } = useDuoEntitlement();
+  const { upgradeEntitlement } = useDuoEntitlement();
 
   // Convert cart items
   const checkoutItems = convertCartToCheckoutItems(cart.items);
@@ -60,11 +59,11 @@ export default function CheckoutPage() {
   const handlePlaceOrder = () => {
     // Check for Duo products and grant entitlements
     cart.items.forEach((item) => {
-      // Check if this is a Duo product
-      const duoProduct = getDuoProductById(item.productId);
-      if (duoProduct) {
-        // Grant or upgrade the Duo entitlement
-        upgradeEntitlement(duoProduct.duoVariant as DuoVariant);
+      // If it's a duo product, it will have a duoVariant in its ID or type
+      // Simplified check for mock environment
+      if (item.productId.startsWith('duo-')) {
+        const variant = item.productId.replace('duo-', '') as DuoVariant;
+        upgradeEntitlement(variant);
       }
     });
 
@@ -295,11 +294,10 @@ function CheckoutContent({ onPlaceOrder }: { onPlaceOrder: () => void }) {
                   type="button"
                   onClick={handleContinue}
                   disabled={!isValid}
-                  className={`px-6 py-2.5 rounded-lg font-medium transition-colors ${
-                    isValid
+                  className={`px-6 py-2.5 rounded-lg font-medium transition-colors ${isValid
                       ? 'bg-blue-600 text-white hover:bg-blue-700'
                       : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  }`}
+                    }`}
                 >
                   {isLastStep() ? 'Place Order' : 'Continue'}
                 </button>

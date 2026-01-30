@@ -7,7 +7,7 @@ import {
     getSprintsBySeasonId,
     getProjectById,
     getProjectsBySprintId
-} from '@/lib/legacy-db-shim';
+} from '@/infra/mock/legacy';
 
 /**
  * BFF Endpoint for Sprint/Seasons
@@ -20,18 +20,17 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const seasonId = searchParams.get('seasonId');
     const sprintId = searchParams.get('sprintId');
+    const projectId = searchParams.get('projectId');
     const active = searchParams.get('active');
 
     try {
-        // Sprint by ID
-        if (sprintId) {
-            const sprint = getSprintById(sprintId);
-            if (!sprint) {
-                return NextResponse.json({ error: 'Sprint not found' }, { status: 404 });
+        // Project by ID
+        if (projectId) {
+            const project = getProjectById(projectId);
+            if (!project) {
+                return NextResponse.json({ error: 'Project not found' }, { status: 404 });
             }
-            // Enrich with projects
-            const projects = getProjectsBySprintId(sprintId);
-            return NextResponse.json({ ...sprint, projects });
+            return NextResponse.json(project);
         }
 
         // Season by ID

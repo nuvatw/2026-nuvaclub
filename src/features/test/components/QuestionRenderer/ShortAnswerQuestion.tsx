@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import type { QuestionRecord } from '@/infra/mock/schema';
+import type { Question } from '../../types';
 
 interface ShortAnswerQuestionProps {
-  question: QuestionRecord;
+  question: Question;
   answer?: string;
   onChange: (answer: string) => void;
   showResult?: boolean;

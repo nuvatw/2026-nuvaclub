@@ -1,17 +1,67 @@
-import type {
-  QuestionRecord,
-  TestSessionRecord,
-  UserTestProgressRecord,
-  QuestionType,
-} from '@/infra/mock/schema';
 
-export type { QuestionType };
+export type QuestionType = 'true-false' | 'multiple-choice' | 'short-answer' | 'essay';
+export type QuestionDifficulty = 'easy' | 'medium' | 'hard';
+export type TestSessionStatus = 'not-started' | 'in-progress' | 'completed' | 'expired' | 'grading';
 
-export interface Question extends QuestionRecord {}
+export interface QuestionOption {
+  id: string;
+  questionId: string;
+  optionKey: string;
+  optionText: string;
+  isCorrect: boolean;
+  sortOrder: number;
+}
 
-export interface TestSession extends TestSessionRecord {}
+export interface Question {
+  id: string;
+  levelId: string;
+  categoryId?: string;
+  type: QuestionType;
+  content: string;
+  explanation?: string;
+  correctAnswer?: string;
+  rubric?: string;
+  points: number;
+  difficulty: QuestionDifficulty;
+  isRandomized: boolean;
+  isActive: boolean;
+  options?: QuestionOption[];
+  createdAt: string; // ISO Date string from BFF
+  updatedAt: string; // ISO Date string from BFF
+}
 
-export interface UserProgress extends UserTestProgressRecord {}
+export interface TestSession {
+  id: string;
+  userId: string;
+  levelId: string;
+  questionCount: number;
+  timeLimit: number;
+  passingScore: number;
+  status: TestSessionStatus;
+  startedAt?: string;
+  completedAt?: string;
+  expiresAt?: string;
+  score?: number;
+  maxScore: number;
+  passed?: boolean;
+  timeSpentSeconds?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UserProgress {
+  id: string;
+  userId: string;
+  currentLevel: number;
+  highestPassedLevel: number;
+  totalAttempts: number;
+  totalPassed: number;
+  totalFailed: number;
+  averageScore?: number;
+  lastAttemptAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export type LevelStatus = 'locked' | 'available' | 'passed';
 
@@ -74,4 +124,18 @@ export interface AnswerState {
   answer: string;
   isCorrect?: boolean;
   score?: number;
+}
+
+export interface LevelStats {
+  attempts: number;
+  bestScore: number | null;
+  passed: boolean;
+  averageTime: number | null;
+}
+
+export interface LevelConfig {
+  level: number;
+  durationMinutes: number;
+  questionTypes: string;
+  questionCount: number;
 }

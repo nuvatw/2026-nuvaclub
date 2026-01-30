@@ -1,29 +1,39 @@
 import { NextResponse } from 'next/server';
+import { sprintService } from '../../composition';
 
 // Mock Auth
 async function getUserId(request: Request): Promise<string | null> {
     return 'user-1';
 }
 
-// In-memory store for Nunu profiles
-const profiles: Record<string, any> = {};
-
 /**
  * BFF Endpoint for Nunu Profiles
- * GET /api/bff/space/profile?userId={id} - Get Nunu profile
- * PUT /api/bff/space/profile - Update Nunu profile
+ * GET /api/bff/space/profile?userId={id} - Get Nunu profile with eligibility stats
  */
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
 
-    if (!userId) {
-        return NextResponse.json({ error: 'userId required' }, { status: 400 });
-    }
-
     try {
-        const profile = profiles[userId] || null;
-        return NextResponse.json(profile);
+        if (!userId) {
+            return NextResponse.json({ error: 'userId required' }, { status: 400 });
+        }
+
+        const sprintStatus = await sprintService.getMemberSprintStatus(userId);
+        if (!sprintStatus) {
+            return NextResponse.json(null);
+        }
+
+        // Map domain-centric status back to UI-centric profile expectations
+        // This keeps the BFF as a thin translation layer
+        return NextResponse.json({
+            ...sprintStatus,
+            level: sprintStatus.currentNunuLevel || 'Nx',
+            currentVavaCount: sprintStatus.activeMenteesCount,
+            maxVavas: 3, // Logic could eventually move to aggregate
+            isAvailable: true,
+            expertise: [],
+        });
     } catch (error) {
         console.error('Error fetching profile:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
@@ -31,26 +41,6 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-    const userId = await getUserId(request);
-    if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    try {
-        const body = await request.json();
-
-        const updatedProfile = {
-            ...profiles[userId],
-            ...body,
-            userId,
-            updatedAt: new Date().toISOString(),
-        };
-
-        profiles[userId] = updatedProfile;
-
-        return NextResponse.json(updatedProfile);
-    } catch (error) {
-        console.error('Error updating profile:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-    }
+    // PUT remains a placeholder or directed to a service later
+    return NextResponse.json({ success: true });
 }

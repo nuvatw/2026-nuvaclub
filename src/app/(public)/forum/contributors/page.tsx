@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'motion/react';
 import { SparklesIcon, ChevronLeftIcon } from '@/components/icons';
-import { useLeaderboard, type LeaderboardEntry } from '@/lib/db/hooks';
+import { useLeaderboard, type PointsLeaderboardEntry } from '@/features/forum/hooks';
 import { IDENTITY_COLORS, IDENTITY_LABELS, type IdentityType } from '@/features/auth/types';
 import { cn } from '@/lib/utils';
 import { PageTransition } from '@/components/molecules/PageTransition';
@@ -15,7 +15,7 @@ import { ForumPageSkeleton } from '@/components/skeletons';
 // ============================================================================
 
 interface ContributorCardProps {
-  contributor: LeaderboardEntry;
+  contributor: PointsLeaderboardEntry;
   index: number;
 }
 

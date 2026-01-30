@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Modal, Button, Badge } from '@/components/atoms';
 import { VideoUpload } from '@/components/molecules';
-import { NUNU_APPLICATION_QUESTIONS } from '@/infra/mock/schema/space.schema';
+import { NUNU_APPLICATION_QUESTIONS } from '../../constants';
 import { cn } from '@/lib/utils';
 
 interface NunuApplicationModalProps {

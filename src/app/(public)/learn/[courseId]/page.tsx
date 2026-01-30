@@ -8,13 +8,13 @@ import { motion } from 'motion/react';
 import { Button, Badge, Card, CardContent } from '@/components/atoms';
 import { PlaySolidIcon, PlayIcon, LockIcon, CheckIcon } from '@/components/icons';
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import { getCourseById } from '@/lib/legacy-db-shim';
+import { useCourse } from '@/features/learn/hooks/useCourses';
 import { cn } from '@/lib/utils';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { CourseDetailSkeleton } from '@/components/skeletons';
 import { LEVEL_BADGE_VARIANTS, getAllLessons } from '@/features/learn/types';
 import { getLvLabel } from '@/lib/utils/level';
-import { useVideoProgress } from '@/lib/db/hooks';
+import { useVideoProgress } from '@/features/learn/hooks';
 
 // Dynamic import for VideoPlayer - defers loading until needed
 const VideoPlayer = dynamic(
@@ -28,7 +28,7 @@ interface CoursePageProps {
 
 export default function CoursePage({ params }: CoursePageProps) {
   const { courseId } = use(params);
-  const course = getCourseById(courseId);
+  const course = useCourse(courseId);
   const { identity, currentAccountId } = useAuth();
 
   // Video player state
@@ -49,7 +49,100 @@ export default function CoursePage({ params }: CoursePageProps) {
     getCourseProgress,
   } = useVideoProgress(userId);
 
+  // Get all lessons from chapters (safely)
+  const allLessons = useMemo(() => course ? getAllLessons(course) : [], [course]);
+
+  // Calculate course progress (safely)
+  const courseProgress = useMemo(() => course ? getCourseProgress(course.id, allLessons.length) : 0, [course, allLessons, getCourseProgress]);
+  const trailerCompleted = useMemo(() => course ? isTrailerCompleted(course.id) : false, [course, isTrailerCompleted]);
+
+  // Derive access level from course level (level 1 = free, others = paid)
+  const isFreeCourse = course?.level === 1;
+
+  // Check if user can access lesson
+  const canAccessLesson = useCallback((lessonIndex: number) => {
+    if (isFreeCourse) return true;
+    if (lessonIndex === 0) return true;
+    return ['solo-traveler', 'duo-go', 'duo-run', 'duo-fly'].includes(identity);
+  }, [isFreeCourse, identity]);
+
+  // Handle progress updates from VideoPlayer
+  const handleProgressUpdate = useCallback(
+    (lessonIndex: number, currentSeconds: number, totalDuration: number) => {
+      if (!course) return;
+      if (lessonIndex === -1) {
+        saveTrailerProgress(course.id, currentSeconds, totalDuration);
+      } else {
+        const lesson = allLessons[lessonIndex];
+        if (lesson) {
+          saveLessonProgress(course.id, lesson.id, lessonIndex, currentSeconds, totalDuration);
+        }
+      }
+    },
+    [course, allLessons, saveTrailerProgress, saveLessonProgress]
+  );
+
+  // Handle trailer click
+  const handleTrailerClick = useCallback(() => {
+    if (!course) return;
+    const trailerProgress = getTrailerProgress(course.id);
+    const startSeconds = trailerProgress && !trailerProgress.isCompleted
+      ? Math.max(0, trailerProgress.watchedSeconds - 5)
+      : 0;
+
+    setSelectedLessonIndex(-1); // -1 = trailer
+    setPlayerStartSeconds(startSeconds);
+    setIsPlayerOpen(true);
+  }, [course, getTrailerProgress]);
+
+  // Handle lesson click
+  const handleLessonClick = useCallback((lessonIndex: number) => {
+    if (!course || !canAccessLesson(lessonIndex)) return;
+    const lesson = allLessons[lessonIndex];
+    // Check if there's progress for this specific lesson
+    const lessonProgress = lesson ? getLessonProgressByIndex(course.id, lesson.id) : 0;
+    const startSeconds = lesson && lessonProgress > 0 && lessonProgress < 90 ? Math.max(0, (lessonProgress / 100) * lesson.duration - 5) : 0;
+
+    setSelectedLessonIndex(lessonIndex);
+    setPlayerStartSeconds(startSeconds);
+    setIsPlayerOpen(true);
+  }, [course, allLessons, canAccessLesson, getLessonProgressByIndex]);
+
+  // Handle start learning with resume functionality
+  const handleStartLearning = useCallback(() => {
+    if (!course) return;
+    const resumePoint = getResumePoint(course.id, course.trailer?.duration || 120);
+    setSelectedLessonIndex(resumePoint.lessonIndex);
+    setPlayerStartSeconds(resumePoint.startSeconds);
+    setIsPlayerOpen(true);
+  }, [course, getResumePoint]);
+
+  // Get current video ID based on selected index
+  const currentVideoId = useMemo(() => {
+    if (!course) return '';
+    return selectedLessonIndex === -1
+      ? (course.trailer?.youtubeId || allLessons[0]?.videoUrl || '')
+      : (allLessons[selectedLessonIndex]?.videoUrl || '');
+  }, [course, selectedLessonIndex, allLessons]);
+
+  // Determine button text based on progress
+  const getButtonText = useCallback(() => {
+    if (!course) return 'Start Learning';
+    const resumePoint = getResumePoint(course.id, course.trailer?.duration || 120);
+    if (!resumePoint.hasAnyProgress) return 'Start Learning';
+    if (courseProgress === 100) return 'Watch Again';
+    return 'Continue Learning';
+  }, [course, getResumePoint, courseProgress]);
+
+  // ==========================================
+  // RENDER LOGIC
+  // ==========================================
+
+  // While loading or if not found (SAFE to return here after all hooks)
   if (!course) {
+    if (courseId) {
+      return <CourseDetailSkeleton />;
+    }
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -62,434 +155,356 @@ export default function CoursePage({ params }: CoursePageProps) {
     );
   }
 
-  // Get all lessons from chapters
-  const allLessons = getAllLessons(course);
-
-  // Calculate course progress
-  const courseProgress = getCourseProgress(course.id, allLessons.length);
-  const trailerCompleted = isTrailerCompleted(course.id);
-
-  // Derive access level from course level (level 1 = free, others = paid)
-  const isFreeCourse = course.level === 1;
-
-  // Check if user can access lesson
-  const canAccessLesson = (lessonIndex: number) => {
-    if (isFreeCourse) return true;
-    if (lessonIndex === 0) return true;
-    return ['solo-traveler', 'duo-go', 'duo-run', 'duo-fly'].includes(identity);
-  };
-
-  // Handle progress updates from VideoPlayer
-  const handleProgressUpdate = useCallback(
-    (lessonIndex: number, currentSeconds: number, totalDuration: number) => {
-      if (lessonIndex === -1) {
-        saveTrailerProgress(course.id, currentSeconds, totalDuration);
-      } else {
-        const lesson = allLessons[lessonIndex];
-        if (lesson) {
-          saveLessonProgress(course.id, lesson.id, lessonIndex, currentSeconds, totalDuration);
-        }
-      }
-    },
-    [course.id, allLessons, saveTrailerProgress, saveLessonProgress]
-  );
-
-  // Handle trailer click
-  const handleTrailerClick = () => {
-    const trailerProgress = getTrailerProgress(course.id);
-    const startSeconds = trailerProgress && !trailerProgress.isCompleted
-      ? Math.max(0, trailerProgress.watchedSeconds - 5)
-      : 0;
-
-    setSelectedLessonIndex(-1); // -1 = trailer
-    setPlayerStartSeconds(startSeconds);
-    setIsPlayerOpen(true);
-  };
-
-  // Handle lesson click
-  const handleLessonClick = (lessonIndex: number) => {
-    if (!canAccessLesson(lessonIndex)) return;
-    const lesson = allLessons[lessonIndex];
-    // Check if there's progress for this specific lesson
-    const lessonProgress = lesson ? getLessonProgressByIndex(course.id, lesson.id) : 0;
-    const startSeconds = lessonProgress > 0 && lessonProgress < 90 ? Math.max(0, (lessonProgress / 100) * lesson.duration - 5) : 0;
-
-    setSelectedLessonIndex(lessonIndex);
-    setPlayerStartSeconds(startSeconds);
-    setIsPlayerOpen(true);
-  };
-
-  // Handle start learning with resume functionality
-  const handleStartLearning = () => {
-    const resumePoint = getResumePoint(course.id, course.trailer?.duration || 120);
-    setSelectedLessonIndex(resumePoint.lessonIndex);
-    setPlayerStartSeconds(resumePoint.startSeconds);
-    setIsPlayerOpen(true);
-  };
-
-  // Get current video ID based on selected index
-  const currentVideoId = selectedLessonIndex === -1
-    ? (course.trailer?.youtubeId || allLessons[0]?.videoUrl || '')
-    : (allLessons[selectedLessonIndex]?.videoUrl || '');
-
-  // Determine button text based on progress
-  const getButtonText = () => {
-    const resumePoint = getResumePoint(course.id, course.trailer?.duration || 120);
-    if (!resumePoint.hasAnyProgress) return 'Start Learning';
-    if (courseProgress === 100) return 'Watch Again';
-    return 'Continue Learning';
-  };
-
   return (
     <PageTransition skeleton={<CourseDetailSkeleton />}>
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <div className="relative h-[50vh] min-h-[400px]">
-        <Image
-          src={course.thumbnailUrl}
-          alt={course.title}
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-950/80 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-transparent" />
+      <div className="min-h-screen">
+        {/* Hero Section */}
+        <div className="relative h-[50vh] min-h-[400px]">
+          <Image
+            src={course.thumbnailUrl}
+            alt={course.title}
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-950/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-transparent" />
 
-        <div className="absolute inset-0 flex items-end">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 w-full">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="max-w-2xl"
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <Badge variant="primary">{course.category}</Badge>
-                <Badge variant={LEVEL_BADGE_VARIANTS[course.level]} size="md">
-                  {getLvLabel(course.level)}
-                </Badge>
-                {isFreeCourse && (
-                  <Badge variant="success">Free</Badge>
-                )}
-                {courseProgress > 0 && courseProgress < 100 && (
-                  <Badge variant="default">{courseProgress}% Complete</Badge>
-                )}
-                {courseProgress === 100 && (
-                  <Badge variant="success">Completed</Badge>
-                )}
-              </div>
-
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">
-                {course.title}
-              </h1>
-
-              <p className="text-lg text-neutral-300 mb-4">{course.subtitle}</p>
-
-              <div className="flex items-center gap-4 text-sm text-neutral-400">
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={course.instructor.avatar}
-                    alt={course.instructor.name}
-                    width={32}
-                    height={32}
-                    className="rounded-full"
-                  />
-                  <span>{course.instructor.name}</span>
+          <div className="absolute inset-0 flex items-end">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 w-full">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="max-w-2xl"
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <Badge variant="primary">{course.category}</Badge>
+                  <Badge variant={LEVEL_BADGE_VARIANTS[course.level]} size="md">
+                    {getLvLabel(course.level)}
+                  </Badge>
+                  {isFreeCourse && (
+                    <Badge variant="success">Free</Badge>
+                  )}
+                  {courseProgress > 0 && courseProgress < 100 && (
+                    <Badge variant="default">{courseProgress}% Complete</Badge>
+                  )}
+                  {courseProgress === 100 && (
+                    <Badge variant="success">Completed</Badge>
+                  )}
                 </div>
-                <span>•</span>
-                <span>{course.lessonCount} lessons</span>
-                <span>•</span>
-                <span>{Math.round(course.totalDuration / 60)} mins</span>
-              </div>
-            </motion.div>
+
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">
+                  {course.title}
+                </h1>
+
+                <p className="text-lg text-neutral-300 mb-4">{course.subtitle}</p>
+
+                <div className="flex items-center gap-4 text-sm text-neutral-400">
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src={course.instructor.avatar}
+                      alt={course.instructor.name}
+                      width={32}
+                      height={32}
+                      className="rounded-full"
+                    />
+                    <span>{course.instructor.name}</span>
+                  </div>
+                  <span>•</span>
+                  <span>{course.lessonCount} lessons</span>
+                  <span>•</span>
+                  <span>{Math.round(course.totalDuration / 60)} mins</span>
+                </div>
+              </motion.div>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Description */}
-            <Card>
-              <CardContent>
-                <h2 className="text-xl font-semibold text-white mb-4">
-                  Course Description
-                </h2>
-                <p className="text-neutral-300 leading-relaxed">
-                  {course.description}
-                </p>
-              </CardContent>
-            </Card>
+        {/* Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Description */}
+              <Card>
+                <CardContent>
+                  <h2 className="text-xl font-semibold text-white mb-4">
+                    Course Description
+                  </h2>
+                  <p className="text-neutral-300 leading-relaxed">
+                    {course.description}
+                  </p>
+                </CardContent>
+              </Card>
 
-            {/* Lessons - organized by chapters */}
-            <Card>
-              <CardContent>
-                <h2 className="text-xl font-semibold text-white mb-4">
-                  Course Curriculum
-                </h2>
-                <div className="space-y-6">
-                  {/* Trailer Section */}
-                  {course.trailer && (
-                    <div className="space-y-2">
-                      <h3 className="text-sm font-semibold text-neutral-400 uppercase tracking-wide px-2">
-                        Introduction
-                      </h3>
-                      <div
-                        onClick={handleTrailerClick}
-                        className={cn(
-                          'flex items-center gap-4 p-4 rounded-lg relative overflow-hidden',
-                          'bg-neutral-800/50 border border-neutral-800',
-                          'transition-colors duration-150',
-                          'hover:bg-neutral-800 cursor-pointer'
-                        )}
-                      >
-                        {/* Progress bar for trailer */}
-                        {(() => {
-                          const trailerProgress = getTrailerProgress(course.id);
-                          const progressPercent = trailerProgress?.progressPercent || 0;
-                          if (progressPercent > 0 && progressPercent < 100) {
-                            return (
-                              <div
-                                className="absolute bottom-0 left-0 h-1 bg-primary-500/50 transition-all"
-                                style={{ width: `${progressPercent}%` }}
-                              />
-                            );
-                          }
-                          return null;
-                        })()}
-
-                        <div className={cn(
-                          "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center",
-                          trailerCompleted
-                            ? "bg-primary-500 text-white"
-                            : "bg-gradient-to-br from-primary-500 to-primary-600 text-white"
-                        )}>
-                          {trailerCompleted ? (
-                            <CheckIcon size="sm" />
-                          ) : (
-                            <PlayIcon size="sm" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className={cn(
-                              "font-medium truncate",
-                              trailerCompleted ? "text-neutral-400" : "text-white"
-                            )}>
-                              {course.trailer.title || 'Course Trailer'}
-                            </span>
-                            <Badge variant="primary" size="sm">
-                              Trailer
-                            </Badge>
-                            {trailerCompleted && (
-                              <Badge variant="success" size="sm">
-                                Watched
-                              </Badge>
-                            )}
-                          </div>
-                          <span className="text-sm text-neutral-400">
-                            {Math.round((course.trailer.duration || 120) / 60)} mins
-                          </span>
-                        </div>
-                        <div className="flex-shrink-0">
-                          <PlaySolidIcon size="md" className={trailerCompleted ? "text-neutral-500" : "text-primary-500"} />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Chapters */}
-                  {(() => {
-                    let flatIndex = 0;
-                    return course.chapters.map((chapter) => (
-                      <div key={chapter.id} className="space-y-2">
-                        {/* Chapter Header */}
+              {/* Lessons - organized by chapters */}
+              <Card>
+                <CardContent>
+                  <h2 className="text-xl font-semibold text-white mb-4">
+                    Course Curriculum
+                  </h2>
+                  <div className="space-y-6">
+                    {/* Trailer Section */}
+                    {course.trailer && (
+                      <div className="space-y-2">
                         <h3 className="text-sm font-semibold text-neutral-400 uppercase tracking-wide px-2">
-                          {chapter.title}
+                          Introduction
                         </h3>
-
-                        {/* Lessons in Chapter */}
-                        {chapter.lessons.map((lesson) => {
-                          const currentIndex = flatIndex++;
-                          const hasAccess = canAccessLesson(currentIndex);
-                          const isPreview = !isFreeCourse && currentIndex === 0;
-                          const lessonCompleted = isLessonCompleted(course.id, lesson.id);
-                          const lessonProgress = getLessonProgressByIndex(course.id, lesson.id);
-
-                          return (
-                            <div
-                              key={lesson.id}
-                              onClick={() => handleLessonClick(currentIndex)}
-                              className={cn(
-                                'flex items-center gap-4 p-4 rounded-lg relative overflow-hidden',
-                                'bg-neutral-800/50 border border-neutral-800',
-                                'transition-colors duration-150',
-                                hasAccess
-                                  ? 'hover:bg-neutral-800 cursor-pointer'
-                                  : 'opacity-60 cursor-not-allowed'
-                              )}
-                            >
-                              {/* Progress bar background */}
-                              {lessonProgress > 0 && lessonProgress < 100 && (
+                        <div
+                          onClick={handleTrailerClick}
+                          className={cn(
+                            'flex items-center gap-4 p-4 rounded-lg relative overflow-hidden',
+                            'bg-neutral-800/50 border border-neutral-800',
+                            'transition-colors duration-150',
+                            'hover:bg-neutral-800 cursor-pointer'
+                          )}
+                        >
+                          {/* Progress bar for trailer */}
+                          {(() => {
+                            const trailerProgress = getTrailerProgress(course.id);
+                            const progressPercent = trailerProgress?.progressPercent || 0;
+                            if (progressPercent > 0 && progressPercent < 100) {
+                              return (
                                 <div
                                   className="absolute bottom-0 left-0 h-1 bg-primary-500/50 transition-all"
-                                  style={{ width: `${lessonProgress}%` }}
+                                  style={{ width: `${progressPercent}%` }}
                                 />
-                              )}
+                              );
+                            }
+                            return null;
+                          })()}
 
-                              <div className={cn(
-                                "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
-                                lessonCompleted
-                                  ? "bg-primary-500 text-white"
-                                  : "bg-neutral-700 text-neutral-300"
+                          <div className={cn(
+                            "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center",
+                            trailerCompleted
+                              ? "bg-primary-500 text-white"
+                              : "bg-gradient-to-br from-primary-500 to-primary-600 text-white"
+                          )}>
+                            {trailerCompleted ? (
+                              <CheckIcon size="sm" />
+                            ) : (
+                              <PlayIcon size="sm" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className={cn(
+                                "font-medium truncate",
+                                trailerCompleted ? "text-neutral-400" : "text-white"
                               )}>
-                                {lessonCompleted ? (
-                                  <CheckIcon size="sm" />
-                                ) : (
-                                  currentIndex + 1
+                                {course.trailer.title || 'Course Trailer'}
+                              </span>
+                              <Badge variant="primary" size="sm">
+                                Trailer
+                              </Badge>
+                              {trailerCompleted && (
+                                <Badge variant="success" size="sm">
+                                  Watched
+                                </Badge>
+                              )}
+                            </div>
+                            <span className="text-sm text-neutral-400">
+                              {Math.round((course.trailer.duration || 120) / 60)} mins
+                            </span>
+                          </div>
+                          <div className="flex-shrink-0">
+                            <PlaySolidIcon size="md" className={trailerCompleted ? "text-neutral-500" : "text-primary-500"} />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Chapters */}
+                    {(() => {
+                      let flatIndex = 0;
+                      return course.chapters.map((chapter) => (
+                        <div key={chapter.id} className="space-y-2">
+                          {/* Chapter Header */}
+                          <h3 className="text-sm font-semibold text-neutral-400 uppercase tracking-wide px-2">
+                            {chapter.title}
+                          </h3>
+
+                          {/* Lessons in Chapter */}
+                          {chapter.lessons.map((lesson) => {
+                            const currentIndex = flatIndex++;
+                            const hasAccess = canAccessLesson(currentIndex);
+                            const isPreview = !isFreeCourse && currentIndex === 0;
+                            const lessonCompleted = isLessonCompleted(course.id, lesson.id);
+                            const lessonProgress = getLessonProgressByIndex(course.id, lesson.id);
+
+                            return (
+                              <div
+                                key={lesson.id}
+                                onClick={() => handleLessonClick(currentIndex)}
+                                className={cn(
+                                  'flex items-center gap-4 p-4 rounded-lg relative overflow-hidden',
+                                  'bg-neutral-800/50 border border-neutral-800',
+                                  'transition-colors duration-150',
+                                  hasAccess
+                                    ? 'hover:bg-neutral-800 cursor-pointer'
+                                    : 'opacity-60 cursor-not-allowed'
                                 )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <span className={cn(
-                                    "font-medium truncate",
-                                    lessonCompleted ? "text-neutral-400" : "text-white"
-                                  )}>
-                                    {lesson.title}
-                                  </span>
-                                  {isPreview && (
-                                    <Badge variant="default" size="sm">
-                                      Preview
-                                    </Badge>
-                                  )}
-                                  {isFreeCourse && (
-                                    <Badge variant="success" size="sm">
-                                      Free
-                                    </Badge>
-                                  )}
-                                  {lessonCompleted && (
-                                    <Badge variant="success" size="sm">
-                                      Completed
-                                    </Badge>
+                              >
+                                {/* Progress bar background */}
+                                {lessonProgress > 0 && lessonProgress < 100 && (
+                                  <div
+                                    className="absolute bottom-0 left-0 h-1 bg-primary-500/50 transition-all"
+                                    style={{ width: `${lessonProgress}%` }}
+                                  />
+                                )}
+
+                                <div className={cn(
+                                  "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
+                                  lessonCompleted
+                                    ? "bg-primary-500 text-white"
+                                    : "bg-neutral-700 text-neutral-300"
+                                )}>
+                                  {lessonCompleted ? (
+                                    <CheckIcon size="sm" />
+                                  ) : (
+                                    currentIndex + 1
                                   )}
                                 </div>
-                                <span className="text-sm text-neutral-400">
-                                  {Math.round(lesson.duration / 60)} mins
-                                </span>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className={cn(
+                                      "font-medium truncate",
+                                      lessonCompleted ? "text-neutral-400" : "text-white"
+                                    )}>
+                                      {lesson.title}
+                                    </span>
+                                    {isPreview && (
+                                      <Badge variant="default" size="sm">
+                                        Preview
+                                      </Badge>
+                                    )}
+                                    {isFreeCourse && (
+                                      <Badge variant="success" size="sm">
+                                        Free
+                                      </Badge>
+                                    )}
+                                    {lessonCompleted && (
+                                      <Badge variant="success" size="sm">
+                                        Completed
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <span className="text-sm text-neutral-400">
+                                    {Math.round(lesson.duration / 60)} mins
+                                  </span>
+                                </div>
+                                <div className="flex-shrink-0">
+                                  {hasAccess ? (
+                                    <PlaySolidIcon size="md" className={lessonCompleted ? "text-neutral-500" : "text-primary-500"} />
+                                  ) : (
+                                    <LockIcon size="md" className="text-neutral-500" />
+                                  )}
+                                </div>
                               </div>
-                              <div className="flex-shrink-0">
-                                {hasAccess ? (
-                                  <PlaySolidIcon size="md" className={lessonCompleted ? "text-neutral-500" : "text-primary-500"} />
-                                ) : (
-                                  <LockIcon size="md" className="text-neutral-500" />
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-6">
+              {/* CTA Card */}
+              <Card className="sticky top-24">
+                <CardContent>
+                  <div className="aspect-video relative rounded-lg overflow-hidden mb-4">
+                    <Image
+                      src={course.thumbnailUrl}
+                      alt={course.title}
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                      <div className="p-4 rounded-full bg-white/90">
+                        <PlaySolidIcon size="lg" className="w-8 h-8 text-neutral-900" />
                       </div>
-                    ));
-                  })()}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* CTA Card */}
-            <Card className="sticky top-24">
-              <CardContent>
-                <div className="aspect-video relative rounded-lg overflow-hidden mb-4">
-                  <Image
-                    src={course.thumbnailUrl}
-                    alt={course.title}
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                    <div className="p-4 rounded-full bg-white/90">
-                      <PlaySolidIcon size="lg" className="w-8 h-8 text-neutral-900" />
                     </div>
+                    {/* Course progress bar on thumbnail */}
+                    {courseProgress > 0 && (
+                      <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-neutral-800">
+                        <div
+                          className="h-full bg-primary-500 transition-all duration-300"
+                          style={{ width: `${courseProgress}%` }}
+                        />
+                      </div>
+                    )}
                   </div>
-                  {/* Course progress bar on thumbnail */}
-                  {courseProgress > 0 && (
-                    <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-neutral-800">
-                      <div
-                        className="h-full bg-primary-500 transition-all duration-300"
-                        style={{ width: `${courseProgress}%` }}
-                      />
-                    </div>
-                  )}
-                </div>
 
-                {!isFreeCourse && identity !== 'solo-traveler' && !identity.startsWith('duo') ? (
-                  <div className="space-y-3">
-                    <p className="text-sm text-neutral-400 text-center">
-                      Upgrade to Traveler to watch the full course
-                    </p>
-                    <Link href="/shop">
-                      <Button className="w-full">Upgrade Plan</Button>
-                    </Link>
-                    <Button
-                      variant="secondary"
-                      className="w-full"
-                      onClick={handleStartLearning}
-                    >
-                      {getButtonText()}
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <Button className="w-full" size="lg" onClick={handleStartLearning}>
-                      {getButtonText()}
-                    </Button>
-                  </div>
-                )}
-
-                <div className="mt-6 pt-6 border-t border-neutral-800 space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-neutral-400">Lessons</span>
-                    <span className="text-white">{course.lessonCount}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-neutral-400">Total Duration</span>
-                    <span className="text-white">
-                      {Math.round(course.totalDuration / 60)} mins
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-neutral-400">Instructor</span>
-                    <span className="text-white">{course.instructor.name}</span>
-                  </div>
-                  {courseProgress > 0 && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-neutral-400">Your Progress</span>
-                      <span className="text-primary-400">{courseProgress}%</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Tags */}
-                <div className="mt-6 pt-6 border-t border-neutral-800">
-                  <div className="flex flex-wrap gap-2">
-                    {course.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-1 rounded text-xs bg-neutral-800 text-neutral-300"
+                  {!isFreeCourse && identity !== 'solo-traveler' && !identity.startsWith('duo') ? (
+                    <div className="space-y-3">
+                      <p className="text-sm text-neutral-400 text-center">
+                        Upgrade to Traveler to watch the full course
+                      </p>
+                      <Link href="/shop">
+                        <Button className="w-full">Upgrade Plan</Button>
+                      </Link>
+                      <Button
+                        variant="secondary"
+                        className="w-full"
+                        onClick={handleStartLearning}
                       >
-                        {tag}
+                        {getButtonText()}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <Button className="w-full" size="lg" onClick={handleStartLearning}>
+                        {getButtonText()}
+                      </Button>
+                    </div>
+                  )}
+
+                  <div className="mt-6 pt-6 border-t border-neutral-800 space-y-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-neutral-400">Lessons</span>
+                      <span className="text-white">{course.lessonCount}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-neutral-400">Total Duration</span>
+                      <span className="text-white">
+                        {Math.round(course.totalDuration / 60)} mins
                       </span>
-                    ))}
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-neutral-400">Instructor</span>
+                      <span className="text-white">{course.instructor.name}</span>
+                    </div>
+                    {courseProgress > 0 && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-neutral-400">Your Progress</span>
+                        <span className="text-primary-400">{courseProgress}%</span>
+                      </div>
+                    )}
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+
+                  {/* Tags */}
+                  <div className="mt-6 pt-6 border-t border-neutral-800">
+                    <div className="flex flex-wrap gap-2">
+                      {course.tags.map((tag, index) => (
+                        <span
+                          key={`${tag}-${index}`}
+                          className="px-2 py-1 rounded text-xs bg-neutral-800 text-neutral-300"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
       {/* Video Player Modal with progress tracking */}
       {currentVideoId && (

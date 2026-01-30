@@ -25,12 +25,14 @@ import type {
   CourseCategoryRecord,
   CourseRecord,
   CourseTagRecord,
+  ChapterRecord,
   LessonRecord,
   LessonResourceRecord,
   UserCourseEnrollmentRecord,
   UserLessonProgressRecord,
   UserCompletedLessonRecord,
   CourseReviewRecord,
+  UserTrailerProgressRecord,
 } from '../schema/learn.schema';
 
 import type {
@@ -150,12 +152,14 @@ interface DatabaseSchema {
   courseCategories: Collection<CourseCategoryRecord>;
   courses: Collection<CourseRecord>;
   courseTags: Collection<CourseTagRecord>;
+  chapters: Collection<ChapterRecord>;
   lessons: Collection<LessonRecord>;
   lessonResources: Collection<LessonResourceRecord>;
   userCourseEnrollments: Collection<UserCourseEnrollmentRecord>;
   userLessonProgress: Collection<UserLessonProgressRecord>;
   userCompletedLessons: Collection<UserCompletedLessonRecord>;
   courseReviews: Collection<CourseReviewRecord>;
+  userTrailerProgress: Collection<UserTrailerProgressRecord>;
 
   // ==========================================
   // FORUM MODULE COLLECTIONS
@@ -308,12 +312,14 @@ class MockDB {
       courseCategories: new Collection<CourseCategoryRecord>('courseCategories'),
       courses: new Collection<CourseRecord>('courses'),
       courseTags: new Collection<CourseTagRecord>('courseTags'),
+      chapters: new Collection<ChapterRecord>('chapters'),
       lessons: new Collection<LessonRecord>('lessons'),
       lessonResources: new Collection<LessonResourceRecord>('lessonResources'),
       userCourseEnrollments: new Collection<UserCourseEnrollmentRecord>('userCourseEnrollments'),
       userLessonProgress: new Collection<UserLessonProgressRecord>('userLessonProgress'),
       userCompletedLessons: new Collection<UserCompletedLessonRecord>('userCompletedLessons'),
       courseReviews: new Collection<CourseReviewRecord>('courseReviews'),
+      userTrailerProgress: new Collection<UserTrailerProgressRecord>('userTrailerProgress'),
 
       // ==========================================
       // FORUM MODULE COLLECTIONS
@@ -433,6 +439,7 @@ class MockDB {
       // Check if duo data needs to be re-seeded (version check)
       await this.checkAndReseedDuo();
     } else {
+      await this.clear(); // Ensure clean slate
       await this.seed();
     }
 
@@ -494,7 +501,12 @@ class MockDB {
    */
   async reset(): Promise<void> {
     await this.adapter.clear();
-    this.schema = this.createSchema();
+    // Clear existing collections instead of replacing them
+    Object.values(this.schema).forEach(collection => {
+      if (typeof (collection as any).clear === 'function') {
+        (collection as any).clear();
+      }
+    });
     await this.seed();
     this.emit({ type: 'reset', collection: '*' });
   }
@@ -504,7 +516,12 @@ class MockDB {
    */
   async clear(): Promise<void> {
     await this.adapter.clear();
-    this.schema = this.createSchema();
+    // Clear existing collections instead of replacing them
+    Object.values(this.schema).forEach(collection => {
+      if (typeof (collection as any).clear === 'function') {
+        (collection as any).clear();
+      }
+    });
     this.emit({ type: 'reset', collection: '*' });
   }
 
@@ -561,12 +578,14 @@ class MockDB {
   get courseCategories() { return this.schema.courseCategories; }
   get courses() { return this.schema.courses; }
   get courseTags() { return this.schema.courseTags; }
+  get chapters() { return this.schema.chapters; }
   get lessons() { return this.schema.lessons; }
   get lessonResources() { return this.schema.lessonResources; }
   get userCourseEnrollments() { return this.schema.userCourseEnrollments; }
   get userLessonProgress() { return this.schema.userLessonProgress; }
   get userCompletedLessons() { return this.schema.userCompletedLessons; }
   get courseReviews() { return this.schema.courseReviews; }
+  get userTrailerProgress() { return this.schema.userTrailerProgress; }
 
   // ==========================================
   // FORUM MODULE ACCESSORS

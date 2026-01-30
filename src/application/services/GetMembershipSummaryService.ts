@@ -1,44 +1,42 @@
 import { MembershipSummaryDTO } from '../dtos/MembershipSummaryDTO';
-import { Ids } from '@/domain/shared/ids';
-import { membershipService } from '@/domain/membership/MembershipService';
+import { IUserRepository } from '../ports';
 
-// In a real implementation, this would inject repositories
 export class GetMembershipSummaryService {
-    async execute(userId: string): Promise<MembershipSummaryDTO> {
-        const domainUserId = Ids.User(userId);
-        const membership = await membershipService.getMembership(domainUserId);
+    constructor(private userRepository: IUserRepository) { }
 
-        // Map Domain Entity -> Application DTO
-        // This isolates the UI from Domain structure changes
+    async execute(userId: string): Promise<MembershipSummaryDTO> {
+        const user = this.userRepository.findById(userId);
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        const subscription = this.userRepository.getActiveSubscription(userId);
+        const DuoTicket = this.userRepository.getActiveDuoTicket(userId);
 
         // Simple mapping logic for Phase 1
-        // (In future this would use GateEngine to determine gates)
         const levelMap: Record<string, MembershipSummaryDTO['level']> = {
-            'free': 'BASIC',
             'explorer': 'EXPLORER',
             'traveler': 'TRAVELER',
             'pro': 'PRO'
         };
 
-        const level = levelMap[membership.tier] || 'BASIC';
-        const isActive = membership.status === 'active';
+        const level = subscription ? (levelMap[subscription.plan] || 'BASIC') : 'BASIC';
+        const isActive = !!subscription && subscription.status === 'active';
 
         return {
-            userId: membership.userId,
+            userId: user.id,
             level,
-            validUntil: membership.validUntil ? membership.validUntil.toISOString() : null,
+            validUntil: subscription?.periodEnd ? subscription.periodEnd.toISOString() : null,
             isActive,
             gates: {
                 canViewForum: level !== 'BASIC',
                 canViewLearn: true, // Everyone sees Learn, content is gated inside
                 canJoinSprint: level === 'PRO' || level === 'TRAVELER',
-                canAccessSpace: isActive
+                canAccessSpace: isActive || !!DuoTicket
             },
-            nextAction: isActive
+            nextAction: (isActive || !!DuoTicket)
                 ? undefined
                 : { type: 'UPGRADE', message: 'Upgrade to join the club' }
         };
     }
 }
-
-export const getMembershipSummaryService = new GetMembershipSummaryService();

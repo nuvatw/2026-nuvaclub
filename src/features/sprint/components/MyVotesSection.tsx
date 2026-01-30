@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/atoms';
 import { StarSolidIcon, StarIcon } from '@/components/icons';
 import { MAX_VOTES_PER_SPRINT } from '../hooks/useSprintVoting';
-import type { ProjectWithRelations } from '@/lib/db/repositories';
+import type { ProjectWithRelations } from '@/features/sprint/types';
 import { cn } from '@/lib/utils';
 
 interface MyVotesSectionProps {

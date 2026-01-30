@@ -6,6 +6,11 @@ import type {
   PointCategory,
   PointActionType,
 } from '../schema/user.schema';
+import { IPointsRepository, LeaderboardEntry } from '@/application/ports/IPointsRepository';
+import type {
+  UserPoints,
+  PointTransaction
+} from '@/domain/types';
 import {
   getPointValue,
   getCategoryForAction,
@@ -14,19 +19,11 @@ import {
   needsDailyReset,
   getStartOfUTCDay,
   DAILY_CAPS,
-} from '@/features/forum/utils/userPoints';
+} from '@/domain/points/PointsPolicy';
 
-export interface LeaderboardEntry {
-  userId: string;
-  name: string;
-  avatar?: string;
-  identityType: string;
-  totalPoints: number;
-  learningPoints: number;
-  communityPoints: number;
-}
 
-export class PointsRepository extends BaseRepository<UserPointsRecord> {
+
+export class PointsRepository extends BaseRepository<UserPointsRecord> implements IPointsRepository {
   constructor(db: MockDB) {
     super(db.userPoints, db);
   }

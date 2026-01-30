@@ -49,7 +49,7 @@ export function PlanComparisonSection() {
   const desktopPlanOrder: PlanType[] = ['explorer', 'traveler', 'voyager', 'enterprise'];
   const mobilePlanOrder: PlanType[] = ['explorer', 'voyager', 'traveler', 'enterprise'];
 
-  const currentPlanIndex = currentPlan ? desktopPlanOrder.indexOf(currentPlan) : -1;
+  const currentPlanIndex = currentPlan ? desktopPlanOrder.indexOf(currentPlan as PlanType) : -1;
 
   function getPlanIndex(planType: PlanType): number {
     return desktopPlanOrder.indexOf(planType);

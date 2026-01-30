@@ -6,8 +6,7 @@ import { Badge, Button, Modal } from '@/components/atoms';
 import { cn } from '@/lib/utils';
 import { formatTimeAgo } from '@/lib/utils/date';
 import { MatchingCommentList } from './MatchingCommentList';
-import type { MatchingPostWithRelations } from '@/lib/db/hooks/useMatchingPosts';
-import type { MatchingCommentWithRelations } from '@/lib/db/hooks/useMatchingComments';
+import type { MatchingPostWithRelations, MatchingCommentWithRelations } from '../../hooks';
 import {
   MATCHING_POST_TYPE_LABELS,
   MATCHING_POST_TYPE_COLORS,
@@ -16,7 +15,7 @@ import {
   formatPrice,
   formatAvailableMonths,
 } from '@/features/space/types';
-import type { NunuLevel, PriceType } from '@/features/space/types';
+import type { NunuLevel, PriceType, MatchingPostType } from '@/features/space/types';
 
 interface MatchingPostDetailProps {
   post: MatchingPostWithRelations;
@@ -74,14 +73,14 @@ export function MatchingPostDetail({
         <div className="sticky top-0 bg-neutral-900 border-b border-neutral-800 p-4 -mx-6 -mt-6 mb-6 px-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xl">{MATCHING_POST_TYPE_ICONS[post.type]}</span>
+              <span className="text-xl">{MATCHING_POST_TYPE_ICONS[post.type as MatchingPostType]}</span>
               <span
                 className={cn(
                   'px-2 py-0.5 rounded text-xs font-medium',
-                  MATCHING_POST_TYPE_COLORS[post.type]
+                  MATCHING_POST_TYPE_COLORS[post.type as MatchingPostType]
                 )}
               >
-                {MATCHING_POST_TYPE_LABELS[post.type]}
+                {MATCHING_POST_TYPE_LABELS[post.type as MatchingPostType]}
               </span>
               {post.isVerifiedNunuOnly && (
                 <Badge variant="default" size="sm" className="bg-purple-600/20 text-purple-400">

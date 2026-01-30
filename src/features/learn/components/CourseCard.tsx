@@ -14,7 +14,7 @@ import { getAllLessons, isNunuCourse } from '@/features/learn/types';
 import { getLvLabel } from '@/lib/utils/level';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import { useVideoProgress } from '@/lib/db/hooks';
+import { useVideoProgress } from '../hooks';
 
 interface CourseCardProps {
   course: Course;

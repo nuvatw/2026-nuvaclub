@@ -1,3 +1,4 @@
+import { ITestRepository } from '@/application/ports/ITestRepository';
 import { BaseRepository } from './BaseRepository';
 import type { MockDB } from '../core/MockDB';
 import type {
@@ -22,7 +23,7 @@ export interface TestSessionWithDetails extends TestSessionRecord {
   levelInfo?: TestLevelRecord;
 }
 
-export class TestRepository extends BaseRepository<TestSessionRecord> {
+export class TestRepository extends BaseRepository<TestSessionRecord> implements ITestRepository {
   constructor(db: MockDB) {
     super(db.testSessions, db);
   }

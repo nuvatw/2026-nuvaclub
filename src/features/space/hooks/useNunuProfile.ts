@@ -2,7 +2,14 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 
-// Local types
+import type { NunuProfile as BaseNunuProfile, NunuApplicationStatus } from '@/features/space/types';
+
+export type NunuProfile = BaseNunuProfile;
+
+export interface NunuProfileWithUser extends NunuProfile {
+  // BaseNunuProfile already has some fields like userName and userAvatar as optional.
+}
+
 export interface NunuApplicationSituationalAnswers {
   question1: string;
   question2: string;
@@ -18,22 +25,13 @@ export interface SubmitApplicationData {
   situationalAnswers: NunuApplicationSituationalAnswers;
 }
 
-export interface NunuProfile {
+interface NunuApplication {
   id: string;
   userId: string;
-  level: string;
-  type: string;
-  isAvailable: boolean;
-  maxVavas: number;
-  currentVavaCount: number;
-  totalMentorships: number;
-  avgRating: number;
-  totalRatings: number;
-}
-
-export interface NunuProfileWithUser extends NunuProfile {
-  userName?: string;
-  userAvatar?: string;
+  status: NunuApplicationStatus;
+  submittedAt: Date;
+  rejectionReason?: string;
+  // ... other fields
 }
 
 /**
@@ -86,13 +84,13 @@ export function useNunuProfile(userId?: string) {
   );
 
   return {
-    application: null, // Simplified - would fetch from BFF
+    application: null as NunuApplication | null,
     profile,
     isNunu,
     isVerifiedNunu,
     canAcceptMoreVavas,
     availableSlots,
-    applicationStatus: null,
+    applicationStatus: null as NunuApplicationStatus | null,
     submitApplication,
     isReady,
   };
@@ -140,7 +138,7 @@ export function useNunuProfiles() {
  * Hook to get Nunu applications (for admin)
  */
 export function useNunuApplications() {
-  const [applications, setApplications] = useState<any[]>([]);
+  const [applications, setApplications] = useState<NunuApplication[]>([]);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {

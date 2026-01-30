@@ -6,7 +6,7 @@ import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/features/auth/components/AuthProvider';
 import { useDuoMonthPasses } from '@/features/duo/hooks/useDuoMonthPasses';
-import { useMentorships } from '@/lib/db/hooks/useMentorships';
+import { useMentorships } from '../hooks';
 import { getCurrentMonth } from '@/features/duo/utils/month-utils';
 import type { DuoTier } from '@/features/duo/types';
 

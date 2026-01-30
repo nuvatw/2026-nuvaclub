@@ -186,6 +186,7 @@ export interface NunuProfile {
   // Enriched from user
   userName?: string;
   userAvatar?: string;
+  githubUsername?: string;
 }
 
 // ==========================================
@@ -285,6 +286,7 @@ export interface MatchingPost {
   type: MatchingPostType;
   title: string;
   content: string;
+  description?: string; // Support both for now to minimize breakage while refactoring
   // Pricing (marketplace model)
   priceType: PriceType;
   priceAmount?: number;
@@ -311,6 +313,10 @@ export interface MatchingPost {
     nunuLevel?: NunuLevel;
     nunuType?: NunuType;
     rating?: number;
+    totalRatings?: number;
+    mentoredMonths?: number;
+    discordId?: string;
+    githubUsername?: string;
   };
 }
 
@@ -357,18 +363,23 @@ export interface Mentorship {
   startedAt: Date;
   lastSessionAt?: Date;
   sessionCount: number;
+  months?: string[];
   notes?: string;
-  // Enriched from users
   nunu?: {
     id: string;
     name: string;
     avatar: string;
     level?: NunuLevel;
+    type?: NunuType;
+    discordId?: string;
+    githubUsername?: string;
   };
   vava?: {
     id: string;
     name: string;
     avatar: string;
+    discordId?: string;
+    githubUsername?: string;
   };
 }
 

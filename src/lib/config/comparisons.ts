@@ -5,7 +5,7 @@
  * Migrated from features/shop/data/comparisons.ts
  */
 
-import type { PlanType } from '../tables/plans';
+import type { PlanType } from '@/infra/mock/data/plans';
 
 export type FeatureCategory = 'learn' | 'test' | 'forum' | 'sprint' | 'space' | 'extras';
 

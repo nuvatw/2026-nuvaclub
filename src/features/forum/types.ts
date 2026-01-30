@@ -1,21 +1,113 @@
 /**
  * Forum Feature Types
  *
- * Re-exports entity types from Database (canonical source)
- * and defines feature-specific types and UI constants.
+ * Defines feature-specific types and UI constants.
+ * Decoupled from infra and domain to ensure boundary integrity.
  */
 
 import type { IdentityType } from '@/features/auth/types';
 
-// Re-export entity types from Database (canonical source)
-export type { ForumPost, PostCategory, PostAuthor } from '@/lib/types/legacy-shim/forumPosts';
-export type { Comment, CommentAuthor } from '@/lib/types/legacy-shim/comments';
+// ==========================================
+// Local Type Definitions (Date -> string)
+// ==========================================
+
+export type PostCategory = 'discussion' | 'question' | 'resource' | 'announcement' | 'share';
+export type VoteType = 'upvote' | 'downvote';
+
+export interface ForumPost {
+  id: string;
+  authorId: string;
+  title: string;
+  content: string;
+  category: PostCategory;
+  isPinned: boolean;
+  isLocked: boolean;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 // Alias for backward compatibility
-export type { ForumPost as Post } from '@/lib/types/legacy-shim/forumPosts';
+export type Post = ForumPost;
 
+export interface ForumComment {
+  id: string;
+  postId: string;
+  authorId: string;
+  parentId?: string;
+  content: string;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type Comment = ForumComment;
+
+export interface PostStats {
+  id: string;
+  postId: string;
+  upvotes: number;
+  downvotes: number;
+  score: number;
+  viewCount: number;
+  commentCount: number;
+  bookmarkCount: number;
+  shareCount: number;
+  reportCount: number;
+  uniqueViewCount24h: number;
+  postPoints: number;
+  trendingScore: number;
+}
+
+export interface PostAuthor {
+  id: string;
+  name: string;
+  avatarUrl?: string; // or avatar
+  avatar?: string; // supporting both for legacy compat
+  discriminator?: string;
+  identityType?: IdentityType;
+}
+
+export interface CommentAuthor extends PostAuthor { }
+
+export interface PostWithRelations extends ForumPost {
+  author: PostAuthor;
+  stats?: PostStats;
+  tags?: string[];
+  userVote?: VoteType;
+  isBookmarked?: boolean;
+}
+
+export interface CommentWithAuthor extends ForumComment {
+  author: CommentAuthor;
+  userVote?: VoteType;
+  children?: CommentWithAuthor[];
+}
+
+
+// ==========================================
+// Points & Leaderboard Types
+// ==========================================
+
+export interface UserPoints {
+  userId: string;
+  totalPoints: number;
+  level: number;
+  experience: number;
+  nextLevelExperience: number;
+}
+
+export interface PointsLeaderboardEntry {
+  userId: string;
+  points: number;
+  rank: number;
+  username?: string;
+  avatarUrl?: string;
+}
+
+// ==========================================
 // Feature-specific UI constants
-import type { PostCategory } from '@/lib/types/legacy-shim/forumPosts';
+// ==========================================
 
 export const POST_CATEGORY_LABELS: Record<PostCategory, string> = {
   discussion: 'Discussion',

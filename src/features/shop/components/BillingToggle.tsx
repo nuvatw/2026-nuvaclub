@@ -1,10 +1,10 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import type { BillingCycle } from '@/lib/types/legacy-shim/plans';
+import type { BillingCycle } from '../types';
 
 // Re-export for backward compatibility
-export type { BillingCycle } from '@/lib/types/legacy-shim/plans';
+export type { BillingCycle } from '../types';
 
 interface BillingToggleProps {
   value: BillingCycle;

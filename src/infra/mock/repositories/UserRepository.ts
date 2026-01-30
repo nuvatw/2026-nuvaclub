@@ -1,3 +1,4 @@
+import { IUserRepository } from '@/application/ports/IUserRepository';
 import { BaseRepository } from './BaseRepository';
 import type { MockDB } from '../core/MockDB';
 import type {
@@ -12,7 +13,7 @@ export interface UserWithRelations extends UserRecord {
   duoTicket?: UserDuoTicketRecord;
 }
 
-export class UserRepository extends BaseRepository<UserRecord> {
+export class UserRepository extends BaseRepository<UserRecord> implements IUserRepository {
   constructor(db: MockDB) {
     super(db.users, db);
   }
@@ -49,8 +50,8 @@ export class UserRepository extends BaseRepository<UserRecord> {
   /**
    * Find users by identity type
    */
-  findByIdentityType(identityType: IdentityType): UserRecord[] {
-    return this.findMany({ where: { identityType } });
+  findByIdentityType(identityType: string): UserRecord[] {
+    return this.findMany({ where: { identityType: identityType as IdentityType } });
   }
 
   /**
@@ -79,5 +80,47 @@ export class UserRepository extends BaseRepository<UserRecord> {
     return this.db.userDuoTickets.findFirst({
       where: (t) => t.userId === userId && t.status === 'active',
     });
+  }
+
+  /**
+   * Get user favorites
+   */
+  getFavorites(userId: string): any[] {
+    return this.db.userFavorites.findMany({ where: { userId } });
+  }
+
+  /**
+   * Remove a favorite
+   */
+  removeFavorite(favoriteId: string): boolean {
+    return this.db.userFavorites.delete(favoriteId);
+  }
+
+  /**
+   * Create a Duo ticket
+   */
+  createDuoTicket(userId: string, data: any): any {
+    const ticket = this.db.userDuoTickets.create({
+      ...data,
+      userId,
+    });
+    this.persist();
+    return ticket;
+  }
+
+  /**
+   * Expire active Duo tickets
+   */
+  expireActiveDuoTickets(userId: string): void {
+    const existing = this.db.userDuoTickets.findFirst({
+      where: (t) => t.userId === userId && t.status === 'active',
+    });
+
+    if (existing) {
+      this.db.userDuoTickets.update(existing.id, {
+        status: 'expired',
+      });
+      this.persist();
+    }
   }
 }

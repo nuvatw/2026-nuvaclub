@@ -1,7 +1,8 @@
 'use client';
 
+import type { Question } from '../../types';
 import { cn } from '@/lib/utils';
-import type { QuestionWithOptions } from '@/lib/db/repositories/TestRepository';
+import type { QuestionWithOptions } from '../../hooks/useTests';
 
 interface MultipleChoiceQuestionProps {
   question: QuestionWithOptions;

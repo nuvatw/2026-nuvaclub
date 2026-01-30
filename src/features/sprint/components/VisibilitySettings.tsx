@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button, Card, CardContent } from '@/components/atoms';
-import type { ProjectVisibility } from '@/infra/mock/schema/sprint.schema';
+import type { ProjectVisibility } from '../types';
 import { cn } from '@/lib/utils';
 
 interface VisibilitySettingsProps {

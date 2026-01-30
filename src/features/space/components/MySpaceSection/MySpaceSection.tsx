@@ -3,8 +3,8 @@
 import { useMemo, useState, useCallback } from 'react';
 import { motion } from 'motion/react';
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import { useNunuProfile } from '@/lib/db/hooks/useNunuProfile';
-import { useMentorships } from '@/lib/db/hooks/useMentorships';
+import { useNunuProfile } from '../../hooks/useNunuProfile';
+import { useMentorships } from '../../hooks/useMentorships';
 import { PairingCard } from './PairingCard';
 import { NunuApplicationCard } from './NunuApplicationCard';
 import { NunuDashboard } from './NunuDashboard';

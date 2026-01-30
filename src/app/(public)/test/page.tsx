@@ -5,7 +5,7 @@ import { useMemo, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { motion } from 'motion/react';
 import { useAuth } from '@/features/auth/components/AuthProvider';
-import { useLevelConfigs, useUserTestProgress, useTests, useLevelStats, useActiveTestSession } from '@/lib/db/hooks';
+import { useLevelConfigs, useUserTestProgress, useTests, useLevelStats, useActiveTestSession } from '@/features/test/hooks';
 import {
   TrackSwitcher,
   NunuProgressBar,
@@ -17,6 +17,7 @@ import {
   LevelFilters,
   type TestTrack,
 } from '@/features/test/components';
+import { useNunuProfile } from '@/features/space/hooks/useNunuProfile';
 import { Button } from '@/components/atoms';
 import { ClipboardIcon, TagIcon, LightBulbIcon, CheckIcon, BookOpenIcon, ChevronRightIcon } from '@/components/icons';
 import type { LevelInfo, LevelStatus } from '@/features/test/types';
@@ -32,20 +33,20 @@ import {
 import {
   type NunuLevel,
   type NunuUserStats,
-  getMockNunuUserStats,
 } from '@/features/test/data/nunu-rules';
 import { cn } from '@/lib/utils';
 import { getCourseStatus } from '@/lib/utils/level';
 import type { CourseStatus } from '@/lib/utils/level';
 import { PageTransition } from '@/components/molecules/PageTransition';
 import { TestPageSkeleton } from '@/components/skeletons';
-import { getAllCourses, getNunuCourses, getVerifiedRequiredCourses, getCoursesByLevel } from '@/lib/legacy-db-shim';
+import { useCourses } from '@/features/learn/hooks/useCourses';
 import { useProgress } from '@/features/shared/progress/useProgress';
 import type { CourseLevel, Course } from '@/features/learn/types';
 
 export default function TestPage() {
   const router = useRouter();
   const { user, currentAccountId } = useAuth();
+  const { courses, getCourseById } = useCourses();
   const levelConfigs = useLevelConfigs();
   const testProgress = useUserTestProgress(user?.id ?? null);
   const { getLevelStats, getQuestionsForLevel } = useTests();
@@ -55,7 +56,8 @@ export default function TestPage() {
 
   // Nunu state
   const [selectedNunuLevel, setSelectedNunuLevel] = useState<NunuLevel | 'verified'>('Nx');
-  const [nunuUserStats, setNunuUserStats] = useState<NunuUserStats | null>(null);
+  const { profile: nunuProfile } = useNunuProfile(user?.id);
+  const nunuUserStats = nunuProfile as unknown as NunuUserStats | null;
 
   // Vava state - selected level and course filter
   const [selectedVavaLevel, setSelectedVavaLevel] = useState<number>(1);
@@ -64,15 +66,6 @@ export default function TestPage() {
   // Get course progress for current user
   const { getItemProgress, getCompletedItems, getItemsInProgress } = useProgress('learn', currentAccountId);
 
-  // Initialize user stats on mount (mock data for demo)
-  useEffect(() => {
-    if (user) {
-      // In production, fetch real stats from API
-      setNunuUserStats(getMockNunuUserStats());
-    } else {
-      setNunuUserStats(null);
-    }
-  }, [user]);
 
   // Set Vava level based on test progress
   useEffect(() => {
@@ -112,8 +105,8 @@ export default function TestPage() {
   const vavaCoursesWithStatus = useMemo(() => {
     // Get courses for the selected level (1-10 maps to CourseLevel)
     const levelCourses = selectedVavaLevel <= 10
-      ? getCoursesByLevel(selectedVavaLevel as CourseLevel)
-      : getAllCourses().filter(c => c.level >= 9); // Levels 11-12 show advanced courses
+      ? courses.filter(c => c.level === selectedVavaLevel)
+      : courses.filter(c => c.level >= 9); // Levels 11-12 show advanced courses
 
     return levelCourses.map((course) => {
       const progress = getItemProgress(course.id, currentAccountId);
@@ -142,7 +135,7 @@ export default function TestPage() {
 
   // Get Nunu courses with status (for N-5 to N-1 - same courses)
   const nunuCoursesWithStatus = useMemo(() => {
-    const nunuCourses = getNunuCourses();
+    const nunuCourses = courses.filter(c => c.courseType === 'nunu');
     return nunuCourses.map((course) => {
       const progress = getItemProgress(course.id, currentAccountId);
       const status = getCourseStatus(progress?.progressPercent);
@@ -152,7 +145,7 @@ export default function TestPage() {
 
   // Get Verified Required courses with status
   const verifiedCoursesWithStatus = useMemo(() => {
-    const verifiedCourses = getVerifiedRequiredCourses();
+    const verifiedCourses = courses.filter(c => c.tags.includes('Required') && c.courseType === 'nunu');
     return verifiedCourses.map((course) => {
       const progress = getItemProgress(course.id, currentAccountId);
       const status = getCourseStatus(progress?.progressPercent);
@@ -167,7 +160,7 @@ export default function TestPage() {
   const selectedVavaQuestions = getQuestionsForLevel(selectedVavaLevel);
   const selectedVavaStats = useLevelStats(user?.id ?? null, selectedVavaLevel);
   const activeSession = useActiveTestSession(user?.id ?? null);
-  const hasActiveSession = activeSession && activeSession.levelId === selectedVavaLevel;
+  const hasActiveSession = activeSession && Number(activeSession.levelId) === selectedVavaLevel;
 
   const handleStartVavaExam = () => {
     router.push(`/test/${selectedVavaLevel}/exam`);

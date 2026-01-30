@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { Card, CardContent, Badge } from '@/components/atoms';
 import { StarSolidIcon, StarIcon, ExternalLinkIcon } from '@/components/icons';
-import type { ProjectWithRelations } from '@/lib/db/repositories';
+import type { ProjectWithRelations } from '@/features/sprint/types';
 import { cn } from '@/lib/utils';
 
 interface VotableProjectCardProps {
