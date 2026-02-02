@@ -35,18 +35,18 @@ const CATEGORIES: CategoryConfig[] = [
     href: '/shop/duo',
     icon: <UsersIcon />,
   },
-  {
-    id: 'events',
-    title: 'Event',
-    href: '/shop/events',
-    icon: <CalendarIcon size="md" />,
-  },
-  {
-    id: 'merchandise',
-    title: 'Merchandise',
-    href: '/shop/merchandise',
-    icon: <ShoppingBagIcon size="md" />,
-  },
+  // {
+  //   id: 'events',
+  //   title: 'Event',
+  //   href: '/shop/events',
+  //   icon: <CalendarIcon size="md" />,
+  // },
+  // {
+  //   id: 'merchandise',
+  //   title: 'Merchandise',
+  //   href: '/shop/merchandise',
+  //   icon: <ShoppingBagIcon size="md" />,
+  // },
 ];
 
 function CategoryPill({

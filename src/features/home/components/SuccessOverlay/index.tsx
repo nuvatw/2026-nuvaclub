@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/components/atoms';
 import { ChevronLeftIcon, ChevronRightIcon, CopyIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
-import { CELEBRATION_CONTENT } from '@/content/home-content';
+import { useHomeContent } from '../../hooks/useHomeContent';
 import { FlowingGradientOrb } from './FlowingGradientOrb';
 import { ConfettiEffect } from './ConfettiEffect';
 import { InstagramIcon, LineIcon, DownloadIcon } from './SocialIcons';
@@ -37,6 +37,8 @@ export function SuccessOverlay({
   goalAmount,
   currency,
 }: SuccessOverlayProps) {
+  const content = useHomeContent();
+  const CELEBRATION_CONTENT = (content as any).celebration;
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const videoCanvasRef = useRef<HTMLCanvasElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -143,7 +145,7 @@ export function SuccessOverlay({
     ctx.fillStyle = '#666666';
     ctx.font = '600 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('MEMBERSHIP', baseWidth / 2, cardY + 75);
+    ctx.fillText(CELEBRATION_CONTENT.membershipLabel, baseWidth / 2, cardY + 75);
 
     // Draw the animated orb by capturing from the live canvas
     const orbCenterY = cardY + 165;
@@ -183,7 +185,7 @@ export function SuccessOverlay({
     // Draw "EARLY BACKER" text
     ctx.fillStyle = '#666666';
     ctx.font = '600 9px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText('EARLY BACKER', baseWidth / 2, cardY + 248);
+    ctx.fillText(CELEBRATION_CONTENT.earlyBackerLabel, baseWidth / 2, cardY + 248);
 
     // Draw name
     ctx.fillStyle = '#ffffff';
@@ -193,7 +195,7 @@ export function SuccessOverlay({
     // Draw "MEMBER NO." text
     ctx.fillStyle = '#4a4a4a';
     ctx.font = '600 9px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText('MEMBER NO.', baseWidth / 2, cardY + 325);
+    ctx.fillText(CELEBRATION_CONTENT.memberNoLabel, baseWidth / 2, cardY + 325);
 
     // Draw backer number
     ctx.fillStyle = '#ffffff';
@@ -274,7 +276,7 @@ export function SuccessOverlay({
             const newWindow = window.open(url, '_blank');
             if (!newWindow) {
               // Popup blocked, show alert with instructions
-              alert('請長按圖片以儲存到相簿');
+              alert(CELEBRATION_CONTENT.iosSaveNote);
               // Create a temporary image display
               const img = document.createElement('img');
               img.src = url;
@@ -309,14 +311,14 @@ export function SuccessOverlay({
       setIsDownloading(false);
     } catch (error) {
       console.error('Image download failed:', error);
-      alert('圖片下載失敗，請長按圖片以儲存');
+      alert(CELEBRATION_CONTENT.downloadFailed);
       setIsDownloading(false);
     }
   };
 
   const handleShare = (platform: string) => {
     const shareUrl = window.location.origin;
-    const shareText = `我剛剛成為了 nuvaClub 的第 ${pledgeInfo.backerNumber} 號贊助者！一起來支持 AI 學習社群吧！`;
+    const shareText = CELEBRATION_CONTENT.shareText.replace('{number}', pledgeInfo.backerNumber.toString());
 
     if (platform === 'line') {
       window.open(`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`, '_blank');
@@ -325,7 +327,7 @@ export function SuccessOverlay({
       window.open('https://www.instagram.com/', '_blank');
     } else if (platform === 'copy') {
       navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-      alert('已複製連結！');
+      alert(CELEBRATION_CONTENT.copySuccess);
     }
   };
 
@@ -351,8 +353,8 @@ export function SuccessOverlay({
           >
             {/* Thank you message */}
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white mb-1">謝謝你支持我們的夢想</h2>
-              <p className="text-neutral-400">您已成為 nuvaClub 早鳥贊助者</p>
+              <h2 className="text-2xl font-bold text-white mb-1">{CELEBRATION_CONTENT.title}</h2>
+              <p className="text-neutral-400">{CELEBRATION_CONTENT.subtitle}</p>
             </div>
 
             {/* Passport-style Backer Card with Carousel for Multiple Participants */}
@@ -401,7 +403,7 @@ export function SuccessOverlay({
 
                     {/* User Info - Shows current participant */}
                     <div className="text-center mb-4">
-                      <p className="text-neutral-500 text-xs tracking-wider uppercase mb-1">Early Backer</p>
+                      <p className="text-neutral-500 text-xs tracking-wider uppercase mb-1">{CELEBRATION_CONTENT.earlyBackerLabel}</p>
                       <p className="text-white text-xl font-medium tracking-wide">
                         {participantNames[currentCardIndex] || 'Member'}
                       </p>
@@ -409,7 +411,7 @@ export function SuccessOverlay({
 
                     {/* Backer Number - Increments for each participant */}
                     <div className="text-center mb-6">
-                      <p className="text-neutral-600 text-xs tracking-wider uppercase mb-1">Member No.</p>
+                      <p className="text-neutral-600 text-xs tracking-wider uppercase mb-1">{CELEBRATION_CONTENT.memberNoLabel}</p>
                       <p className="text-3xl font-bold text-white tracking-widest">
                         #{String(pledgeInfo.backerNumber + currentCardIndex).padStart(4, '0')}
                       </p>
@@ -434,7 +436,7 @@ export function SuccessOverlay({
                     onClick={() => setCurrentCardIndex(prev => Math.max(0, prev - 1))}
                     disabled={currentCardIndex === 0}
                     className="p-2 rounded-full bg-neutral-800 hover:bg-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                    aria-label="上一張卡片"
+                    aria-label={CELEBRATION_CONTENT.prevCard}
                   >
                     <ChevronLeftIcon size="sm" className="text-white" />
                   </button>
@@ -449,7 +451,7 @@ export function SuccessOverlay({
                             ? 'bg-white w-4'
                             : 'bg-neutral-600 hover:bg-neutral-500'
                         )}
-                        aria-label={`卡片 ${index + 1}`}
+                        aria-label={CELEBRATION_CONTENT.cardAria.replace('{index}', (index + 1).toString())}
                       />
                     ))}
                   </div>
@@ -457,7 +459,7 @@ export function SuccessOverlay({
                     onClick={() => setCurrentCardIndex(prev => Math.min(totalCards - 1, prev + 1))}
                     disabled={currentCardIndex === totalCards - 1}
                     className="p-2 rounded-full bg-neutral-800 hover:bg-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                    aria-label="下一張卡片"
+                    aria-label={CELEBRATION_CONTENT.nextCard}
                   >
                     <ChevronRightIcon size="sm" className="text-white" />
                   </button>
@@ -512,10 +514,10 @@ export function SuccessOverlay({
                 <DownloadIcon className="w-5 h-5" />
                 <span>
                   {isDownloading
-                    ? '下載中...'
+                    ? CELEBRATION_CONTENT.downloading
                     : pledgeInfo.attendeeCount > 1
-                      ? `下載會員卡 (${pledgeInfo.attendeeCount}張)`
-                      : '下載會員卡'
+                      ? CELEBRATION_CONTENT.downloadCardsPlural.replace('{count}', pledgeInfo.attendeeCount.toString())
+                      : CELEBRATION_CONTENT.downloadCards
                   }
                 </span>
               </button>
@@ -541,7 +543,9 @@ export function SuccessOverlay({
                   className="flex-1 flex items-center justify-center gap-2 py-3 bg-neutral-800 hover:bg-neutral-700 rounded-xl transition-colors border border-neutral-700"
                 >
                   <CopyIcon size="md" className="text-neutral-400" />
-                  <span className="text-sm text-neutral-300">複製</span>
+                  <span className="text-sm text-neutral-300">
+                    {CELEBRATION_CONTENT.shareButtons?.find((b: { id: string; label: string }) => b.id === 'copy')?.label || '複製'}
+                  </span>
                 </button>
               </div>
 

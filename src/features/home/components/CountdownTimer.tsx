@@ -1,12 +1,12 @@
-'use client';
-
 import { useState, useEffect } from 'react';
+import { useHomeContent } from '../hooks/useHomeContent';
 
 interface CountdownTimerProps {
   targetDate: string;
 }
 
 export function CountdownTimer({ targetDate }: CountdownTimerProps) {
+  const { countdown: COUNTDOWN_LABELS } = useHomeContent();
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
     hours: number;
@@ -54,31 +54,31 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
   if (isEnded) {
     return (
       <p className="text-amber-400 text-xs sm:text-sm font-medium">
-        募資已結束
+        {COUNTDOWN_LABELS.ended}
       </p>
     );
   }
 
   return (
     <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
-      <span className="text-neutral-400">募資倒數</span>
+      <span className="text-neutral-400">{COUNTDOWN_LABELS.label}</span>
       <div className="flex items-center gap-1 font-mono">
         <span className="bg-neutral-800 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm font-semibold">
           {days}
         </span>
-        <span className="text-neutral-500">天</span>
+        <span className="text-neutral-500">{COUNTDOWN_LABELS.days}</span>
         <span className="bg-neutral-800 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm font-semibold">
           {String(hours).padStart(2, '0')}
         </span>
-        <span className="text-neutral-500">時</span>
+        <span className="text-neutral-500">{COUNTDOWN_LABELS.hours}</span>
         <span className="bg-neutral-800 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm font-semibold">
           {String(minutes).padStart(2, '0')}
         </span>
-        <span className="text-neutral-500">分</span>
+        <span className="text-neutral-500">{COUNTDOWN_LABELS.minutes}</span>
         <span className="bg-neutral-800 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm font-semibold">
           {String(seconds).padStart(2, '0')}
         </span>
-        <span className="text-neutral-500">秒</span>
+        <span className="text-neutral-500">{COUNTDOWN_LABELS.seconds}</span>
       </div>
     </div>
   );

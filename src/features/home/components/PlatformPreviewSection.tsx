@@ -4,21 +4,19 @@ import Link from 'next/link';
 import { motion } from 'motion/react';
 import { Badge, Card, CardContent } from '@/components/atoms';
 import { cn } from '@/lib/utils';
-import {
-  PLATFORM_PREVIEW_CONTENT,
-  PLATFORM_MODULES,
-} from '@/content/home-content';
+import { useHomeContent } from '../hooks/useHomeContent';
 import { ModuleIcon } from '../utils/icons';
 
 export function PlatformPreviewSection() {
+  const { preview: PLATFORM_PREVIEW_CONTENT, modules: PLATFORM_MODULES } = useHomeContent();
   return (
-    <section className="py-20 bg-neutral-900/50">
+    <section className="py-12 sm:py-20 bg-neutral-900/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="text-center mb-10 sm:mb-12"
         >
           <Badge variant="info" className="mb-4">
             {PLATFORM_PREVIEW_CONTENT.badge}
@@ -26,7 +24,7 @@ export function PlatformPreviewSection() {
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             {PLATFORM_PREVIEW_CONTENT.headline}
           </h2>
-          <p className="text-neutral-400 text-lg max-w-2xl mx-auto">
+          <p className="text-neutral-400 text-base sm:text-lg max-w-2xl mx-auto">
             {PLATFORM_PREVIEW_CONTENT.subheadline}
           </p>
         </motion.div>
@@ -56,7 +54,7 @@ export function PlatformPreviewSection() {
                           <ModuleIcon title={module.title} />
                         </div>
                         <Badge variant="outline" size="sm">
-                          Preview
+                          {PLATFORM_PREVIEW_CONTENT.cardBadge}
                         </Badge>
                       </div>
                     </div>

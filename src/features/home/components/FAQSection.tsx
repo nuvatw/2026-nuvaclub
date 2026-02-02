@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Card, CardContent } from '@/components/atoms';
 import { ChevronDownIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
-import { FAQ_CONTENT, FAQ_ITEMS } from '@/content/home-content';
+import { useHomeContent } from '../hooks/useHomeContent';
 
 function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,19 +44,20 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
 }
 
 export function FAQSection() {
+  const { faq: FAQ_CONTENT, faqItems: FAQ_ITEMS } = useHomeContent();
   return (
-    <section className="py-20">
+    <section className="py-12 sm:py-20">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="text-center mb-10 sm:mb-12"
         >
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             {FAQ_CONTENT.headline}
           </h2>
-          <p className="text-neutral-400 text-lg">{FAQ_CONTENT.subheadline}</p>
+          <p className="text-neutral-400 text-base sm:text-lg">{FAQ_CONTENT.subheadline}</p>
         </motion.div>
 
         <motion.div

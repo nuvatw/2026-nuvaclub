@@ -3,15 +3,16 @@
 import { motion } from 'motion/react';
 import { Button } from '@/components/atoms';
 import { ArrowRightIcon, CheckCircleIcon } from '@/components/icons';
-import { FINAL_CTA_CONTENT } from '@/content/home-content';
+import { useHomeContent } from '../hooks/useHomeContent';
 
 interface FinalCTASectionProps {
   onScrollToTiers: () => void;
 }
 
 export function FinalCTASection({ onScrollToTiers }: FinalCTASectionProps) {
+  const { finalCta: FINAL_CTA_CONTENT } = useHomeContent();
   return (
-    <section className="py-20 bg-gradient-to-b from-neutral-900 to-neutral-950">
+    <section className="py-12 sm:py-20 bg-gradient-to-b from-neutral-900 to-neutral-950">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -25,7 +26,7 @@ export function FinalCTASection({ onScrollToTiers }: FinalCTASectionProps) {
               {FINAL_CTA_CONTENT.headlineHighlight}
             </span>
           </h2>
-          <p className="text-xl text-neutral-300 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-neutral-300 mb-8 max-w-2xl mx-auto">
             {FINAL_CTA_CONTENT.subheadline}
           </p>
 
@@ -37,7 +38,7 @@ export function FinalCTASection({ onScrollToTiers }: FinalCTASectionProps) {
           >
             <Button
               size="lg"
-              className="text-lg px-10 py-5 h-auto"
+              className="text-base sm:text-lg px-6 sm:px-10 py-4 sm:py-5 h-auto w-full sm:w-auto"
               onClick={onScrollToTiers}
             >
               {FINAL_CTA_CONTENT.primaryCta}

@@ -51,4 +51,31 @@ export class PrismaMembershipRepository implements MembershipRepository {
             data.createdAt
         );
     }
+
+    async findByEmail(email: string): Promise<Membership[]> {
+        const data = await prisma.membership.findMany({
+            where: {
+                cardMetadata: {
+                    path: ['email'],
+                    equals: email.toLowerCase().trim(),
+                },
+            },
+        });
+
+        return data.map((m: any) => new Membership(
+            Ids.Membership(m.id),
+            m.memberNo,
+            Ids.Order(m.orderId),
+            m.tier as any,
+            m.validUntil,
+            m.status as any,
+            (m.userId as any) || undefined,
+            (m.cardMetadata as any) || undefined,
+            m.createdAt
+        ));
+    }
+
+    async count(): Promise<number> {
+        return await prisma.membership.count();
+    }
 }

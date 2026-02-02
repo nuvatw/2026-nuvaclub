@@ -78,4 +78,5 @@ export class Order {
 export interface OrderRepository {
     findByRef(orderRef: string): Promise<Order | null>;
     save(order: Order): Promise<void>;
+    getTotalPaidAmount(): Promise<number>;
 }

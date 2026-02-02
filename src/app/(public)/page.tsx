@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'motion/react';
-import { TOAST_MESSAGES } from '@/content/home-content';
+import { useHomeContent } from '@/features/home';
 import {
   useCampaignState,
   HeroSection,
@@ -18,6 +18,7 @@ import {
 } from '@/features/home';
 
 function HomePageContent() {
+  const { toast: TOAST_MESSAGES } = useHomeContent();
   const router = useRouter();
   const searchParams = useSearchParams();
   const tiersRef = useRef<HTMLElement>(null);
@@ -27,10 +28,10 @@ function HomePageContent() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [pledgeSuccessInfo, setPledgeSuccessInfo] = useState<PledgeSuccessInfo | null>(null);
   const [previousRaised, setPreviousRaised] = useState(0);
-  const [backerCount, setBackerCount] = useState(127); // Starting backer count
 
   const {
     raisedAmount,
+    backerCount,
     goalAmount,
     currency,
     addPledge,
@@ -52,13 +53,10 @@ function HomePageContent() {
           const info = JSON.parse(storedInfo);
           // Store current raised amount before adding pledge
           setPreviousRaised(raisedAmount);
-          // Generate backer number
-          const newBackerNumber = backerCount + 1;
-          setBackerCount(newBackerNumber);
 
           setPledgeSuccessInfo({
             ...info,
-            backerNumber: newBackerNumber,
+            backerNumber: backerCount, // This is now dynamic
           });
           setShowSuccess(true);
 
@@ -106,6 +104,7 @@ function HomePageContent() {
       <HeroSection
         onScrollToTiers={scrollToTiers}
         onScrollToVideo={scrollToVideo}
+        backerCount={backerCount}
       />
       <FounderVideoSection videoRef={videoRef} />
       <FundingSection

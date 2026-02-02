@@ -4,11 +4,9 @@ import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Badge, Card, CardContent } from '@/components/atoms';
 import {
-  CAMPAIGN_CONFIG,
-  FUNDING_CONTENT,
-  FUNDING_TIERS,
-  CUSTOM_TIER_CONFIG,
-} from '@/content/home-content';
+  useHomeContent,
+} from '@/features/home';
+import { CAMPAIGN_CONFIG } from '@/content/home-content';
 import { AnimatedCounter } from './AnimatedCounter';
 import { TierCard } from './TierCard';
 import { CustomTierCard } from './CustomTierCard';
@@ -40,6 +38,7 @@ export function FundingSection({
   resetCampaign,
   isHydrated,
 }: FundingSectionProps) {
+  const { funding: FUNDING_CONTENT, tiers: FUNDING_TIERS, customTier: CUSTOM_TIER_CONFIG } = useHomeContent();
   const [showAttendeeModal, setShowAttendeeModal] = useState(false);
   const [selectedTier, setSelectedTier] = useState<SelectedTier | null>(null);
 
@@ -77,14 +76,14 @@ export function FundingSection({
   };
 
   return (
-    <section ref={tiersRef} className="py-20">
+    <section ref={tiersRef} className="py-12 sm:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="text-center mb-10 sm:mb-12"
         >
           <Badge variant="warning" className="mb-4">
             {FUNDING_CONTENT.badge}
@@ -92,7 +91,7 @@ export function FundingSection({
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             {FUNDING_CONTENT.headline}
           </h2>
-          <p className="text-neutral-400 text-lg max-w-2xl mx-auto">
+          <p className="text-neutral-400 text-base sm:text-lg max-w-2xl mx-auto">
             {FUNDING_CONTENT.subheadline}
           </p>
         </motion.div>
@@ -109,7 +108,7 @@ export function FundingSection({
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-neutral-400 text-sm">募資進度</p>
+                  <p className="text-neutral-400 text-sm">{FUNDING_CONTENT.progressLabel}</p>
                   <p className="text-3xl font-bold text-white">
                     {isHydrated ? (
                       <AnimatedCounter
@@ -122,7 +121,7 @@ export function FundingSection({
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-neutral-400 text-sm">目標</p>
+                  <p className="text-neutral-400 text-sm">{FUNDING_CONTENT.goalLabel}</p>
                   <p className="text-xl font-semibold text-neutral-300">
                     {currency}
                     {goalAmount.toLocaleString()}
@@ -137,7 +136,7 @@ export function FundingSection({
                 aria-valuenow={raisedAmount}
                 aria-valuemin={0}
                 aria-valuemax={goalAmount}
-                aria-label={`募資進度: ${currency}${raisedAmount.toLocaleString()} / ${currency}${goalAmount.toLocaleString()}`}
+                aria-label={`${FUNDING_CONTENT.progressLabel}: ${currency}${raisedAmount.toLocaleString()} / ${currency}${goalAmount.toLocaleString()}`}
               >
                 <motion.div
                   className="h-full bg-gradient-to-r from-primary-500 to-accent-500 rounded-full"
@@ -149,10 +148,10 @@ export function FundingSection({
 
               <div className="flex items-center justify-between text-sm">
                 <span className="text-primary-400 font-semibold">
-                  {progressPercent.toFixed(1)}% 達成
+                  {progressPercent.toFixed(1)}% {FUNDING_CONTENT.achievedLabel}
                 </span>
                 <span className="text-neutral-500">
-                  還差 {currency}
+                  {FUNDING_CONTENT.remainingLabel} {currency}
                   {remaining.toLocaleString()}
                 </span>
               </div>
@@ -207,7 +206,7 @@ export function FundingSection({
             amount={selectedTier.amount}
             months={selectedTier.months}
             tierId={selectedTier.id}
-            onConfirm={() => {}}
+            onConfirm={() => { }}
           />
         )}
       </div>

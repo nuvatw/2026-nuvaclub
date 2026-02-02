@@ -5,7 +5,8 @@ import { motion } from 'motion/react';
 import { Button, Card, CardContent } from '@/components/atoms';
 import { CheckIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
-import { CUSTOM_TIER_CONFIG, CAMPAIGN_CONFIG } from '@/content/home-content';
+import { useHomeContent } from '../../hooks/useHomeContent';
+import { CAMPAIGN_CONFIG } from '@/content/home-content';
 import { PerkIcon } from '../../utils/icons';
 import { CampaignBenefitDTO } from '@/application/dtos/CampaignBenefitDTO';
 
@@ -15,6 +16,8 @@ interface CustomTierCardProps {
 }
 
 export function CustomTierCard({ onSelect, minPrice }: CustomTierCardProps) {
+  const { customTier: CUSTOM_TIER_CONFIG, funding } = useHomeContent();
+  const { tierCard: labels } = funding;
   const [customAmount, setCustomAmount] = useState<string>(minPrice.toString());
   const [benefits, setBenefits] = useState<CampaignBenefitDTO>({
     totalMonths: 0,
@@ -70,7 +73,7 @@ export function CustomTierCard({ onSelect, minPrice }: CustomTierCardProps) {
 
           {/* Custom Amount Input */}
           <div className="mb-4">
-            <label className="block text-sm text-neutral-400 mb-2">輸入金額</label>
+            <label className="block text-sm text-neutral-400 mb-2">{labels.inputLabel}</label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400">
                 NT$
@@ -89,7 +92,7 @@ export function CustomTierCard({ onSelect, minPrice }: CustomTierCardProps) {
             </div>
             {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
             <p className="text-neutral-500 text-xs mt-1">
-              最低 NT${minPrice.toLocaleString()}
+              {labels.minAmount} NT${minPrice.toLocaleString()}
             </p>
           </div>
 
@@ -97,11 +100,11 @@ export function CustomTierCard({ onSelect, minPrice }: CustomTierCardProps) {
           {benefits.isValid && (
             <div className="bg-neutral-800 rounded-lg p-3 mb-4">
               <div className="flex items-center justify-between text-sm mb-2">
-                <span className="text-neutral-400">獲得會員</span>
-                <span className="text-green-400 font-semibold">{benefits.totalMonths} 個月</span>
+                <span className="text-neutral-400">{labels.getMembership}</span>
+                <span className="text-green-400 font-semibold">{benefits.totalMonths} {labels.months}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-neutral-500">平均每月</span>
+                <span className="text-neutral-500">{labels.avgMonthly}</span>
                 <div className="flex items-center gap-2">
                   <span className="text-neutral-600 line-through text-xs">NT$990</span>
                   <span className="text-green-400 font-semibold">NT${benefits.avgMonthlyPrice}</span>
@@ -112,7 +115,7 @@ export function CustomTierCard({ onSelect, minPrice }: CustomTierCardProps) {
 
           {/* Perks */}
           <ul className="space-y-2 mb-4">
-            {CUSTOM_TIER_CONFIG.perks.map((perk) => (
+            {CUSTOM_TIER_CONFIG.perks.map((perk: string) => (
               <li key={perk} className="flex items-start gap-2 text-sm">
                 <CheckIcon size="sm" className="text-green-500 mt-0.5 flex-shrink-0" />
                 <span className="text-neutral-300">{perk}</span>
@@ -144,7 +147,7 @@ export function CustomTierCard({ onSelect, minPrice }: CustomTierCardProps) {
                 </div>
               </div>
               <span className="text-sm text-neutral-300 group-hover:text-neutral-200 transition-colors">
-                上哲會叫你一聲爸爸
+                {labels.easterEgg}
               </span>
             </label>
           </div>
@@ -152,10 +155,10 @@ export function CustomTierCard({ onSelect, minPrice }: CustomTierCardProps) {
           {/* Exclusive Perks */}
           <div className="mt-4 pt-4 border-t border-neutral-700">
             <p className="text-xs text-amber-400 font-semibold mb-3 uppercase tracking-wide">
-              限定贈品
+              {labels.exclusivePerks}
             </p>
             <div className="space-y-2">
-              {CUSTOM_TIER_CONFIG.exclusivePerks.map((perk) => {
+              {CUSTOM_TIER_CONFIG.exclusivePerks.map((perk: { icon: string; title: string; color?: string }) => {
                 const isRed = 'color' in perk && perk.color === 'red';
                 return (
                   <div
@@ -185,7 +188,7 @@ export function CustomTierCard({ onSelect, minPrice }: CustomTierCardProps) {
               onClick={handleSelect}
               disabled={!benefits.isValid}
             >
-              選擇此金額
+              {labels.selectAmount}
             </Button>
           </div>
         </CardContent>

@@ -1,36 +1,71 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from './LanguageProvider';
 import { Locale } from '@/content/i18n';
+import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'motion/react';
 
-const LOCALE_LABELS: Record<Locale, string> = {
-    'zh-TW': '繁體中文',
-    'en': 'English',
-    'ja': '日本語 (Coming Soon)',
-    'ko': '한국어 (Coming Soon)',
-};
+const LOCALE_CONFIG: { code: Locale; label: string; disabled?: boolean }[] = [
+    { code: 'zh-TW', label: '中' },
+    { code: 'en', label: 'EN' },
+    { code: 'ja', label: '日', disabled: true },
+    { code: 'ko', label: '韓', disabled: true },
+];
 
 export const LanguageSwitcher: React.FC = () => {
     const { locale, setLocale } = useLanguage();
-
-    const handleLocaleChange = (newLocale: Locale) => {
-        if (newLocale === 'ja' || newLocale === 'ko') return;
-        setLocale(newLocale);
-    };
+    const [hoveredCode, setHoveredCode] = useState<Locale | null>(null);
 
     return (
-        <div className="flex items-center space-x-2">
-            <select
-                value={locale}
-                onChange={(e) => handleLocaleChange(e.target.value as Locale)}
-                className="bg-transparent border border-white/20 text-white rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-                <option value="zh-TW" className="bg-slate-800 text-white">{LOCALE_LABELS['zh-TW']}</option>
-                <option value="en" className="bg-slate-800 text-white">{LOCALE_LABELS['en']}</option>
-                <option value="ja" disabled className="bg-slate-800 text-gray-400">{LOCALE_LABELS['ja']}</option>
-                <option value="ko" disabled className="bg-slate-800 text-gray-400">{LOCALE_LABELS['ko']}</option>
-            </select>
+        <div className="flex items-center gap-1.5 px-2 py-1 bg-white/5 rounded-full border border-white/10">
+            {LOCALE_CONFIG.map((conf) => {
+                const isActive = locale === conf.code;
+                const isDisabled = conf.disabled;
+
+                return (
+                    <div key={conf.code} className="relative">
+                        <button
+                            onClick={() => !isDisabled && setLocale(conf.code)}
+                            onMouseEnter={() => isDisabled && setHoveredCode(conf.code)}
+                            onMouseLeave={() => setHoveredCode(null)}
+                            disabled={isDisabled}
+                            className={cn(
+                                'relative w-7 h-7 flex items-center justify-center rounded-full text-[10px] font-bold transition-all duration-300',
+                                isActive
+                                    ? 'bg-white text-neutral-900 shadow-lg scale-110 z-10'
+                                    : isDisabled
+                                        ? 'text-white/20 cursor-not-allowed'
+                                        : 'text-white/60 hover:bg-white/10 hover:text-white'
+                            )}
+                        >
+                            {isActive && (
+                                <motion.div
+                                    layoutId="active-language"
+                                    className="absolute inset-0 bg-white rounded-full -z-10"
+                                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                                />
+                            )}
+                            {conf.label}
+                        </button>
+
+                        <AnimatePresence>
+                            {isDisabled && hoveredCode === conf.code && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 px-2.5 py-1.5 bg-neutral-800 text-white text-[10px] font-bold whitespace-nowrap rounded-lg border border-white/10 shadow-2xl pointer-events-none z-50 ring-1 ring-white/5"
+                                >
+                                    Coming Soon
+                                    {/* Arrow */}
+                                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-neutral-800" />
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                );
+            })}
         </div>
     );
 };

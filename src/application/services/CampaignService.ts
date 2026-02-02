@@ -1,7 +1,29 @@
 import { CAMPAIGN_CONFIG, CUSTOM_TIER_CONFIG } from '@/content/home-content';
 import { CampaignBenefitDTO } from '../dtos/CampaignBenefitDTO';
+import { OrderRepository } from '@/domain/order/Order';
+import { MembershipRepository } from '@/domain/membership/Membership';
 
 export class CampaignService {
+    constructor(
+        private readonly orderRepo: OrderRepository,
+        private readonly membershipRepo: MembershipRepository
+    ) { }
+
+    /**
+     * Get campaign statistics (total raised and backer count)
+     */
+    async getCampaignStats(): Promise<{ totalRaised: number; backerCount: number }> {
+        const [totalRaised, backerCount] = await Promise.all([
+            this.orderRepo.getTotalPaidAmount(),
+            this.membershipRepo.count(),
+        ]);
+
+        return {
+            totalRaised,
+            backerCount,
+        };
+    }
+
     /**
      * Calculate benefits (months and avg price) for a custom donation amount
      */

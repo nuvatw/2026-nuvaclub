@@ -4,15 +4,18 @@ import { motion } from 'motion/react';
 import { Button, Card, CardContent, Badge } from '@/components/atoms';
 import { ArrowRightIcon, CheckIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
-import { FUNDING_TIERS } from '@/content/home-content';
+import { useHomeContent } from '../../hooks/useHomeContent';
 import { PerkIcon } from '../../utils/icons';
 
 interface TierCardProps {
-  tier: (typeof FUNDING_TIERS)[number];
+  tier: any; // Using any for now to avoid literal type mismatch with localized data
   onSelect: () => void;
 }
 
 export function TierCard({ tier, onSelect }: TierCardProps) {
+  const { funding } = useHomeContent();
+  const { tierCard: labels } = funding;
+
   const savings = tier.originalValue - tier.price;
   const savingsPercent = Math.round((savings / tier.originalValue) * 100);
   const avgMonthlyPrice = Math.round(tier.price / tier.getMonths);
@@ -62,6 +65,11 @@ export function TierCard({ tier, onSelect }: TierCardProps) {
             {/* Price */}
             <div className="mb-4">
               <div className="flex items-baseline gap-2">
+                <span className="text-3xl sm:text-4xl font-bold text-white">
+                  NT${tier.price.toLocaleString()}
+                </span>
+              </div>
+              Line 67:               <div className="flex items-baseline gap-2">
                 <span className="text-4xl font-bold text-white">
                   NT${tier.price.toLocaleString()}
                 </span>
@@ -71,34 +79,34 @@ export function TierCard({ tier, onSelect }: TierCardProps) {
                   NT${tier.originalValue.toLocaleString()}
                 </span>
                 <Badge variant="success" size="sm">
-                  省 {savingsPercent}%
+                  {labels.save} {savingsPercent}%
                 </Badge>
               </div>
             </div>
 
             {/* Months Math */}
             <div className="bg-neutral-800 rounded-lg p-3 mb-4">
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center justify-between text-[11px] sm:text-sm">
                 <span className="text-neutral-400">
-                  支付 {tier.payMonths} 個月
+                  {labels.payMonths} {tier.payMonths} {labels.months}
                 </span>
-                <ArrowRightIcon size="sm" className="text-neutral-500" />
+                <ArrowRightIcon size="sm" className="text-neutral-500 mx-1" />
                 <span className="text-green-400 font-semibold">
-                  獲得 {tier.getMonths} 個月
+                  {labels.getMonths} {tier.getMonths} {labels.months}
                 </span>
               </div>
-              <div className="mt-2 pt-2 border-t border-neutral-700 flex items-center justify-between text-sm">
-                <span className="text-neutral-500">平均每月</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-neutral-600 line-through text-xs">NT$990</span>
-                  <span className="text-green-400 font-semibold">NT${avgMonthlyPrice}</span>
+              <div className="mt-2 pt-2 border-t border-neutral-700 flex items-center justify-between text-[11px] sm:text-sm">
+                <span className="text-neutral-500">{labels.avgMonthly}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-neutral-600 line-through text-[10px] sm:text-xs">NT$990</span>
+                  <span className="text-green-400 font-semibold text-xs sm:text-sm">NT${avgMonthlyPrice}</span>
                 </div>
               </div>
             </div>
 
             {/* Perks */}
             <ul className="space-y-2 mb-4">
-              {tier.perks.map((perk) => (
+              {tier.perks.map((perk: string) => (
                 <li key={perk} className="flex items-start gap-2 text-sm">
                   <CheckIcon size="sm" className="text-green-500 mt-0.5 flex-shrink-0" />
                   <span className="text-neutral-300">{perk}</span>
@@ -110,10 +118,10 @@ export function TierCard({ tier, onSelect }: TierCardProps) {
             {'exclusivePerks' in tier && tier.exclusivePerks && (
               <div className="mt-4 pt-4 border-t border-neutral-700">
                 <p className="text-xs text-amber-400 font-semibold mb-3 uppercase tracking-wide">
-                  限定贈品
+                  {labels.exclusivePerks}
                 </p>
                 <div className="space-y-2">
-                  {tier.exclusivePerks.map((perk) => (
+                  {tier.exclusivePerks.map((perk: { icon: string; title: string }) => (
                     <div
                       key={perk.title}
                       className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 rounded-lg px-3 py-2"
@@ -132,7 +140,7 @@ export function TierCard({ tier, onSelect }: TierCardProps) {
             {tier.limitedQty && (
               <div className="mt-4 text-center">
                 <Badge variant="error" size="sm">
-                  限量 {tier.limitedQty} 組
+                  {labels.limited} {tier.limitedQty} {labels.limitedUnit}
                 </Badge>
               </div>
             )}
@@ -150,7 +158,7 @@ export function TierCard({ tier, onSelect }: TierCardProps) {
                   onSelect();
                 }}
               >
-                選擇此方案
+                {labels.selectPlan}
               </Button>
             </div>
           </CardContent>

@@ -1,5 +1,6 @@
 // Hooks
 export { useCampaignState } from './hooks/useCampaignState';
+export { useHomeContent } from './hooks/useHomeContent';
 
 // Components
 export {

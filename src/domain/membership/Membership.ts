@@ -1,12 +1,13 @@
 import { MembershipId, OrderId, UserId } from '../shared/ids';
 
-export type MembershipTier = 'free' | 'explorer' | 'traveler' | 'pro';
+export type MembershipTier = 'free' | 'explorer' | 'traveler' | 'pro' | 'tier-1' | 'tier-2' | 'tier-3';
 export type MembershipStatus = 'ACTIVE' | 'EXPIRED' | 'CANCELLED';
 
 export interface MemberCard {
     memberNo: string;
     tier: MembershipTier;
     fullName: string;
+    email: string;
     issueDate: Date;
 }
 
@@ -46,6 +47,7 @@ export class Membership {
         tier: MembershipTier,
         months: number,
         fullName: string,
+        email: string,
         userId?: UserId
     ): Membership {
         const validUntil = new Date();
@@ -55,6 +57,7 @@ export class Membership {
             memberNo,
             tier,
             fullName,
+            email,
             issueDate: new Date()
         };
 
@@ -75,4 +78,6 @@ export interface MembershipRepository {
     save(membership: Membership): Promise<void>;
     saveAll(memberships: Membership[]): Promise<void>;
     findByMemberNo(memberNo: string): Promise<Membership | null>;
+    findByEmail(email: string): Promise<Membership[]>;
+    count(): Promise<number>;
 }

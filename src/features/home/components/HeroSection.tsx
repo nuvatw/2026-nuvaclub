@@ -5,22 +5,22 @@ import { motion } from 'motion/react';
 import { Button, Badge } from '@/components/atoms';
 import { ArrowRightIcon, PlayIcon } from '@/components/icons';
 import {
-  CAMPAIGN_CONFIG,
-  HERO_CONTENT,
-  HERO_VIDEO_ID,
-  STATS,
-} from '@/content/home-content';
+  useHomeContent,
+} from '@/features/home';
 import { CountdownTimer } from './CountdownTimer';
 
 interface HeroSectionProps {
   onScrollToTiers: () => void;
   onScrollToVideo: () => void;
+  backerCount: number;
 }
 
 export function HeroSection({
   onScrollToTiers,
   onScrollToVideo,
+  backerCount,
 }: HeroSectionProps) {
+  const { hero: HERO_CONTENT, heroVideoId: HERO_VIDEO_ID, stats: STATS_DATA, funding } = useHomeContent();
   const [videoReady, setVideoReady] = useState(false);
 
   // Preload video by waiting for iframe to be ready
@@ -29,6 +29,12 @@ export function HeroSection({
     const timer = setTimeout(() => setVideoReady(true), 800);
     return () => clearTimeout(timer);
   }, []);
+
+  // Update stats row data with dynamic backerCount
+  const STATS = STATS_DATA.map((s, idx) => {
+    if (idx === 0) return { ...s, value: backerCount.toString() };
+    return s;
+  });
 
   return (
     <section className="relative min-h-[85vh] sm:min-h-[90vh] flex items-center overflow-hidden">
@@ -77,7 +83,7 @@ export function HeroSection({
           </motion.div>
 
           {/* Headline - optimized for mobile */}
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-[1.2] sm:leading-tight">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-[1.2] sm:leading-tight">
             {HERO_CONTENT.headline.line1}
             <br />
             <span className="bg-gradient-to-r from-primary-400 to-accent-400 bg-clip-text text-transparent">
@@ -112,13 +118,12 @@ export function HeroSection({
               onClick={onScrollToVideo}
             >
               <PlayIcon size="sm" className="mr-1.5 sm:mr-2" />
-              <span className="hidden sm:inline">{HERO_CONTENT.secondaryCta}</span>
-              <span className="sm:hidden">創辦人的話</span>
+              <span>{HERO_CONTENT.secondaryCta}</span>
             </Button>
           </motion.div>
 
           {/* Countdown Timer */}
-          <CountdownTimer targetDate={CAMPAIGN_CONFIG.countdownEndDate} />
+          <CountdownTimer targetDate="2026-02-28T23:59:59+08:00" />
         </motion.div>
 
         {/* Stats Row - optimized for mobile */}
@@ -126,7 +131,7 @@ export function HeroSection({
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="mt-10 sm:mt-16 grid grid-cols-4 gap-2 sm:gap-8"
+          className="mt-10 sm:mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8"
         >
           {STATS.map((stat, index) => (
             <motion.div

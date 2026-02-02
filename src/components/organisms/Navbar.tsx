@@ -28,6 +28,7 @@ import { HeaderSearch } from '@/components/organisms/HeaderSearch';
 import { AdminMenu } from '@/features/admin/components/AdminMenu';
 import { cn } from '@/lib/utils';
 import { useKeyboardShortcuts } from '@/features/keyboard-shortcuts';
+import { LanguageSwitcher } from '@/features/i18n/LanguageSwitcher';
 
 const NAV_ITEMS = [
   { href: '/learn', label: 'Learn' },
@@ -35,7 +36,7 @@ const NAV_ITEMS = [
   { href: '/forum', label: 'Forum' },
   { href: '/space', label: 'Space' },
   { href: '/sprint', label: 'Sprint' },
-  { href: '/shop', label: 'Shop' },
+  { href: '/sprint', label: 'Sprint' },
 ];
 
 export function Navbar() {
@@ -162,13 +163,15 @@ export function Navbar() {
               <MissionPanel />
               <NotificationBell />
               <CartIcon />
-              {user ? (
+              <LanguageSwitcher />
+              {/* Login/User area hidden per request */}
+              {/* {user ? (
                 <UserAvatarDropdown />
               ) : (
                 <Button size="sm" onClick={() => setLoginModalOpen(true)}>
                   Login
                 </Button>
-              )}
+              )} */}
             </div>
 
             {/* Mobile Menu Button */}
@@ -236,53 +239,10 @@ export function Navbar() {
                   Missions
                 </Link>
                 <div className="pt-4 border-t border-neutral-800">
-                  {user ? (
+                  {/* Login/User area hidden per request */}
+                  {/* {user ? (
                     <div className="space-y-3">
-                      {/* User Info */}
-                      <Link
-                        href="/member/profile"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="flex items-center gap-3 p-4 rounded-xl bg-neutral-800/50 hover:bg-neutral-800 transition-colors"
-                      >
-                        <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-neutral-700">
-                          {user.avatar ? (
-                            <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full bg-primary-600 flex items-center justify-center text-white font-semibold">
-                              {user.name.charAt(0).toUpperCase()}
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-white font-medium">{user.name}</p>
-                          <span className={cn('inline-block px-2 py-0.5 rounded text-xs font-medium text-white mt-0.5', membership.color)}>
-                            {membership.label}
-                          </span>
-                        </div>
-                        <ChevronRightIcon size="md" className="text-neutral-500" />
-                      </Link>
-
-                      {/* Quick Links */}
-                      <div className="grid grid-cols-2 gap-2">
-                        <Link
-                          href="/member/courses"
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="flex items-center gap-2 p-4 rounded-xl bg-neutral-800/50 hover:bg-neutral-800 transition-colors text-sm text-neutral-300"
-                        >
-                          <BookOpenIcon size="sm" />
-                          My Courses
-                        </Link>
-                        <Link
-                          href="/member/favorites"
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="flex items-center gap-2 p-4 rounded-xl bg-neutral-800/50 hover:bg-neutral-800 transition-colors text-sm text-neutral-300"
-                        >
-                          <HeartIcon size="sm" />
-                          Favorites
-                        </Link>
-                      </div>
-
-                      {/* Logout */}
+                      ...
                       <Button
                         variant="ghost"
                         className="w-full text-red-400 hover:text-red-300 hover:bg-red-500/10"
@@ -305,7 +265,7 @@ export function Navbar() {
                     >
                       Login
                     </Button>
-                  )}
+                  )} */}
                 </div>
               </div>
             </motion.div>

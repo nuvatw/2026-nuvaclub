@@ -46,4 +46,16 @@ export class PrismaOrderRepository implements OrderRepository {
             },
         });
     }
+
+    async getTotalPaidAmount(): Promise<number> {
+        const result = await prisma.order.aggregate({
+            _sum: {
+                totalAmount: true,
+            },
+            where: {
+                status: 'PAID',
+            },
+        });
+        return result._sum.totalAmount || 0;
+    }
 }

@@ -71,7 +71,8 @@ export class PledgeWorkflowService {
                 order.id,
                 req.tier as any,
                 req.months,
-                p.name
+                p.name,
+                p.email
             );
         });
 
