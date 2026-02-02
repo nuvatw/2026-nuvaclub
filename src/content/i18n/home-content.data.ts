@@ -38,7 +38,7 @@ const ZH = {
     funding: {
         badge: '早鳥限定方案',
         headline: '選擇你的贊助方案',
-        subheadline: '7/1 解鎖所有平台功能',
+        subheadline: '7/1 解鎖所有平台功能（早鳥預購只到 02/28）',
         basePlanName: 'Voyager',
         progressLabel: '募資進度',
         goalLabel: '目標',
@@ -242,7 +242,7 @@ const EN = {
     funding: {
         badge: 'Limited Time Offer',
         headline: 'Choose Your Plan',
-        subheadline: 'Unlock all features on July 1st',
+        subheadline: 'Unlock all features on July 1st (Early bird offer ends 02/28)',
         basePlanName: 'Voyager',
         progressLabel: 'Progress',
         goalLabel: 'Goal',
