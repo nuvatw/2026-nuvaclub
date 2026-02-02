@@ -833,7 +833,7 @@ function PledgeCheckoutContent() {
             phone_number: phoneNumber,
           },
           orderRef: `REF-${Date.now()}`,
-          tier,
+          tier: tierId,
           months,
           participants,
         }),

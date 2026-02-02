@@ -409,6 +409,9 @@ export function CheckoutProvider({ children, initialItems }: CheckoutProviderPro
           orderRef: `REF-${Date.now()}`,
           paymentType,
           installment: state.paymentInfo.installment,
+          tier: item?.id || 'free',
+          months: (item as any)?.months || 0,
+          participants: state.participants,
         }),
       });
 
