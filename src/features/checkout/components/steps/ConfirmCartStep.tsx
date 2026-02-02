@@ -99,7 +99,7 @@ export function ConfirmCartStep() {
       {isDuo && selectedPeriods.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-gray-900">
               Selected {item.duoPeriodType === 'month' ? 'Months' : 'Quarters'}
             </label>
             <button

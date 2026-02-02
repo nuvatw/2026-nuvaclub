@@ -1,8 +1,5 @@
 import { NextResponse } from 'next/server';
-import {
-    getQuestionsForLevel
-} from '@/infra/mock/legacy';
-import { getLevelDuration } from '@/features/test/constants';
+import { testService } from '@/app/api/bff/composition';
 
 /**
  * BFF Endpoint for Tests
@@ -12,38 +9,16 @@ import { getLevelDuration } from '@/features/test/constants';
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const level = searchParams.get('level');
+    const userId = searchParams.get('userId') || 'user-1'; // Default for demo
 
     try {
         if (level) {
             // Get questions for specific level (stub)
-            // In real implementation, would call repository
             return NextResponse.json([]);
         }
 
-        // Get all level configurations
-        const configs = [];
-        for (let lvl = 1; lvl <= 12; lvl++) {
-            const duration = getLevelDuration(lvl);
-
-            let questionTypes: string;
-            if (lvl <= 3) {
-                questionTypes = 'True/False + Multiple Choice';
-            } else if (lvl <= 6) {
-                questionTypes = 'Multiple Choice + Short Answer';
-            } else if (lvl <= 9) {
-                questionTypes = 'Short Answer + Essay';
-            } else {
-                questionTypes = 'Essay';
-            }
-
-            configs.push({
-                level: lvl,
-                durationMinutes: duration,
-                questionTypes,
-                questionCount: 10, // Placeholder
-            });
-        }
-
+        // Get all level configurations with user-specific progress and UI state
+        const configs = await testService.getLevelsForUser(userId);
         return NextResponse.json(configs);
     } catch (error) {
         console.error('Error fetching tests:', error);

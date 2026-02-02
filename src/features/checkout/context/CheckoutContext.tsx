@@ -6,6 +6,7 @@ import {
   useReducer,
   useCallback,
   useMemo,
+  useRef,
   type ReactNode,
 } from 'react';
 import {
@@ -41,7 +42,10 @@ type CheckoutAction =
   | { type: 'SET_AGREED_TO_TERMS'; payload: boolean }
   | { type: 'GO_TO_STEP'; payload: number }
   | { type: 'MARK_STEP_COMPLETE'; payload: CheckoutStepId }
-  | { type: 'UPDATE_STEPS'; payload: CheckoutStep[] };
+  | { type: 'UPDATE_STEPS'; payload: CheckoutStep[] }
+  | { type: 'SUBMIT_START' }
+  | { type: 'SUBMIT_SUCCESS' }
+  | { type: 'SUBMIT_FAILURE', payload: string };
 
 // Reducer
 function checkoutReducer(state: CheckoutState, action: CheckoutAction): CheckoutState {
@@ -129,6 +133,15 @@ function checkoutReducer(state: CheckoutState, action: CheckoutAction): Checkout
     case 'UPDATE_STEPS':
       return { ...state, steps: action.payload };
 
+    case 'SUBMIT_START':
+      return { ...state, isSubmitting: true, error: undefined };
+
+    case 'SUBMIT_SUCCESS':
+      return { ...state, isSubmitting: false, error: undefined };
+
+    case 'SUBMIT_FAILURE':
+      return { ...state, isSubmitting: false, error: action.payload };
+
     default:
       return state;
   }
@@ -207,6 +220,7 @@ function createInitialState(items: CartItem[]): CheckoutState {
         expiryDate: '',
         cvc: '',
       },
+      enableInstallment: false, // Will be calculated dynamically
     },
     planInfo: {
       dateOfBirth: '',
@@ -232,6 +246,7 @@ function createInitialState(items: CartItem[]): CheckoutState {
     steps,
     completedSteps: new Set(),
     agreedToTerms: false,
+    isSubmitting: false,
   };
 }
 
@@ -251,6 +266,18 @@ export function CheckoutProvider({ children, initialItems }: CheckoutProviderPro
     initialItems,
     createInitialState
   );
+
+  const tappayRef = useRef<any>(null);
+
+  // Cart helpers
+  const getUnitPrice = useCallback((): number => {
+    if (state.items.length === 0) return 0;
+    return state.items[0].price;
+  }, [state.items]);
+
+  const getTotalPrice = useCallback((): number => {
+    return getUnitPrice() * state.quantity;
+  }, [getUnitPrice, state.quantity]);
 
   // Navigation
   const goToStep = useCallback((stepId: CheckoutStepId) => {
@@ -349,6 +376,58 @@ export function CheckoutProvider({ children, initialItems }: CheckoutProviderPro
   }, [state.purchaserInfo]);
 
   // Validation
+  const submitOrder = useCallback(async () => {
+    dispatch({ type: 'SUBMIT_START' });
+
+    const totalAmount = getTotalPrice();
+    const item = state.items[0];
+
+    // Determine payment type
+    let paymentType: 'one_time' | 'subscription' | 'installment' = 'one_time';
+    if (item?.type === 'subscription') {
+      paymentType = 'subscription';
+    } else if (state.paymentInfo.installment) {
+      paymentType = 'installment';
+    }
+
+    try {
+      const response = await fetch('/api/bff/checkout/tappay/pay-by-prime', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prime: state.paymentInfo.prime,
+          amount: totalAmount,
+          currency: 'TWD',
+          details: `Purchase: ${item?.name} x ${state.quantity}`,
+          cardholder: {
+            name: state.purchaserInfo.fullName,
+            email: state.purchaserInfo.email,
+            phoneNumber: state.purchaserInfo.phone,
+          },
+          orderRef: `REF-${Date.now()}`,
+          paymentType,
+          installment: state.paymentInfo.installment,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.ok) {
+        dispatch({ type: 'SUBMIT_SUCCESS' });
+        return { ok: true, data };
+      } else {
+        dispatch({ type: 'SUBMIT_FAILURE', payload: data.msg || 'Payment failed' });
+        return { ok: false, msg: data.msg };
+      }
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Network error';
+      dispatch({ type: 'SUBMIT_FAILURE', payload: msg });
+      return { ok: false, msg };
+    }
+  }, [state, getTotalPrice]);
+
   const isCurrentStepValid = useCallback((): boolean => {
     const currentStep = state.steps[state.currentStepIndex];
     if (!currentStep) return false;
@@ -367,15 +446,24 @@ export function CheckoutProvider({ children, initialItems }: CheckoutProviderPro
       }
 
       case 'payment_info': {
-        const { method, cardDetails } = state.paymentInfo;
+        const { method, cardDetails, prime, canGetPrime } = state.paymentInfo;
         if (method === 'atm_transfer') return true;
-        if (method === 'credit_card' && cardDetails) {
-          return (
-            cardDetails.cardholderName.trim() !== '' &&
-            isValidCardNumber(cardDetails.cardNumber) &&
-            isValidExpiryDate(cardDetails.expiryDate) &&
-            isValidCvc(cardDetails.cvc)
-          );
+        if (method === 'credit_card') {
+          // If we have a prime, it's valid
+          if (prime) return true;
+
+          // If TapPay is ready to get prime, it's valid
+          if (canGetPrime) return true;
+
+          // Otherwise check manual fields (legacy/backup)
+          if (cardDetails) {
+            return (
+              cardDetails.cardholderName.trim() !== '' &&
+              isValidCardNumber(cardDetails.cardNumber) &&
+              isValidExpiryDate(cardDetails.expiryDate) &&
+              isValidCvc(cardDetails.cvc)
+            );
+          }
         }
         return false;
       }
@@ -414,17 +502,6 @@ export function CheckoutProvider({ children, initialItems }: CheckoutProviderPro
     dispatch({ type: 'MARK_STEP_COMPLETE', payload: stepId });
   }, []);
 
-  // Cart helpers
-  const getUnitPrice = useCallback((): number => {
-    if (state.items.length === 0) return 0;
-    return state.items[0].price;
-  }, [state.items]);
-
-  const getTotalPrice = useCallback((): number => {
-    return getUnitPrice() * state.quantity;
-  }, [getUnitPrice, state.quantity]);
-
-  // Step helpers
   const getCurrentStep = useCallback((): CheckoutStep | undefined => {
     return state.steps[state.currentStepIndex];
   }, [state.steps, state.currentStepIndex]);
@@ -461,6 +538,16 @@ export function CheckoutProvider({ children, initialItems }: CheckoutProviderPro
       getCurrentStep,
       isFirstStep,
       isLastStep,
+      requestPrime: async () => {
+        console.log('[CheckoutContext] requestPrime called, tappayRef.current:', tappayRef.current);
+        if (!tappayRef.current) {
+          console.error('[CheckoutContext] tappayRef.current is null!');
+          return '';
+        }
+        return tappayRef.current.getPrime();
+      },
+      tappayRef,
+      submitOrder,
     }),
     [
       state,
@@ -485,6 +572,7 @@ export function CheckoutProvider({ children, initialItems }: CheckoutProviderPro
       getCurrentStep,
       isFirstStep,
       isLastStep,
+      submitOrder,
     ]
   );
 

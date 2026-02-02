@@ -1,5 +1,8 @@
-import { IUserRepository, IProductRepository } from '../ports';
+import { IUserRepository, IProductRepository, IDuoRepository } from '../ports';
 import type { DuoVariant, NunuTier, DuoEntitlement } from '@/features/shop/types';
+import { DuoTier, DUO_TIERS, DuoPricing } from '../../domain/duo/DuoTier';
+import { DuoEligibilityService } from '../../domain/duo/DuoEligibilityService';
+import { DuoPurchaseOptionsDTO, DuoMonthOptionDTO } from '../dtos/DuoPurchaseOptionsDTO';
 
 const DUO_ACCESS_MAP: Record<DuoVariant, NunuTier[]> = {
     'go': ['nunu'],
@@ -10,7 +13,8 @@ const DUO_ACCESS_MAP: Record<DuoVariant, NunuTier[]> = {
 export class ShopService {
     constructor(
         private userRepository: IUserRepository,
-        private productRepository: IProductRepository
+        private productRepository: IProductRepository,
+        private duoRepository: IDuoRepository
     ) { }
 
     /**
@@ -25,6 +29,50 @@ export class ShopService {
      */
     getProductsByCategory(category: string) {
         return this.productRepository.findMany({ where: { category } as any });
+    }
+
+    /**
+     * Get precomputed Duo purchase options for a user/year/tier
+     */
+    async getDuoPurchaseOptions(userId: string, year: number, selectedTier: DuoTier): Promise<DuoPurchaseOptionsDTO> {
+        const passes = this.duoRepository.getPassesByUserId(userId);
+        const existingPassMap = new Map<string, DuoTier>();
+        passes.forEach(p => {
+            if (p.status === 'active') {
+                existingPassMap.set(p.month, p.tier);
+            }
+        });
+
+        const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+        const options: DuoMonthOptionDTO[] = [];
+
+        for (let i = 1; i <= 12; i++) {
+            const monthStr = `${year}-${String(i).padStart(2, '0')}`;
+            const status = DuoEligibilityService.getMonthStatus(monthStr, currentMonth, selectedTier, existingPassMap);
+
+            let state: DuoMonthOptionDTO['state'] = 'available';
+            if (status.isUpgradeable) state = 'upgrade';
+            else if (status.isOwned) state = 'owned';
+            else if (!status.isPurchasable) state = 'disabled';
+
+            const price = status.isUpgradeable
+                ? (status.upgradePrice ?? 0)
+                : (state === 'available' ? DUO_TIERS[selectedTier].price : 0);
+
+            options.push({
+                month: monthStr,
+                state,
+                price,
+                currentTier: status.currentTier,
+                reason: status.disabledReason
+            });
+        }
+
+        return {
+            year,
+            selectedTier,
+            options
+        };
     }
 
     /**

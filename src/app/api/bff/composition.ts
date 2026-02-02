@@ -22,6 +22,7 @@ import { TestService } from '@/application/services/TestService';
 import { AccessService } from '@/application/services/AccessService';
 import { GetMembershipSummaryService } from '@/application/services/GetMembershipSummaryService';
 import { PointsService } from '@/application/services/PointsService';
+import { CampaignService } from '@/application/services/CampaignService';
 
 import {
     IUserRepository,
@@ -68,6 +69,7 @@ class CompositionRoot {
     public accessService: AccessService;
     public getMembershipSummaryService: GetMembershipSummaryService;
     public pointsService: PointsService;
+    public campaignService: CampaignService;
 
     private constructor() {
         this.db = MockDB.getInstance();
@@ -114,12 +116,13 @@ class CompositionRoot {
         this.forumService = new ForumService(this.postRepository);
         this.authService = new AuthService(this.userRepository);
         this.learnService = new LearnService(this.courseRepository, this.learnRepository);
-        this.shopService = new ShopService(this.userRepository, this.productRepository);
+        this.shopService = new ShopService(this.userRepository, this.productRepository, this.duoRepository);
         this.sprintService = new SprintService(this.spaceRepository);
         this.testService = new TestService(this.testRepository);
         this.accessService = new AccessService(this.courseRepository, this.sprintRepository);
         this.getMembershipSummaryService = new GetMembershipSummaryService(this.userRepository);
         this.pointsService = new PointsService(this.pointsRepository);
+        this.campaignService = new CampaignService();
     }
 
     public static getInstance(): CompositionRoot {
@@ -145,5 +148,6 @@ export const {
     accessService,
     getMembershipSummaryService,
     pointsService,
+    campaignService,
     duoRepository
 } = composition;

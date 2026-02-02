@@ -10,9 +10,13 @@
     "lint": "next lint",
     "lint:fix": "eslint src --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\""
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\"",
+    "arch:score": "node scripts/arch-score.js",
+    "arch:score:ci": "node scripts/arch-score.js --ci",
+    "i18n:check": "node scripts/check-i18n.js"
   },
   "dependencies": {
+    "@prisma/client": "^7.3.0",
     "@react-three/fiber": "^9.5.0",
     "@shadergradient/react": "^2.4.20",
     "@tailwindcss/typography": "^0.5.19",
@@ -45,6 +49,7 @@
     "eslint-plugin-prettier": "^5.5.5",
     "postcss": "^8.4.49",
     "prettier": "^3.8.1",
+    "prisma": "^7.3.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.7.0"
   }

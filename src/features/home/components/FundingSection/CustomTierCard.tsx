@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Button, Card, CardContent } from '@/components/atoms';
 import { CheckIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
-import { CAMPAIGN_CONFIG, CUSTOM_TIER_CONFIG } from '@/content/home-content';
+import { CUSTOM_TIER_CONFIG, CAMPAIGN_CONFIG } from '@/content/home-content';
 import { PerkIcon } from '../../utils/icons';
+import { CampaignBenefitDTO } from '@/application/dtos/CampaignBenefitDTO';
 
 interface CustomTierCardProps {
   onSelect: (amount: number) => void;
@@ -15,33 +16,39 @@ interface CustomTierCardProps {
 
 export function CustomTierCard({ onSelect, minPrice }: CustomTierCardProps) {
   const [customAmount, setCustomAmount] = useState<string>(minPrice.toString());
+  const [benefits, setBenefits] = useState<CampaignBenefitDTO>({
+    totalMonths: 0,
+    avgMonthlyPrice: CAMPAIGN_CONFIG.customTierMonthlyPrice,
+    isValid: true,
+  });
   const [error, setError] = useState<string>('');
   const [callMeDaddy, setCallMeDaddy] = useState(false);
 
   const amount = parseInt(customAmount, 10) || 0;
-  const isValid = amount >= minPrice;
 
-  // Calculate months: ceil(amount / 400) so average never exceeds 400
-  // e.g., 5200 -> 13 months (avg 400), 5201 -> 14 months (avg ~371)
-  const pricePerMonth = CAMPAIGN_CONFIG.customTierMonthlyPrice;
-  const totalMonths = Math.ceil(amount / pricePerMonth);
-  const avgMonthlyPrice = totalMonths > 0 ? Math.round(amount / totalMonths) : pricePerMonth;
+  useEffect(() => {
+    const fetchBenefits = async () => {
+      try {
+        const response = await fetch(`/api/bff/campaign/calculate?amount=${amount}`);
+        const data = await response.json();
+        setBenefits(data);
+        setError(data.error || '');
+      } catch (err) {
+        console.error('Failed to fetch benefits:', err);
+      }
+    };
+
+    fetchBenefits();
+  }, [amount]);
 
   const handleAmountChange = (value: string) => {
     // Only allow numbers
     const numericValue = value.replace(/\D/g, '');
     setCustomAmount(numericValue);
-
-    const num = parseInt(numericValue, 10) || 0;
-    if (num > 0 && num < minPrice) {
-      setError(`最低金額為 NT$${minPrice.toLocaleString()}`);
-    } else {
-      setError('');
-    }
   };
 
   const handleSelect = () => {
-    if (isValid) {
+    if (benefits.isValid) {
       onSelect(amount);
     }
   };
@@ -87,17 +94,17 @@ export function CustomTierCard({ onSelect, minPrice }: CustomTierCardProps) {
           </div>
 
           {/* Calculated Benefits */}
-          {isValid && (
+          {benefits.isValid && (
             <div className="bg-neutral-800 rounded-lg p-3 mb-4">
               <div className="flex items-center justify-between text-sm mb-2">
                 <span className="text-neutral-400">獲得會員</span>
-                <span className="text-green-400 font-semibold">{totalMonths} 個月</span>
+                <span className="text-green-400 font-semibold">{benefits.totalMonths} 個月</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-neutral-500">平均每月</span>
                 <div className="flex items-center gap-2">
                   <span className="text-neutral-600 line-through text-xs">NT$990</span>
-                  <span className="text-green-400 font-semibold">NT${avgMonthlyPrice}</span>
+                  <span className="text-green-400 font-semibold">NT${benefits.avgMonthlyPrice}</span>
                 </div>
               </div>
             </div>
@@ -176,7 +183,7 @@ export function CustomTierCard({ onSelect, minPrice }: CustomTierCardProps) {
               variant="primary"
               className="w-full font-semibold"
               onClick={handleSelect}
-              disabled={!isValid}
+              disabled={!benefits.isValid}
             >
               選擇此金額
             </Button>

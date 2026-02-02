@@ -7,7 +7,8 @@ export type CartItemType =
   | 'duo_fly'
   | 'explorer_upgrade'
   | 'physical_course'
-  | 'merchandise';
+  | 'merchandise'
+  | 'subscription'; // Monthly auto-renewing subscription
 
 export type DuoPeriodType = 'month' | 'quarter';
 
@@ -38,6 +39,8 @@ export interface CartItem {
   // For Duo products
   duoPeriodType?: DuoPeriodType; // 'month' for Duo Go, 'quarter' for Duo Run/Fly
   selectedPeriods?: DuoPeriod[]; // Selected months or quarters
+  // For subscription
+  subscriptionType?: 'monthly' | 'yearly'; // Subscription billing cycle
 }
 
 export interface PurchaserInfo {
@@ -89,6 +92,17 @@ export interface CardDetails {
 export interface PaymentInfo {
   method: PaymentMethod;
   cardDetails?: CardDetails;
+  prime?: string; // TapPay Prime token
+
+  // Installment options
+  enableInstallment?: boolean; // Whether installment is available for this order
+  installment?: {
+    bank: 'ctbc' | 'esun'; // 中信 or 玉山
+    periods: 3 | 6;
+  };
+
+  // TapPay validation status
+  canGetPrime?: boolean; // Whether TapPay card fields are valid and ready
 }
 
 export type CheckoutStepId =
@@ -129,6 +143,10 @@ export interface CheckoutState {
 
   // Terms
   agreedToTerms: boolean;
+
+  // Submission
+  isSubmitting: boolean;
+  error?: string;
 }
 
 export interface CheckoutContextValue {
@@ -166,6 +184,13 @@ export interface CheckoutContextValue {
   getCurrentStep: () => CheckoutStep | undefined;
   isFirstStep: () => boolean;
   isLastStep: () => boolean;
+
+  // TapPay integration
+  requestPrime: () => Promise<string>;
+  tappayRef: React.RefObject<any>;
+
+  // Submission
+  submitOrder: () => Promise<{ ok: boolean; data?: any; msg?: string }>;
 }
 
 // Validation helpers

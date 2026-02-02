@@ -1,14 +1,11 @@
 import { NextResponse } from 'next/server';
 import { learnService } from '@/app/api/bff/composition';
 import { toCourseDTO } from '../mappers';
+import { getLocaleFromHeaders } from '@/content/i18n';
+import { contentService } from '@/content/services/ContentService';
 
 /**
  * BFF Endpoint for Courses
- * GET /api/bff/learn/courses - List courses with optional filters
- * GET /api/bff/learn/courses?id={id} - Get single course by ID
- * GET /api/bff/learn/courses?featured=true - Get featured courses
- * GET /api/bff/learn/courses?free=true - Get free courses
- * GET /api/bff/learn/courses?category={categoryId} - Get courses by category
  */
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -17,36 +14,49 @@ export async function GET(request: Request) {
     const free = searchParams.get('free');
     const category = searchParams.get('category');
 
+    const locale = getLocaleFromHeaders(new Headers(request.headers));
+
     try {
         // Single course by ID
         if (id) {
             const course = await learnService.getCourseById(id);
-            return course
-                ? NextResponse.json(toCourseDTO(course))
-                : NextResponse.json({ error: 'Course not found' }, { status: 404 });
+            if (!course) return NextResponse.json({ error: 'Course not found' }, { status: 404 });
+
+            // Attempt to get localized content
+            const localizedContent = await contentService.getContent<any>(`course.${course.slug || id}`, locale);
+            const dto = toCourseDTO(course);
+
+            if (localizedContent) {
+                dto.title = localizedContent.title || dto.title;
+                dto.description = localizedContent.description || dto.description;
+            }
+
+            return NextResponse.json(dto);
         }
 
-        // Featured courses
+        // Handle list of courses (batch localization if needed)
+        let courses = [];
         if (featured === 'true') {
-            const courses = await learnService.getFeaturedCourses();
-            return NextResponse.json(courses.map(toCourseDTO));
+            courses = await learnService.getFeaturedCourses();
+        } else if (free === 'true') {
+            courses = await learnService.getFreeCourses();
+        } else if (category) {
+            courses = await learnService.getCoursesByCategory(category);
+        } else {
+            courses = await learnService.getAllCourses();
         }
 
-        // Free courses
-        if (free === 'true') {
-            const courses = await learnService.getFreeCourses();
-            return NextResponse.json(courses.map(toCourseDTO));
-        }
+        const dtos = await Promise.all(courses.map(async (course) => {
+            const dto = toCourseDTO(course);
+            const localizedContent = await contentService.getContent<any>(`course.${course.slug || course.id}`, locale);
+            if (localizedContent) {
+                dto.title = localizedContent.title || dto.title;
+                dto.description = localizedContent.description || dto.description;
+            }
+            return dto;
+        }));
 
-        // Courses by category
-        if (category) {
-            const courses = await learnService.getCoursesByCategory(category);
-            return NextResponse.json(courses.map(toCourseDTO));
-        }
-
-        // All courses
-        const courses = await learnService.getAllCourses();
-        return NextResponse.json(courses.map(toCourseDTO));
+        return NextResponse.json(dtos);
     } catch (error) {
         console.error('Error fetching courses:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

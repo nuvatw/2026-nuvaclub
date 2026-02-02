@@ -2,20 +2,28 @@
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/atoms';
-import type { LevelInfo } from '../types';
 import { getLevelColor, getLevelBgColor, formatDuration } from '../constants';
+import { TestLevelDTO } from '@/application/dtos/TestLevelDTO';
 
 interface TestLevelCardProps {
-  levelInfo: LevelInfo;
+  levelInfo: TestLevelDTO;
   onClick: () => void;
 }
 
 export function TestLevelCard({ levelInfo, onClick }: TestLevelCardProps) {
-  const { level, status, bestScore, attempts, durationMinutes, questionTypes, passed } = levelInfo;
-
-  const isLocked = status === 'locked';
-  const isAvailable = status === 'available';
-  const isPassed = status === 'passed';
+  const {
+    level,
+    bestScore,
+    attempts,
+    durationMinutes,
+    questionTypes,
+    passed,
+    isLocked,
+    isAvailable,
+    isPassed,
+    actionLabel,
+    buttonVariant
+  } = levelInfo;
 
   return (
     <div
@@ -116,7 +124,7 @@ export function TestLevelCard({ levelInfo, onClick }: TestLevelCardProps) {
       {/* Action Button */}
       {!isLocked && (
         <Button
-          variant={isPassed ? 'outline' : 'primary'}
+          variant={buttonVariant}
           size="sm"
           className="w-full"
           onClick={(e) => {
@@ -124,7 +132,7 @@ export function TestLevelCard({ levelInfo, onClick }: TestLevelCardProps) {
             onClick();
           }}
         >
-          {isPassed ? 'Try Again' : 'Start Test'}
+          {actionLabel}
         </Button>
       )}
     </div>

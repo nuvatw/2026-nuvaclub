@@ -105,6 +105,50 @@ const SAMPLE_ITEMS: Record<string, CartItem[]> = {
       monthlyAverage: 800,
     },
   ],
+  first_time_3d: [
+    {
+      id: 'plan-first-001',
+      name: 'Explorer Monthly Plan',
+      description: 'First-time purchase - will trigger 3D verification (SMS)',
+      price: 299,
+      quantity: 1,
+      type: 'digital_plan',
+      monthlyAverage: 299,
+    },
+  ],
+  returning_customer: [
+    {
+      id: 'plan-return-001',
+      name: 'Explorer Monthly Plan',
+      description: 'Returning customer - may skip 3D verification',
+      price: 299,
+      quantity: 1,
+      type: 'digital_plan',
+      monthlyAverage: 299,
+    },
+  ],
+  high_value_installment: [
+    {
+      id: 'course-premium-001',
+      name: 'Premium Workshop Package',
+      description: 'High-value course - eligible for installment (≥ NT$10,000)',
+      price: 15000,
+      quantity: 1,
+      type: 'physical_course',
+      requiresCourseDetails: true,
+    },
+  ],
+  subscription_monthly: [
+    {
+      id: 'sub-monthly-001',
+      name: 'Monthly Subscription Plan',
+      description: 'Auto-renewing monthly subscription',
+      price: 599,
+      quantity: 1,
+      type: 'subscription',
+      subscriptionType: 'monthly',
+    },
+  ],
 };
 
 export default function CheckoutDemoPage() {
@@ -112,7 +156,7 @@ export default function CheckoutDemoPage() {
   const [selectedScenario, setSelectedScenario] = useState<keyof typeof SAMPLE_ITEMS>('digital_plan');
 
   const handlePlaceOrder = () => {
-    alert('Order placed successfully! (This is a demo)');
+    alert('Payment successful and order placed! (BFF call completed)');
     setIsOpen(false);
   };
 
@@ -175,6 +219,30 @@ export default function CheckoutDemoPage() {
               onClick={() => setSelectedScenario('combined')}
               title="Combined (2 participants)"
               description="Digital plan with quantity 2, shows multiple participant forms"
+            />
+            <ScenarioButton
+              isActive={selectedScenario === 'first_time_3d'}
+              onClick={() => setSelectedScenario('first_time_3d')}
+              title="🔐 First-Time Purchase (3D)"
+              description="Test 3D verification flow - will require SMS authentication"
+            />
+            <ScenarioButton
+              isActive={selectedScenario === 'returning_customer'}
+              onClick={() => setSelectedScenario('returning_customer')}
+              title="✅ Returning Customer"
+              description="Test returning customer - may skip 3D verification"
+            />
+            <ScenarioButton
+              isActive={selectedScenario === 'high_value_installment'}
+              onClick={() => setSelectedScenario('high_value_installment')}
+              title="💰 High-Value Installment"
+              description="NT$15,000 - Shows installment options (CTBC/E.SUN 3/6 periods)"
+            />
+            <ScenarioButton
+              isActive={selectedScenario === 'subscription_monthly'}
+              onClick={() => setSelectedScenario('subscription_monthly')}
+              title="🔄 Monthly Subscription"
+              description="Auto-renewing subscription - uses general merchant ID"
             />
           </div>
         </div>
@@ -266,11 +334,10 @@ function ScenarioButton({ isActive, onClick, title, description }: ScenarioButto
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-        isActive
-          ? 'border-blue-500 bg-blue-50'
-          : 'border-gray-200 hover:border-gray-300'
-      }`}
+      className={`w-full text-left p-4 rounded-lg border-2 transition-all ${isActive
+        ? 'border-blue-500 bg-blue-50'
+        : 'border-gray-200 hover:border-gray-300'
+        }`}
     >
       <p className={`font-medium ${isActive ? 'text-blue-700' : 'text-gray-900'}`}>
         {title}

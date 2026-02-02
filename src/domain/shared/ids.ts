@@ -13,6 +13,7 @@ export type CommentId = Brand<string, 'CommentId'>;
 export type SprintId = Brand<string, 'SprintId'>;
 export type ProjectId = Brand<string, 'ProjectId'>;
 export type EntitlementId = Brand<string, 'EntitlementId'>;
+export type MembershipId = Brand<string, 'MembershipId'>;
 
 export const Ids = {
     User: (id: string) => id as UserId,
@@ -28,4 +29,5 @@ export const Ids = {
     Sprint: (id: string) => id as SprintId,
     Project: (id: string) => id as ProjectId,
     Entitlement: (id: string) => id as EntitlementId,
+    Membership: (id: string) => id as MembershipId,
 };

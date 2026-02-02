@@ -51,7 +51,7 @@ export function PurchaserInfoStep() {
 
       {/* Invoice Type Section */}
       <div className="space-y-3">
-        <label className="text-sm font-medium text-gray-700">
+        <label className="text-sm font-medium text-gray-900">
           Invoice Type<span className="text-red-500 ml-0.5">*</span>
         </label>
         <RadioCardGroup

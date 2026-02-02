@@ -9,7 +9,7 @@ import { CheckCircleIcon } from '@/components/icons';
  *
  * Design System Standards:
  * - Supports both light and dark themes via variant prop
- * - Default to dark theme for consistency with app
+ * - Default to light theme for checkout flows
  * - Includes success state for validated fields
  */
 
@@ -35,7 +35,7 @@ const VARIANT_STYLES: Record<FormVariant, {
   error: string;
 }> = {
   light: {
-    label: 'text-gray-700',
+    label: 'text-gray-900',
     input: 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 hover:border-gray-400',
     inputError: 'border-red-300 focus:ring-red-500 focus:border-red-500',
     inputSuccess: 'border-green-500 focus:ring-green-500 focus:border-green-500',
@@ -53,7 +53,7 @@ const VARIANT_STYLES: Record<FormVariant, {
 };
 
 export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
-  ({ label, required, error, helperText, variant = 'dark', success, className, id, ...props }, ref) => {
+  ({ label, required, error, helperText, variant = 'light', success, className, id, ...props }, ref) => {
     const inputId = id || label.toLowerCase().replace(/\s+/g, '-');
     const styles = VARIANT_STYLES[variant];
 
@@ -73,7 +73,7 @@ export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
             className={cn(
               'w-full h-10 px-3 rounded-lg border',
               'transition-colors duration-200',
-              'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
+              'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
               styles.input,
               error && styles.inputError,
               success && !error && styles.inputSuccess,
@@ -130,7 +130,7 @@ export function RadioCardGroup({
   value,
   onChange,
   className,
-  variant = 'dark',
+  variant = 'light',
 }: RadioCardGroupProps) {
   const isDark = variant === 'dark';
 
@@ -142,7 +142,7 @@ export function RadioCardGroup({
           className={cn(
             'relative flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all',
             value === option.value
-              ? 'border-primary-500 bg-primary-500/10'
+              ? 'border-blue-600 bg-blue-50'
               : isDark
                 ? 'border-neutral-700 bg-neutral-800 hover:border-neutral-600'
                 : 'border-gray-200 bg-white hover:border-gray-300'
@@ -160,12 +160,12 @@ export function RadioCardGroup({
             className={cn(
               'w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0',
               value === option.value
-                ? 'border-primary-500'
+                ? 'border-blue-600'
                 : isDark ? 'border-neutral-600' : 'border-gray-300'
             )}
           >
             {value === option.value && (
-              <div className="w-2.5 h-2.5 rounded-full bg-primary-500" />
+              <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />
             )}
           </div>
           <div className="flex-1">
@@ -194,7 +194,7 @@ interface CheckboxProps {
   variant?: FormVariant;
 }
 
-export function Checkbox({ id, checked, onChange, label, className, variant = 'dark' }: CheckboxProps) {
+export function Checkbox({ id, checked, onChange, label, className, variant = 'light' }: CheckboxProps) {
   const isDark = variant === 'dark';
 
   return (
@@ -214,7 +214,7 @@ export function Checkbox({ id, checked, onChange, label, className, variant = 'd
           className={cn(
             'w-5 h-5 rounded border-2 flex items-center justify-center transition-colors',
             checked
-              ? 'bg-primary-500 border-primary-500'
+              ? 'bg-blue-600 border-blue-600'
               : isDark
                 ? 'bg-neutral-800 border-neutral-600 hover:border-neutral-500'
                 : 'bg-white border-gray-300 hover:border-gray-400'
@@ -260,7 +260,7 @@ export function QuantitySelector({
   max = 99,
   label,
   helperText,
-  variant = 'dark',
+  variant = 'light',
 }: QuantitySelectorProps) {
   const isDark = variant === 'dark';
 

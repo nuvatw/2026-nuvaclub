@@ -1,8 +1,76 @@
 import { ITestRepository, QuestionWithOptions } from '../ports';
 import { TestSessionAggregate, TestSessionStatus } from '@/domain/test/TestSessionAggregate';
+import { TestLevelDTO, LevelStatus } from '../dtos/TestLevelDTO';
 
 export class TestService {
     constructor(private testRepository: ITestRepository) { }
+
+    /**
+     * Get all test levels for a user with precomputed display state
+     */
+    async getLevelsForUser(userId: string): Promise<TestLevelDTO[]> {
+        const configs = this.getLevelConfigs();
+        // In a real app, this would fetch from a database or use a repository
+        // For now, we'll simulate fetching progress
+        const levels: TestLevelDTO[] = [];
+
+        for (const config of configs) {
+            // Simulate progress lookup - in real app use userRepository or testRepository
+            // For now we assume user 1 has passed levels 1-2
+            const passed = userId === 'user-1' && config.level <= 2;
+            const available = config.level === 1 || (userId === 'user-1' && config.level <= 3);
+            const status: LevelStatus = passed ? 'passed' : (available ? 'available' : 'locked');
+
+            // Dummy stats
+            const bestScore = passed ? 85 : null;
+            const attempts = passed ? 1 : (available ? 0 : 0);
+
+            levels.push({
+                ...config,
+                status,
+                bestScore,
+                attempts,
+                passed,
+                isLocked: status === 'locked',
+                isAvailable: status === 'available',
+                isPassed: status === 'passed',
+                actionLabel: status === 'passed' ? 'Try Again' : 'Start Test',
+                buttonVariant: status === 'passed' ? 'outline' : 'primary',
+            });
+        }
+
+        return levels;
+    }
+
+    private getLevelConfigs() {
+        const configs = [];
+        for (let lvl = 1; lvl <= 12; lvl++) {
+            let questionTypes: string;
+            let duration: number;
+
+            if (lvl <= 3) {
+                questionTypes = 'True/False + Multiple Choice';
+                duration = 5;
+            } else if (lvl <= 6) {
+                questionTypes = 'Multiple Choice + Short Answer';
+                duration = 15;
+            } else if (lvl <= 9) {
+                questionTypes = 'Short Answer + Essay';
+                duration = 30;
+            } else {
+                questionTypes = 'Essay';
+                duration = 60;
+            }
+
+            configs.push({
+                level: lvl,
+                durationMinutes: duration,
+                questionTypes,
+                questionCount: 10,
+            });
+        }
+        return configs;
+    }
 
     /**
      * Get test session details with questions and answers

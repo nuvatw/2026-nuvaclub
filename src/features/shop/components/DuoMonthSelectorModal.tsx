@@ -4,9 +4,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Modal, ModalActions } from '@/components/atoms/Modal';
 import { Button } from '@/components/atoms/Button';
 import { cn } from '@/lib/utils';
-import type { DuoTier } from '@/features/duo/types';
-import { DUO_TIER_CONFIG, DUO_TIER_RANK, calculateUpgradePrice } from '@/features/duo/types';
-import { getCurrentMonth } from '@/features/duo/utils/month-utils';
+import { DuoMonthOptionDTO, DuoPurchaseOptionsDTO, DuoTier, DUO_TIER_INFO } from '@/application/dtos/DuoPurchaseOptionsDTO';
 import {
   CheckIcon,
   TrendingUpIcon,
@@ -27,9 +25,10 @@ export interface MonthEntitlement {
 interface DuoMonthSelectorModalProps {
   isOpen: boolean;
   onClose: () => void;
-  entitlements: MonthEntitlement[];
+  entitlements: MonthEntitlement[]; // Keep for legacy if needed, but we mainly use options
   onPurchase: (months: string[], tier: DuoTier, pricing: PurchasePricing) => Promise<void>;
   onRefreshEntitlements?: () => void;
+  userId: string;
 }
 
 export interface PurchasePricing {
@@ -84,13 +83,6 @@ const TIER_COLORS: Record<DuoTier, {
 // HELPER FUNCTIONS
 // ============================================================================
 
-function getMonthsForYear(year: number): string[] {
-  return Array.from({ length: 12 }, (_, i) => {
-    const month = String(i + 1).padStart(2, '0');
-    return `${year}-${month}`;
-  });
-}
-
 function getMonthLabel(month: string): string {
   const [, monthNum] = month.split('-').map(Number);
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -99,11 +91,6 @@ function getMonthLabel(month: string): string {
 
 function formatPrice(price: number): string {
   return `NT$${price.toLocaleString()}`;
-}
-
-function isMonthPurchasable(month: string): boolean {
-  const currentMonth = getCurrentMonth();
-  return month > currentMonth;
 }
 
 // ============================================================================
@@ -148,16 +135,43 @@ type MonthChipState =
 
 interface MonthChipProps {
   month: string;
-  state: MonthChipState;
+  option: DuoMonthOptionDTO;
+  isSelected: boolean;
   selectedTier: DuoTier;
   onClick: () => void;
-  disabled: boolean;
-  disabledReason?: string;
 }
 
-function MonthChip({ month, state, selectedTier, onClick, disabled, disabledReason }: MonthChipProps) {
+function MonthChip({ month, option, isSelected, selectedTier, onClick }: MonthChipProps) {
   const colors = TIER_COLORS[selectedTier];
   const label = getMonthLabel(month);
+
+  const getInternalState = (): MonthChipState => {
+    if (option.state === 'disabled') {
+      if (option.reason?.includes('past')) return 'disabled-past';
+      if (option.reason?.includes('current')) return 'disabled-current';
+      if (option.reason?.includes('downgrade')) return 'disabled-downgrade';
+      return 'disabled-past';
+    }
+
+    if (option.state === 'owned' && !isSelected) {
+      if (option.currentTier === 'go') return 'owned-go';
+      if (option.currentTier === 'run') return 'owned-run';
+      if (option.currentTier === 'fly') return 'owned-fly';
+    }
+
+    if (option.state === 'upgrade' && !isSelected) {
+      if (option.currentTier === 'go') return 'owned-go';
+      if (option.currentTier === 'run') return 'owned-run';
+      if (option.currentTier === 'fly') return 'owned-fly';
+    }
+
+    if (option.state === 'upgrade' && isSelected) return 'selected-upgrade';
+    if (isSelected) return 'selected';
+
+    return 'available';
+  };
+
+  const state = getInternalState();
 
   const getStateStyles = () => {
     switch (state) {
@@ -192,19 +206,6 @@ function MonthChip({ month, state, selectedTier, onClick, disabled, disabledReas
           'bg-red-500/15',
           'text-red-400',
           'border-red-500/40',
-        );
-      case 'upgraded':
-        return cn(
-          'bg-gradient-to-br from-green-500/10 to-amber-500/10',
-          'text-amber-400/70',
-          'border-amber-500/30',
-        );
-      case 'refunded':
-        return cn(
-          'bg-neutral-800/40',
-          'text-neutral-500',
-          'border-neutral-600/30',
-          'line-through decoration-neutral-500/50',
         );
       case 'disabled-past':
       case 'disabled-current':
@@ -242,10 +243,6 @@ function MonthChip({ month, state, selectedTier, onClick, disabled, disabledReas
       case 'owned-fly':
       case 'disabled-downgrade':
         return { text: 'Fly', className: 'text-red-400' };
-      case 'upgraded':
-        return { text: 'Upgraded', className: 'text-amber-400/70' };
-      case 'refunded':
-        return { text: 'Refunded', className: 'text-neutral-500' };
       case 'disabled-past':
         return { text: 'Past', className: 'text-neutral-600' };
       case 'disabled-current':
@@ -255,34 +252,27 @@ function MonthChip({ month, state, selectedTier, onClick, disabled, disabledReas
     }
   };
 
-  const isSelected = state === 'selected' || state === 'selected-upgrade';
   const badge = getStatusBadge();
+  const disabled = option.state === 'disabled' || (option.state === 'owned' && option.currentTier === selectedTier);
 
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      title={disabledReason}
-      aria-label={`${label} - ${disabledReason || state}`}
+      title={option.reason}
       className={cn(
         'relative flex flex-col items-center justify-center',
         'w-full aspect-square rounded-lg',
         'border transition-all duration-150',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900',
         getStateStyles(),
       )}
     >
-      {/* Month label */}
       <span className="text-sm font-medium">{label}</span>
-
-      {/* Status badge */}
       {badge && (
         <span className={cn('text-[10px] font-semibold uppercase tracking-wide mt-0.5', badge.className)}>
           {badge.text}
         </span>
       )}
-
-      {/* Selection indicator */}
       {isSelected && (
         <span className={cn(
           'absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center',
@@ -295,9 +285,7 @@ function MonthChip({ month, state, selectedTier, onClick, disabled, disabledReas
           )}
         </span>
       )}
-
-      {/* Lock icon for disabled states */}
-      {(state === 'disabled-past' || state === 'disabled-current' || state === 'disabled-downgrade') && (
+      {option.state === 'disabled' && (
         <LockIcon size="sm" className="absolute bottom-1 right-1 w-3 h-3 text-neutral-600" />
       )}
     </button>
@@ -317,7 +305,7 @@ function TierToggle({ selectedTier, onSelectTier }: TierToggleProps) {
   return (
     <div className="flex gap-2 p-1 bg-neutral-800/50 rounded-lg">
       {TIERS.map((tier) => {
-        const config = DUO_TIER_CONFIG[tier];
+        const config = DUO_TIER_INFO[tier];
         const colors = TIER_COLORS[tier];
         const isSelected = selectedTier === tier;
 
@@ -328,12 +316,10 @@ function TierToggle({ selectedTier, onSelectTier }: TierToggleProps) {
             className={cn(
               'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md',
               'transition-all duration-150',
-              'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900',
               isSelected
                 ? cn(colors.bg, 'text-white shadow-lg')
                 : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50',
             )}
-            aria-pressed={isSelected}
           >
             <span className={cn(
               'w-2.5 h-2.5 rounded-full',
@@ -356,526 +342,176 @@ function TierToggle({ selectedTier, onSelectTier }: TierToggleProps) {
 }
 
 // ============================================================================
-// YEAR TABS COMPONENT
-// ============================================================================
-
-interface YearTabsProps {
-  currentYear: number;
-  selectedYear: number;
-  onSelectYear: (year: number) => void;
-}
-
-function YearTabs({ currentYear, selectedYear, onSelectYear }: YearTabsProps) {
-  const years = [currentYear, currentYear + 1];
-
-  return (
-    <div className="flex gap-1 p-1 bg-neutral-800/30 rounded-lg">
-      {years.map((year) => (
-        <button
-          key={year}
-          onClick={() => onSelectYear(year)}
-          className={cn(
-            'flex-1 px-4 py-1.5 rounded-md text-sm font-medium transition-all',
-            'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900',
-            selectedYear === year
-              ? 'bg-neutral-700 text-white'
-              : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50',
-          )}
-        >
-          {year}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-// ============================================================================
-// PRICING SUMMARY COMPONENT
-// ============================================================================
-
-interface PricingSummaryProps {
-  pricing: PurchasePricing;
-  selectedTier: DuoTier;
-}
-
-function PricingSummary({ pricing, selectedTier }: PricingSummaryProps) {
-  const tierConfig = DUO_TIER_CONFIG[selectedTier];
-  const colors = TIER_COLORS[selectedTier];
-
-  const hasNewPurchases = pricing.newPurchases.length > 0;
-  const hasUpgrades = pricing.upgrades.length > 0;
-
-  if (!hasNewPurchases && !hasUpgrades) {
-    return (
-      <div className="text-center py-4 text-neutral-500">
-        Select months to see pricing
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-3 pt-4 border-t border-neutral-800">
-      {/* New purchases */}
-      {hasNewPurchases && (
-        <div className="flex items-center justify-between text-sm">
-          <div className="text-neutral-400">
-            <span className={colors.text}>{pricing.newPurchases.length}</span>
-            {' '}new {pricing.newPurchases.length === 1 ? 'month' : 'months'} × {formatPrice(tierConfig.price)}
-          </div>
-          <div className="text-neutral-300 font-medium">
-            {formatPrice(pricing.newPurchaseTotal)}
-          </div>
-        </div>
-      )}
-
-      {/* Upgrades */}
-      {hasUpgrades && (
-        <div className="flex items-center justify-between text-sm">
-          <div className="text-neutral-400">
-            <span className={colors.text}>{pricing.upgrades.length}</span>
-            {' '}upgrade{pricing.upgrades.length === 1 ? '' : 's'} → {selectedTier.charAt(0).toUpperCase() + selectedTier.slice(1)}
-          </div>
-          <div className="text-neutral-300 font-medium">
-            {formatPrice(pricing.upgradeTotal)}
-          </div>
-        </div>
-      )}
-
-      {/* Total */}
-      <div className="flex items-center justify-between pt-2 border-t border-neutral-800">
-        <div className="text-neutral-300 font-medium">Total</div>
-        <div className={cn('text-xl font-bold', colors.text)}>
-          {formatPrice(pricing.totalPrice)}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// CONFIRMATION DIALOG
-// ============================================================================
-
-interface ConfirmationDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  pricing: PurchasePricing;
-  tier: DuoTier;
-  isProcessing: boolean;
-}
-
-function ConfirmationDialog({
-  isOpen,
-  onClose,
-  onConfirm,
-  pricing,
-  tier,
-  isProcessing,
-}: ConfirmationDialogProps) {
-  const colors = TIER_COLORS[tier];
-  const totalMonths = pricing.newPurchases.length + pricing.upgrades.length;
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Confirm Purchase"
-      size="sm"
-    >
-      <div className="space-y-4">
-        <p className="text-neutral-300">
-          You are about to be charged:
-        </p>
-
-        <div className={cn('text-3xl font-bold text-center py-4', colors.text)}>
-          {formatPrice(pricing.totalPrice)}
-        </div>
-
-        <div className="text-sm text-neutral-400 text-center">
-          for <span className={colors.text}>{totalMonths}</span> month{totalMonths === 1 ? '' : 's'} of{' '}
-          <span className={colors.text}>Duo {tier.toUpperCase()}</span>
-          {pricing.upgrades.length > 0 && (
-            <span className="text-amber-400">
-              {' '}(including {pricing.upgrades.length} upgrade{pricing.upgrades.length === 1 ? '' : 's'})
-            </span>
-          )}
-        </div>
-
-        <div className="p-3 bg-neutral-800/50 rounded-lg text-xs text-neutral-400">
-          <strong className="text-neutral-300">Note:</strong> If you don&apos;t match with a mentor before a purchased month begins, you will receive an automatic full refund for that month.
-        </div>
-      </div>
-
-      <ModalActions>
-        <Button variant="ghost" onClick={onClose} disabled={isProcessing}>
-          Cancel
-        </Button>
-        <Button
-          variant="primary"
-          onClick={onConfirm}
-          disabled={isProcessing}
-          className={cn(colors.bg, 'hover:opacity-90')}
-        >
-          {isProcessing ? 'Processing...' : 'Confirm & Charge'}
-        </Button>
-      </ModalActions>
-    </Modal>
-  );
-}
-
-// ============================================================================
 // MAIN MODAL COMPONENT
 // ============================================================================
 
 export function DuoMonthSelectorModal({
   isOpen,
   onClose,
-  entitlements,
   onPurchase,
   onRefreshEntitlements,
+  userId,
 }: DuoMonthSelectorModalProps) {
-  // Current year for dynamic tabs
   const currentYear = new Date().getFullYear();
-  const currentMonth = getCurrentMonth();
 
   // State
   const [selectedTier, setSelectedTier] = useState<DuoTier>('go');
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [selectedMonths, setSelectedMonths] = useState<Set<string>>(new Set());
+  const [optionsDTO, setOptionsDTO] = useState<DuoPurchaseOptionsDTO | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Build entitlement map for quick lookup
-  const entitlementMap = useMemo(() => {
-    const map = new Map<string, MonthEntitlement>();
-    for (const ent of entitlements) {
-      // Store all statuses for display
-      const existing = map.get(ent.month);
-      // Prefer active over other statuses
-      if (!existing || ent.status === 'active') {
-        map.set(ent.month, ent);
+  // Fetch Options from BFF
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const fetchOptions = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch(`/api/bff/shop/duo/options?userId=${userId}&year=${selectedYear}&tier=${selectedTier}`);
+        const data = await res.json();
+        setOptionsDTO(data);
+      } catch (err) {
+        console.error('Failed to fetch duo options', err);
+      } finally {
+        setIsLoading(false);
       }
-    }
-    return map;
-  }, [entitlements]);
+    };
 
-  // Get months for selected year
-  const monthsForYear = useMemo(() => getMonthsForYear(selectedYear), [selectedYear]);
+    fetchOptions();
+  }, [isOpen, userId, selectedYear, selectedTier]);
 
-  // Determine state for each month
-  const getMonthState = useCallback((month: string): { state: MonthChipState; disabled: boolean; reason?: string } => {
-    const entitlement = entitlementMap.get(month);
-    const isSelected = selectedMonths.has(month);
-    const isPurchasable = isMonthPurchasable(month);
-
-    // Check if past or current month
-    if (month < currentMonth) {
-      return { state: 'disabled-past', disabled: true, reason: 'Cannot purchase past months' };
-    }
-    if (month === currentMonth) {
-      return { state: 'disabled-current', disabled: true, reason: 'Cannot purchase current month' };
-    }
-
-    if (entitlement) {
-      // Handle refunded status
-      if (entitlement.status === 'refunded') {
-        return { state: 'refunded', disabled: true, reason: 'Refunded' };
-      }
-
-      // Handle upgraded status
-      if (entitlement.status === 'upgraded') {
-        return { state: 'upgraded', disabled: true, reason: 'Already upgraded' };
-      }
-
-      const existingRank = DUO_TIER_RANK[entitlement.tier];
-      const selectedRank = DUO_TIER_RANK[selectedTier];
-
-      // Helper to get the owned state for any tier
-      const getOwnedState = (tier: DuoTier): MonthChipState => {
-        if (tier === 'go') return 'owned-go';
-        if (tier === 'run') return 'owned-run';
-        return 'owned-fly';
-      };
-
-      // Check for downgrade attempt (e.g., Fly → Run/Go or Run → Go)
-      // Show the owned tier state but disabled
-      if (selectedRank < existingRank) {
-        return {
-          state: getOwnedState(entitlement.tier),
-          disabled: true,
-          reason: `Cannot downgrade from ${entitlement.tier.toUpperCase()} to ${selectedTier.toUpperCase()}`,
-        };
-      }
-
-      // Same tier already owned
-      if (selectedRank === existingRank) {
-        return {
-          state: getOwnedState(entitlement.tier),
-          disabled: true,
-          reason: `Already have ${entitlement.tier.toUpperCase()} for this month`,
-        };
-      }
-
-      // Can upgrade (selectedTier is higher)
-      if (isSelected) {
-        return { state: 'selected-upgrade', disabled: false };
-      }
-      return {
-        state: getOwnedState(entitlement.tier),
-        disabled: false,
-        reason: `Click to upgrade to ${selectedTier.toUpperCase()}`,
-      };
-    }
-
-    // No existing entitlement
-    if (isSelected) {
-      return { state: 'selected', disabled: false };
-    }
-    return { state: 'available', disabled: false };
-  }, [entitlementMap, selectedMonths, selectedTier, currentMonth]);
-
-  // Handle month toggle
-  const toggleMonth = useCallback((month: string) => {
-    const { disabled } = getMonthState(month);
-    if (disabled) return;
-
-    setSelectedMonths((prev) => {
-      const next = new Set(prev);
-      if (next.has(month)) {
-        next.delete(month);
-      } else {
-        next.add(month);
-      }
-      return next;
-    });
-  }, [getMonthState]);
-
-  // Handle tier change - clear incompatible selections
-  const handleTierChange = useCallback((tier: DuoTier) => {
-    setSelectedTier(tier);
-    // Clear selections that would become invalid with new tier
-    setSelectedMonths((prev) => {
-      const next = new Set<string>();
-      for (const month of prev) {
-        const ent = entitlementMap.get(month);
-        if (ent) {
-          // Keep selection only if it's a valid upgrade
-          const existingRank = DUO_TIER_RANK[ent.tier];
-          const newRank = DUO_TIER_RANK[tier];
-          if (newRank > existingRank) {
-            next.add(month);
-          }
-        } else {
-          // No entitlement - check if purchasable
-          if (isMonthPurchasable(month)) {
-            next.add(month);
-          }
-        }
-      }
-      return next;
-    });
-  }, [entitlementMap]);
-
-  // Compute pricing
+  // Pricing computed from DTO
   const pricing = useMemo((): PurchasePricing => {
-    const tierConfig = DUO_TIER_CONFIG[selectedTier];
+    if (!optionsDTO) return { newPurchases: [], upgrades: [], newPurchaseTotal: 0, upgradeTotal: 0, totalPrice: 0 };
+
     const newPurchases: string[] = [];
     const upgrades: Array<{ month: string; fromTier: DuoTier }> = [];
+    let newPurchaseTotal = 0;
+    let upgradeTotal = 0;
 
-    for (const month of selectedMonths) {
-      // Only include purchasable months
-      if (!isMonthPurchasable(month)) continue;
+    selectedMonths.forEach(month => {
+      const option = optionsDTO.options.find(o => o.month === month);
+      if (!option) return;
 
-      const ent = entitlementMap.get(month);
-      if (ent && ent.status === 'active') {
-        upgrades.push({ month, fromTier: ent.tier });
-      } else {
+      if (option.state === 'available') {
         newPurchases.push(month);
+        newPurchaseTotal += option.price;
+      } else if (option.state === 'upgrade') {
+        upgrades.push({ month, fromTier: option.currentTier! });
+        upgradeTotal += option.price;
       }
-    }
-
-    const newPurchaseTotal = newPurchases.length * tierConfig.price;
-    const upgradeTotal = upgrades.reduce((sum, u) => sum + calculateUpgradePrice(u.fromTier, selectedTier), 0);
+    });
 
     return {
       newPurchases,
       upgrades,
       newPurchaseTotal,
       upgradeTotal,
-      totalPrice: newPurchaseTotal + upgradeTotal,
+      totalPrice: newPurchaseTotal + upgradeTotal
     };
-  }, [selectedMonths, selectedTier, entitlementMap]);
+  }, [selectedMonths, optionsDTO]);
 
-  // Handle purchase button click
-  const handlePurchaseClick = useCallback(() => {
+  const toggleMonth = useCallback((month: string) => {
+    setSelectedMonths(prev => {
+      const next = new Set(prev);
+      if (next.has(month)) next.delete(month);
+      else next.add(month);
+      return next;
+    });
+  }, []);
+
+  const handlePurchaseClick = () => {
     if (selectedMonths.size === 0) return;
     setShowConfirmation(true);
-  }, [selectedMonths.size]);
+  };
 
-  // Handle confirmed purchase
-  const handleConfirmedPurchase = useCallback(async () => {
+  const handleConfirmedPurchase = async () => {
     setIsProcessing(true);
     try {
-      const monthsArray = Array.from(selectedMonths).sort();
-      await onPurchase(monthsArray, selectedTier, pricing);
-      setShowConfirmation(false);
+      await onPurchase(Array.from(selectedMonths), selectedTier, pricing);
       setSelectedMonths(new Set());
-      // Don't close the modal - show updated state
-    } catch (error) {
-      console.error('Purchase failed:', error);
+      setShowConfirmation(false);
+      onRefreshEntitlements?.();
+    } catch (err) {
+      console.error(err);
     } finally {
       setIsProcessing(false);
     }
-  }, [selectedMonths, selectedTier, pricing, onPurchase]);
-
-  // Handle close - reset state
-  const handleClose = useCallback(() => {
-    setSelectedMonths(new Set());
-    setSelectedTier('go');
-    setSelectedYear(currentYear);
-    setShowConfirmation(false);
-    onClose();
-  }, [onClose, currentYear]);
-
-  // Select all available months for current year
-  const selectAllAvailable = useCallback(() => {
-    const available = monthsForYear.filter((month) => {
-      const { disabled } = getMonthState(month);
-      return !disabled && isMonthPurchasable(month);
-    });
-    setSelectedMonths(new Set(available));
-  }, [monthsForYear, getMonthState]);
-
-  // Clear all selections
-  const clearAll = useCallback(() => {
-    setSelectedMonths(new Set());
-  }, []);
-
-  // Refresh entitlements when modal opens
-  useEffect(() => {
-    if (isOpen && onRefreshEntitlements) {
-      onRefreshEntitlements();
-    }
-  }, [isOpen, onRefreshEntitlements]);
+  };
 
   const colors = TIER_COLORS[selectedTier];
 
   return (
     <>
-      <Modal
-        isOpen={isOpen}
-        onClose={handleClose}
-        title="Purchase Duo Pass"
-        description="Select months and tier for your Duo mentorship access"
-        size="lg"
-      >
+      <Modal isOpen={isOpen} onClose={onClose} title="Purchase Duo Pass" size="lg">
         <div className="space-y-5">
-          {/* Tier Toggle */}
-          <div>
-            <label className="block text-sm font-medium text-neutral-400 mb-2">
-              Select Tier
-            </label>
-            <TierToggle selectedTier={selectedTier} onSelectTier={handleTierChange} />
-          </div>
-
-          {/* Tier Explanation */}
+          <TierToggle selectedTier={selectedTier} onSelectTier={setSelectedTier} />
           <TierExplanation />
 
-          {/* Year Tabs */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-neutral-400">
-                Select Months <span className="text-neutral-500">(starting next month)</span>
-              </label>
-              <YearTabs
-                currentYear={currentYear}
-                selectedYear={selectedYear}
-                onSelectYear={setSelectedYear}
-              />
-            </div>
-
-            {/* Quick actions */}
-            <div className="flex justify-end gap-2 mb-3">
+          <div className="flex gap-2 p-1 bg-neutral-800/30 rounded-lg">
+            {[currentYear, currentYear + 1].map(year => (
               <button
-                onClick={selectAllAvailable}
-                className="text-xs text-neutral-400 hover:text-white transition-colors"
-              >
-                Select all available
-              </button>
-              <span className="text-neutral-600">|</span>
-              <button
-                onClick={clearAll}
-                className="text-xs text-neutral-400 hover:text-white transition-colors"
-              >
-                Clear
-              </button>
-            </div>
-
-            {/* Month Grid - Unified view showing owned + selection states */}
-            <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-              {monthsForYear.map((month) => {
-                const { state, disabled, reason } = getMonthState(month);
-                return (
-                  <MonthChip
-                    key={month}
-                    month={month}
-                    state={state}
-                    selectedTier={selectedTier}
-                    onClick={() => toggleMonth(month)}
-                    disabled={disabled}
-                    disabledReason={reason}
-                  />
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Selection Summary */}
-          <div className="text-sm text-neutral-400">
-            {selectedMonths.size === 0 ? (
-              'No months selected'
-            ) : (
-              <>
-                <span className={colors.text}>{selectedMonths.size}</span>
-                {' '}{selectedMonths.size === 1 ? 'month' : 'months'} selected
-                {pricing.upgrades.length > 0 && (
-                  <span className="text-amber-400 ml-2">
-                    ({pricing.upgrades.length} upgrade{pricing.upgrades.length === 1 ? '' : 's'})
-                  </span>
+                key={year}
+                onClick={() => setSelectedYear(year)}
+                className={cn(
+                  'flex-1 px-4 py-1.5 rounded-md text-sm font-medium transition-all',
+                  selectedYear === year ? 'bg-neutral-700 text-white' : 'text-neutral-400 hover:text-white'
                 )}
-              </>
-            )}
+              >
+                {year}
+              </button>
+            ))}
           </div>
 
-          {/* Pricing Summary */}
-          <PricingSummary pricing={pricing} selectedTier={selectedTier} />
+          <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+            {optionsDTO?.options.map((option) => (
+              <MonthChip
+                key={option.month}
+                month={option.month}
+                option={option}
+                isSelected={selectedMonths.has(option.month)}
+                selectedTier={selectedTier}
+                onClick={() => toggleMonth(option.month)}
+              />
+            ))}
+            {isLoading && <div className="col-span-full text-center py-4 text-neutral-500">Loading options...</div>}
+          </div>
+
+          <div className="pt-4 border-t border-neutral-800 flex justify-between items-center">
+            <div className="text-neutral-400">Total</div>
+            <div className={cn('text-xl font-bold', colors.text)}>{formatPrice(pricing.totalPrice)}</div>
+          </div>
         </div>
 
         <ModalActions>
-          <Button variant="ghost" onClick={handleClose}>
-            Cancel
-          </Button>
+          <Button variant="ghost" onClick={onClose}>Cancel</Button>
           <Button
             variant="primary"
             onClick={handlePurchaseClick}
-            disabled={selectedMonths.size === 0 || pricing.totalPrice === 0}
-            className={cn(colors.bg, 'hover:opacity-90', 'disabled:opacity-50')}
+            disabled={selectedMonths.size === 0 || isLoading}
+            className={cn(colors.bg, 'hover:opacity-90')}
           >
             Purchase
           </Button>
         </ModalActions>
       </Modal>
 
-      {/* Confirmation Dialog */}
-      <ConfirmationDialog
-        isOpen={showConfirmation}
-        onClose={() => setShowConfirmation(false)}
-        onConfirm={handleConfirmedPurchase}
-        pricing={pricing}
-        tier={selectedTier}
-        isProcessing={isProcessing}
-      />
+      {/* Simplified Confirmation */}
+      <Modal isOpen={showConfirmation} onClose={() => setShowConfirmation(false)} title="Confirm Order">
+        <div className="py-4 text-center">
+          <div className="text-3xl font-bold mb-2">{formatPrice(pricing.totalPrice)}</div>
+          <div className="text-neutral-400">for {selectedMonths.size} months of {selectedTier.toUpperCase()}</div>
+        </div>
+        <ModalActions>
+          <Button onClick={() => setShowConfirmation(false)}>Back</Button>
+          <Button onClick={handleConfirmedPurchase} disabled={isProcessing}>
+            {isProcessing ? 'Processing...' : 'Confirm'}
+          </Button>
+        </ModalActions>
+      </Modal>
     </>
   );
 }

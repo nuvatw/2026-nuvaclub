@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --- Membership Bounded Context ---
+
+model Membership {
+  id           String   @id @default(uuid())
+  memberNo     String   @unique
+  tier         String   // explorer, traveler, pro
+  validUntil   DateTime
+  status       String   @default("ACTIVE") // ACTIVE, EXPIRED, CANCELLED
+  userId       String?
+  // Metadata for the membership card
+  cardMetadata Json?
+  
+  order        Order    @relation(fields: [orderId], references: [id])
+  orderId      String
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// --- Checkout & Order Bounded Context ---
+
+model Order {
+  id            String   @id @default(uuid())
+  orderRef      String   @unique // Client-generated idempotency reference
+  status        String   @default("PENDING") // PENDING, PAID, FAILED, CANCELLED
+  totalAmount   Float
+  currency      String   @default("TWD")
+  
+  // JSON blob for participants (group buy)
+  participants  Json
+  // JSON blob for purchaser info
+  purchaserInfo Json
+  
+  memberships   Membership[]
+  
+  paidAt        DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// --- Future Extensions ---
+// model User { ... }
+// model Course { ... }

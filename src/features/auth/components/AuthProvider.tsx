@@ -9,7 +9,8 @@ import {
   useMemo,
   type ReactNode,
 } from 'react';
-import type { IdentityType, User, UserRole } from '@/features/auth/types';
+import type { IdentityType, UserRole } from '@/features/auth/types';
+import { UserSessionDTO } from '@/application/dtos/UserSessionDTO';
 import {
   hasPermission,
   hasAllPermissions,
@@ -26,7 +27,7 @@ export { TEST_ACCOUNTS, TEST_ACCOUNT_TO_USER_ID, getEffectiveUserId } from '@/fe
 export type { TestAccount } from '@/features/auth/data/test-accounts';
 
 interface AuthContextType {
-  user: User | null;
+  user: UserSessionDTO | null;
   identity: IdentityType;
   isAdmin: boolean;
   isLoading: boolean;
@@ -45,47 +46,19 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentAccountId, setCurrentAccountId] = useState<string>('guest');
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserSessionDTO | null>(null);
   const [identity, setIdentityState] = useState<IdentityType>('guest');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Compute isAdmin from user role
-  const isAdmin = useMemo(() => user?.role === 'admin', [user?.role]);
+  // isAdmin is now just an alias for the server-provided flag
+  const isAdmin = !!user?.canAccessAdminPanel;
 
   // Load user from test account or BFF when account changes
   useEffect(() => {
     let mounted = true;
 
     async function loadUser() {
-      if (currentAccountId === 'test-guest') {
-        setUser(null);
-        setIdentityState('guest');
-        return;
-      }
-
-      // For test accounts (IDs starting with 'test-'), use TestAccount data directly
-      const testAccount = TEST_ACCOUNTS.find((a) => a.id === currentAccountId);
-      if (testAccount && testAccount.id.startsWith('test-')) {
-        if (testAccount.identity === 'guest') {
-          setUser(null);
-          setIdentityState('guest');
-        } else {
-          const testUser: User = {
-            id: testAccount.id,
-            name: testAccount.name,
-            email: `${testAccount.id}@nuvaclub.test`,
-            identity: testAccount.identity,
-            role: 'user', // Test accounts are regular users by default
-            createdAt: new Date(),
-          };
-          setUser(testUser);
-          setIdentityState(testAccount.identity);
-        }
-        return;
-      }
-
-      // For database-backed users, load from BFF
-      if (currentAccountId === 'guest') {
+      if (currentAccountId === 'guest' || currentAccountId === 'test-guest') {
         setUser(null);
         setIdentityState('guest');
         return;
@@ -95,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const response = await fetch(`/api/bff/auth/session?userId=${currentAccountId}`);
         if (response.ok) {
-          const userData = await response.json();
+          const userData: UserSessionDTO = await response.json();
           if (mounted) {
             setUser(userData);
             setIdentityState(userData.identity);

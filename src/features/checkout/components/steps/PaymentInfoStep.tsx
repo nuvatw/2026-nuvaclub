@@ -5,66 +5,15 @@ import { cn } from '@/lib/utils';
 import { useCheckout } from '../../context/CheckoutContext';
 import { RadioCardGroup } from '../ui/FormInput';
 import type { PaymentMethod, CardDetails } from '../../types';
+import TapPayCardFields from '../payments/TapPayCardFields';
 
 export function PaymentInfoStep() {
-  const { state, setPaymentInfo, getCurrentStep } = useCheckout();
+  const { state, setPaymentInfo, getCurrentStep, tappayRef } = useCheckout();
   const step = getCurrentStep();
   const { paymentInfo } = state;
 
-  // Refs for auto-focus
-  const expiryRef = useRef<HTMLInputElement>(null);
-  const cvcRef = useRef<HTMLInputElement>(null);
-
   const handleMethodChange = (value: string) => {
     setPaymentInfo({ method: value as PaymentMethod });
-  };
-
-  const handleCardDetailChange = (field: keyof CardDetails, value: string) => {
-    setPaymentInfo({
-      cardDetails: {
-        ...(paymentInfo.cardDetails || {
-          cardholderName: '',
-          cardNumber: '',
-          expiryDate: '',
-          cvc: '',
-        }),
-        [field]: value,
-      },
-    });
-  };
-
-  // Format card number with spaces and auto-focus
-  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const cleaned = e.target.value.replace(/\D/g, '').slice(0, 16);
-    const groups = cleaned.match(/.{1,4}/g);
-    const formatted = groups ? groups.join(' ') : cleaned;
-    handleCardDetailChange('cardNumber', formatted);
-
-    // Auto-focus to expiry when 16 digits entered
-    if (cleaned.length === 16) {
-      expiryRef.current?.focus();
-    }
-  };
-
-  // Format expiry date and auto-focus
-  const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const cleaned = e.target.value.replace(/\D/g, '').slice(0, 4);
-    let formatted = cleaned;
-    if (cleaned.length >= 2) {
-      formatted = cleaned.slice(0, 2) + '/' + cleaned.slice(2, 4);
-    }
-    handleCardDetailChange('expiryDate', formatted);
-
-    // Auto-focus to CVC when expiry is complete (4 digits = MM/YY)
-    if (cleaned.length === 4) {
-      cvcRef.current?.focus();
-    }
-  };
-
-  // Handle CVC input
-  const handleCvcChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const cleaned = e.target.value.replace(/\D/g, '').slice(0, 4);
-    handleCardDetailChange('cvc', cleaned);
   };
 
   return (
@@ -79,7 +28,7 @@ export function PaymentInfoStep() {
 
       {/* Payment Method Selection */}
       <div className="space-y-3">
-        <label className="text-sm font-medium text-gray-700">
+        <label className="text-sm font-medium text-gray-900">
           Payment Method<span className="text-red-500 ml-0.5">*</span>
         </label>
         <RadioCardGroup
@@ -106,76 +55,15 @@ export function PaymentInfoStep() {
         <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 space-y-4">
           <h4 className="font-medium text-gray-900">Card Details</h4>
 
-          {/* Cardholder Name */}
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="cardholder-name" className="text-sm font-medium text-gray-700">
-              Cardholder Name<span className="text-red-500 ml-0.5">*</span>
-            </label>
-            <input
-              id="cardholder-name"
-              type="text"
-              value={paymentInfo.cardDetails?.cardholderName || ''}
-              onChange={(e) => handleCardDetailChange('cardholderName', e.target.value)}
-              placeholder="Same as on card"
-              className="w-full px-3 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors"
-            />
-          </div>
-
-          {/* Card Number */}
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="card-number" className="text-sm font-medium text-gray-700">
-              Card Number<span className="text-red-500 ml-0.5">*</span>
-            </label>
-            <input
-              id="card-number"
-              type="text"
-              inputMode="numeric"
-              value={paymentInfo.cardDetails?.cardNumber || ''}
-              onChange={handleCardNumberChange}
-              placeholder="0000 0000 0000 0000"
-              maxLength={19}
-              className="w-full px-3 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors font-mono tracking-wider"
-            />
-          </div>
-
-          {/* Expiry and CVC Row */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* Expiry Date */}
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="expiry-date" className="text-sm font-medium text-gray-700">
-                Expiry Date (MM/YY)<span className="text-red-500 ml-0.5">*</span>
-              </label>
-              <input
-                ref={expiryRef}
-                id="expiry-date"
-                type="text"
-                inputMode="numeric"
-                value={paymentInfo.cardDetails?.expiryDate || ''}
-                onChange={handleExpiryChange}
-                placeholder="MM/YY"
-                maxLength={5}
-                className="w-full px-3 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors font-mono"
-              />
-            </div>
-
-            {/* CVC */}
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="cvc" className="text-sm font-medium text-gray-700">
-                CVC<span className="text-red-500 ml-0.5">*</span>
-              </label>
-              <input
-                ref={cvcRef}
-                id="cvc"
-                type="text"
-                inputMode="numeric"
-                value={paymentInfo.cardDetails?.cvc || ''}
-                onChange={handleCvcChange}
-                placeholder="123"
-                maxLength={4}
-                className="w-full px-3 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors font-mono"
-              />
-            </div>
-          </div>
+          <TapPayCardFields
+            ref={tappayRef}
+            onReady={(canGetPrime) => {
+              setPaymentInfo({ canGetPrime });
+            }}
+            onUpdate={(update) => {
+              setPaymentInfo({ canGetPrime: update.canGetPrime });
+            }}
+          />
 
           {/* Info strip */}
           <div className="flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2.5 mt-2">
@@ -198,6 +86,127 @@ export function PaymentInfoStep() {
           </div>
         </div>
       )}
+
+      {/* Installment Options (only show if amount >= threshold and credit card selected) */}
+      {paymentInfo.method === 'credit_card' && (() => {
+        const { getTotalPrice } = useCheckout();
+        const totalAmount = getTotalPrice();
+        const threshold = Number(process.env.NEXT_PUBLIC_TAPPAY_INSTALLMENT_THRESHOLD) || 10000;
+        const enableInstallment = totalAmount >= threshold;
+
+        if (!enableInstallment) return null;
+
+        return (
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-gray-900">
+              分期付款選項
+            </label>
+
+            {/* Installment Info Banner */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div className="flex items-start gap-2">
+                <svg
+                  className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p className="text-sm text-blue-700">
+                  💡 訂單金額達 <span className="font-semibold">NT${totalAmount.toLocaleString()}</span>，可選擇分期付款
+                </p>
+              </div>
+            </div>
+
+            <RadioCardGroup
+              name="installment-option"
+              value={
+                paymentInfo.installment
+                  ? `${paymentInfo.installment.bank}_${paymentInfo.installment.periods}`
+                  : 'none'
+              }
+              onChange={(value) => {
+                if (value === 'none') {
+                  setPaymentInfo({ installment: undefined });
+                } else {
+                  const [bank, periods] = value.split('_');
+                  setPaymentInfo({
+                    installment: {
+                      bank: bank as 'ctbc' | 'esun',
+                      periods: Number(periods) as 3 | 6,
+                    },
+                  });
+                }
+              }}
+              options={[
+                {
+                  value: 'none',
+                  title: '💳 一次付清',
+                  subtitle: `總金額 NT$${totalAmount.toLocaleString()}`,
+                },
+                {
+                  value: 'ctbc_3',
+                  title: '🏦 中信卡 3 期',
+                  subtitle: `每期約 NT$${Math.ceil(totalAmount / 3).toLocaleString()} × 3 期`,
+                },
+                {
+                  value: 'ctbc_6',
+                  title: '🏦 中信卡 6 期',
+                  subtitle: `每期約 NT$${Math.ceil(totalAmount / 6).toLocaleString()} × 6 期`,
+                },
+                {
+                  value: 'esun_3',
+                  title: '🏦 玉山卡 3 期',
+                  subtitle: `每期約 NT$${Math.ceil(totalAmount / 3).toLocaleString()} × 3 期`,
+                },
+                {
+                  value: 'esun_6',
+                  title: '🏦 玉山卡 6 期',
+                  subtitle: `每期約 NT$${Math.ceil(totalAmount / 6).toLocaleString()} × 6 期`,
+                },
+              ]}
+            />
+
+            {/* Installment Note */}
+            {paymentInfo.installment && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <div className="flex items-start gap-2">
+                  <svg
+                    className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                  <div className="text-sm text-amber-700">
+                    <p className="font-medium">分期付款注意事項</p>
+                    <ul className="mt-1 space-y-1 list-disc list-inside">
+                      <li>
+                        {paymentInfo.installment.bank === 'ctbc' ? '中國信託' : '玉山銀行'}
+                        信用卡專用分期方案
+                      </li>
+                      <li>實際分期利率與手續費以發卡銀行為準</li>
+                      <li>分期金額可能因手續費而略有差異</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* ATM Bank Transfer Details */}
       {paymentInfo.method === 'atm_transfer' && (

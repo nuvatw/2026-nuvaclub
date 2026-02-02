@@ -53,6 +53,9 @@ function CheckoutModalContent({ onClose, onPlaceOrder }: CheckoutModalContentPro
     isFirstStep,
     isLastStep,
     getCurrentStep,
+    requestPrime,
+    setPaymentInfo,
+    submitOrder,
   } = useCheckout();
 
   const contentRef = useRef<HTMLDivElement>(null);
@@ -66,9 +69,35 @@ function CheckoutModalContent({ onClose, onPlaceOrder }: CheckoutModalContentPro
     }
   }, [state.currentStepIndex]);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    // If on payment step and using credit card, get prime first
+    if (currentStep?.id === 'payment_info' && state.paymentInfo.method === 'credit_card') {
+      console.log('[Checkout] Getting TapPay prime token...');
+      try {
+        const prime = await requestPrime();
+        console.log('[Checkout] Prime received:', prime ? 'Success' : 'Empty');
+
+        if (prime) {
+          setPaymentInfo({ prime });
+          goToNextStep();
+        } else {
+          console.error('[Checkout] Prime is empty');
+          alert('Failed to obtain payment token. Please check your card details.');
+        }
+      } catch (error) {
+        console.error('[Checkout] TapPay error:', error);
+        alert(`Payment tokenization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+      return;
+    }
+
     if (isLastStep()) {
-      onPlaceOrder?.();
+      const result = await submitOrder();
+      if (result.ok) {
+        onPlaceOrder?.();
+      } else {
+        alert(`Order placement failed: ${result.msg}`);
+      }
     } else {
       goToNextStep();
     }

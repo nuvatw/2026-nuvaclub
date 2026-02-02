@@ -88,7 +88,7 @@ export function DeliveryInfoStep() {
 
       {/* Shipping Method */}
       <div className="space-y-3">
-        <label className="text-sm font-medium text-gray-700">
+        <label className="text-sm font-medium text-gray-900">
           Shipping Method<span className="text-red-500 ml-0.5">*</span>
         </label>
         <div className="bg-blue-50 border-2 border-blue-500 rounded-xl p-4">
@@ -118,7 +118,7 @@ export function DeliveryInfoStep() {
 
       {/* Store Selector */}
       <div className="space-y-3">
-        <label className="text-sm font-medium text-gray-700">
+        <label className="text-sm font-medium text-gray-900">
           Pickup Store<span className="text-red-500 ml-0.5">*</span>
         </label>
 

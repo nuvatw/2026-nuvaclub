@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Script from 'next/script';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button, Card, CardContent, Badge } from '@/components/atoms';
 import {
@@ -21,6 +22,9 @@ import {
   CUSTOM_TIER_CONFIG,
   CROWDFUNDING_CHECKOUT,
 } from '@/content/home-content';
+import { CheckoutModal } from '@/features/checkout/components/CheckoutModal';
+import type { CartItem } from '@/features/checkout/types';
+import TapPayCardFields from '@/features/checkout/components/payments/TapPayCardFields';
 
 // ==========================================
 // TYPES
@@ -355,6 +359,8 @@ function PaymentInfoStep({
   setInvoice,
   onContinue,
   onBack,
+  tappayRef,
+  onGetPrime,
 }: {
   payment: PaymentInfo;
   setPayment: (p: PaymentInfo) => void;
@@ -362,68 +368,25 @@ function PaymentInfoStep({
   setInvoice: (i: InvoiceInfo) => void;
   onContinue: () => void;
   onBack: () => void;
+  tappayRef?: React.RefObject<any>;
+  onGetPrime?: (prime: string) => void;
 }) {
-  // Refs for auto-focus
-  const cardholderNameRef = useRef<HTMLInputElement>(null);
-  const cardNumberRef = useRef<HTMLInputElement>(null);
-  const cardExpiryRef = useRef<HTMLInputElement>(null);
-  const cardCvcRef = useRef<HTMLInputElement>(null);
+  // TapPay ref for getting prime token
+  const localTappayRef = useRef<any>(null);
+  const [canGetPrime, setCanGetPrime] = useState(false);
   const nextButtonRef = useRef<HTMLButtonElement>(null);
 
-  const formatCardNumber = (value: string) => {
-    return value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim().slice(0, 19);
-  };
+  // Use provided ref or local ref
+  const activeRef = tappayRef || localTappayRef;
 
-  const formatExpiry = (value: string) => {
-    return value.replace(/\D/g, '').replace(/(\d{2})(\d)/, '$1/$2').slice(0, 5);
-  };
-
-  // Auto-focus handlers
+  // Auto-focus handlers for invoice
   const handleTaxIdChange = (value: string) => {
     const cleanValue = value.replace(/\D/g, '').slice(0, 8);
     setInvoice({ ...invoice, taxId: cleanValue });
-    // When 8 digits complete, focus cardholder name
-    if (cleanValue.length === 8) {
-      setTimeout(() => cardholderNameRef.current?.focus(), 50);
-    }
   };
 
-  const handleCardholderNameChange = (value: string) => {
-    setPayment({ ...payment, cardholderName: value });
-  };
-
-  const handleCardNumberChange = (value: string) => {
-    const formatted = formatCardNumber(value);
-    setPayment({ ...payment, cardNumber: formatted });
-    // When 16 digits complete, focus expiry
-    if (formatted.replace(/\s/g, '').length >= 16) {
-      setTimeout(() => cardExpiryRef.current?.focus(), 50);
-    }
-  };
-
-  const handleExpiryChange = (value: string) => {
-    const formatted = formatExpiry(value);
-    setPayment({ ...payment, cardExpiry: formatted });
-    // When MM/YY complete (5 chars), focus CVC
-    if (formatted.length === 5) {
-      setTimeout(() => cardCvcRef.current?.focus(), 50);
-    }
-  };
-
-  const handleCvcChange = (value: string) => {
-    const cleanValue = value.replace(/\D/g, '').slice(0, 4);
-    setPayment({ ...payment, cardCvc: cleanValue });
-    // When 3+ digits complete, highlight next button
-    if (cleanValue.length >= 3) {
-      setTimeout(() => nextButtonRef.current?.focus(), 50);
-    }
-  };
-
-  const isPaymentValid =
-    payment.cardholderName.trim().length > 0 &&
-    payment.cardNumber.replace(/\s/g, '').length >= 16 &&
-    payment.cardExpiry.length === 5 &&
-    payment.cardCvc.length >= 3;
+  // Validation
+  const isPaymentValid = canGetPrime; // TapPay handles card validation
 
   const isInvoiceValid =
     invoice.type === 'personal' ||
@@ -501,46 +464,18 @@ function PaymentInfoStep({
             <span className="text-primary-400 font-medium">信用卡付款</span>
           </div>
 
-          <div className="space-y-4">
-            <FormInput
-              label="持卡人姓名"
-              name="cc-name"
-              autoComplete="cc-name"
-              value={payment.cardholderName}
-              onChange={handleCardholderNameChange}
-              placeholder="請輸入持卡人姓名"
-              inputRef={cardholderNameRef}
-            />
-            <FormInput
-              label="信用卡號"
-              name="cc-number"
-              autoComplete="cc-number"
-              value={payment.cardNumber}
-              onChange={handleCardNumberChange}
-              placeholder="1234 5678 9012 3456"
-              inputRef={cardNumberRef}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <FormInput
-                label="有效期限"
-                name="cc-exp"
-                autoComplete="cc-exp"
-                value={payment.cardExpiry}
-                onChange={handleExpiryChange}
-                placeholder="MM/YY"
-                inputRef={cardExpiryRef}
-              />
-              <FormInput
-                label="安全碼"
-                name="cc-csc"
-                autoComplete="cc-csc"
-                value={payment.cardCvc}
-                onChange={handleCvcChange}
-                placeholder="CVC"
-                inputRef={cardCvcRef}
-              />
-            </div>
-          </div>
+          {/* TapPay Card Fields */}
+          <TapPayCardFields
+            ref={activeRef}
+            onReady={(ready: boolean) => {
+              setCanGetPrime(ready);
+              console.log('[Pledge] TapPay ready, canGetPrime:', ready);
+            }}
+            onUpdate={(update: { canGetPrime: boolean }) => {
+              setCanGetPrime(update.canGetPrime);
+              console.log('[Pledge] TapPay update, canGetPrime:', update.canGetPrime);
+            }}
+          />
         </div>
       </div>
 
@@ -549,17 +484,8 @@ function PaymentInfoStep({
         <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
           <p className="text-amber-400 text-sm">請確認以下資料：</p>
           <ul className="text-amber-400/70 text-xs mt-1 space-y-0.5">
-            {!payment.cardholderName.trim() && (
-              <li>• 請輸入持卡人姓名</li>
-            )}
-            {payment.cardNumber.replace(/\s/g, '').length < 16 && (
-              <li>• 信用卡號需要 16 位數字（目前 {payment.cardNumber.replace(/\s/g, '').length} 位）</li>
-            )}
-            {payment.cardExpiry.length !== 5 && (
-              <li>• 請輸入有效期限 (MM/YY)</li>
-            )}
-            {payment.cardCvc.length < 3 && (
-              <li>• 請輸入安全碼 (3-4 位)</li>
+            {!canGetPrime && (
+              <li>• 請輸入有效的信用卡資訊</li>
             )}
             {invoice.type === 'company' && !invoice.companyName.trim() && (
               <li>• 請輸入公司名稱</li>
@@ -577,7 +503,20 @@ function PaymentInfoStep({
         </Button>
         <Button
           ref={nextButtonRef}
-          onClick={onContinue}
+          onClick={async () => {
+            if (activeRef.current && onGetPrime) {
+              try {
+                const prime = await activeRef.current.getPrime();
+                console.log('[Pledge] Got prime token:', prime.substring(0, 20) + '...');
+                onGetPrime(prime);
+              } catch (error) {
+                console.error('[Pledge] Failed to get prime:', error);
+                alert('取得付款資訊失敗，請重試');
+                return;
+              }
+            }
+            onContinue();
+          }}
           disabled={!isValid}
           className={cn('flex-1', isValid && 'ring-2 ring-primary-500/50')}
         >
@@ -799,6 +738,21 @@ function PledgeCheckoutContent() {
     : (tier?.getMonths || 0);
   const avgMonthlyPrice = months > 0 ? Math.round(amount / months) : 0;
 
+  // CheckoutModal state
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+
+  // Create CartItem for CheckoutModal
+  const cartItem: CartItem = useMemo(() => ({
+    id: tier?.id || 'custom',
+    name: tierName,
+    description: `nuvaClub 早鳥贊助方案 - ${months} 個月會員`,
+    price: amount,
+    quantity: attendeeCountParam,
+    type: 'digital_plan',
+    monthlyAverage: avgMonthlyPrice,
+    requiresParticipantDetails: attendeeCountParam > 0,
+  }), [tier, tierName, amount, months, attendeeCountParam, avgMonthlyPrice]);
+
   // Checkout state
   const [currentStep, setCurrentStep] = useState<CheckoutStep>('confirm');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -811,15 +765,87 @@ function PledgeCheckoutContent() {
   const [payment, setPayment] = useState<PaymentInfo>({ cardholderName: '', cardNumber: '', cardExpiry: '', cardCvc: '' });
   const [invoice, setInvoice] = useState<InvoiceInfo>({ type: 'personal', companyName: '', taxId: '' });
 
+  // TapPay prime token storage
+  const [primeToken, setPrimeToken] = useState<string>('');
+  const tappayRef = useRef<any>(null);
+
   // Navigation handlers
   const goToStep = (step: CheckoutStep) => setCurrentStep(step);
 
-  const handleSubmitOrder = () => {
+  const handleSubmitOrder = async () => {
+    if (!primeToken) {
+      alert('付款資訊錯誤，請重新填寫信用卡資訊');
+      goToStep('payment');
+      return;
+    }
+
     setIsSubmitting(true);
-    // Simulate processing delay then complete
-    setTimeout(() => {
-      // Store pledge info in sessionStorage for the homepage to read
-      // Include all participant names for multi-card download
+
+    try {
+      // Validate and format phone number
+      const phoneNumber = purchaser.phone?.replace(/\D/g, '') || '';
+
+      if (!phoneNumber) {
+        alert('請填寫訂購人電話號碼');
+        goToStep('purchaser');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Format professional payment details for TapPay records
+      const paymentDetails = (() => {
+        // Map tier names to professional descriptions
+        const tierDescriptions: Record<string, string> = {
+          '探索者': 'nuvaClub 三個月數位會員',
+          '冒險家': 'nuvaClub 六個月數位會員',
+          '先鋒者': 'nuvaClub 十二個月數位會員',
+        };
+
+        const baseDescription = tierDescriptions[tierName] || `nuvaClub ${months}個月數位會員`;
+        const promotionNote = months === 3 ? '（買二送一優惠）' : months === 6 ? '（買五送一優惠）' : months === 12 ? '（買十送二優惠）' : '';
+        const quantityNote = attendeeCountParam > 1 ? ` x ${attendeeCountParam}位` : '';
+
+        return `【早鳥募資】${baseDescription}${promotionNote}${quantityNote}`;
+      })();
+
+      console.log('[Pledge] Payment data:', {
+        prime: primeToken.substring(0, 20) + '...',
+        amount: amount * attendeeCountParam,
+        details: paymentDetails,
+        cardholder: {
+          name: purchaser.name,
+          email: purchaser.email,
+          phone_number: phoneNumber,
+        }
+      });
+
+      // Call TapPay payment API
+      const response = await fetch('/api/bff/checkout/tappay/pay-by-prime', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prime: primeToken,
+          amount: amount * attendeeCountParam,
+          details: paymentDetails,
+          cardholder: {
+            name: purchaser.name,
+            email: purchaser.email,
+            phone_number: phoneNumber,
+          },
+          orderRef: `REF-${Date.now()}`,
+          tier,
+          months,
+          participants,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || result.status !== 0) {
+        throw new Error(result.msg || '付款失敗');
+      }
+
+      // Payment successful - store pledge info
       const pledgeInfo = {
         amount: amount * attendeeCountParam,
         tierName,
@@ -828,11 +854,32 @@ function PledgeCheckoutContent() {
         purchaserName: purchaser.name,
         participantNames: participants.map(p => p.name),
         timestamp: Date.now(),
+        transactionId: result.rec_trade_id,
       };
       sessionStorage.setItem('nuvaclub_pledge_success', JSON.stringify(pledgeInfo));
+
       // Redirect to homepage with success flag
       router.push('/?pledge=success');
-    }, 800);
+    } catch (error) {
+      console.error('Payment failed:', error);
+      alert(error instanceof Error ? error.message : '付款失敗，請重試');
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle successful checkout from CheckoutModal
+  const handleCheckoutSuccess = () => {
+    // Store pledge info for success page
+    const pledgeInfo = {
+      amount: amount * attendeeCountParam,
+      tierName,
+      months,
+      attendeeCount: attendeeCountParam,
+      timestamp: Date.now(),
+    };
+    sessionStorage.setItem('nuvaclub_pledge_success', JSON.stringify(pledgeInfo));
+    // Redirect to homepage with success flag
+    router.push('/?pledge=success');
   };
 
   // Invalid tier check
@@ -909,6 +956,8 @@ function PledgeCheckoutContent() {
                         setPayment={setPayment}
                         invoice={invoice}
                         setInvoice={setInvoice}
+                        tappayRef={tappayRef}
+                        onGetPrime={setPrimeToken}
                         onContinue={() => goToStep('participants')}
                         onBack={() => goToStep('purchaser')}
                       />
