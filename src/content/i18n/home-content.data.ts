@@ -172,6 +172,10 @@ const ZH = {
             icon: '🚀', title: 'Sprint', subtitle: '專案挑戰', description: '參與季度挑戰，打造作品集並獲得社群回饋',
             href: '/sprint', color: 'from-orange-500/20 to-orange-600/10', borderColor: 'border-orange-500/30', status: 'preview'
         },
+        {
+            icon: '🛒', title: 'Shop', subtitle: '商店與活動', description: '獨家工作坊、實體活動與限量周邊商品',
+            href: '/shop', color: 'from-pink-500/20 to-pink-600/10', borderColor: 'border-pink-500/30', status: 'preview'
+        },
     ],
     countdown: {
         label: '募資倒數',
@@ -371,6 +375,10 @@ const EN = {
         {
             icon: '🚀', title: 'Sprint', subtitle: 'Project Challenges', description: 'Join quarterly challenges to build your portfolio and get feedback.',
             href: '/sprint', color: 'from-orange-500/20 to-orange-600/10', borderColor: 'border-orange-500/30', status: 'preview'
+        },
+        {
+            icon: '🛒', title: 'Shop', subtitle: 'Shop & Events', description: 'Exclusive workshops, offline events, and limited merchandise.',
+            href: '/shop', color: 'from-pink-500/20 to-pink-600/10', borderColor: 'border-pink-500/30', status: 'preview'
         },
     ],
     countdown: {

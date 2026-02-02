@@ -35,18 +35,18 @@ const CATEGORIES: CategoryConfig[] = [
     href: '/shop/duo',
     icon: <UsersIcon />,
   },
-  // {
-  //   id: 'events',
-  //   title: 'Event',
-  //   href: '/shop/events',
-  //   icon: <CalendarIcon size="md" />,
-  // },
-  // {
-  //   id: 'merchandise',
-  //   title: 'Merchandise',
-  //   href: '/shop/merchandise',
-  //   icon: <ShoppingBagIcon size="md" />,
-  // },
+  {
+    id: 'events',
+    title: 'Event',
+    href: '/shop/events',
+    icon: <CalendarIcon size="md" />,
+  },
+  {
+    id: 'merchandise',
+    title: 'Merchandise',
+    href: '/shop/merchandise',
+    icon: <ShoppingBagIcon size="md" />,
+  },
 ];
 
 function CategoryPill({
@@ -102,7 +102,7 @@ export default function ShopLayout({
     <div className="shop-page min-h-screen bg-[var(--shop-bg)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Category Header - Persists across all shop routes */}
-        <div className="mb-6">
+        <div className="mb-6 hidden">
           <p className="text-neutral-400 text-center mb-4">
             Choose a category to explore our offerings
           </p>
