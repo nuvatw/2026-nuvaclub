@@ -36,7 +36,7 @@ const NAV_ITEMS = [
   { href: '/forum', label: 'Forum' },
   { href: '/space', label: 'Space' },
   { href: '/sprint', label: 'Sprint' },
-  { href: '/sprint', label: 'Sprint' },
+  { href: '/shop', label: 'Shop' },
 ];
 
 export function Navbar() {
