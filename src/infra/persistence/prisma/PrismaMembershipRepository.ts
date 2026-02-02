@@ -78,4 +78,8 @@ export class PrismaMembershipRepository implements MembershipRepository {
     async count(): Promise<number> {
         return await prisma.membership.count();
     }
+
+    async deleteAll(): Promise<void> {
+        await prisma.membership.deleteMany();
+    }
 }

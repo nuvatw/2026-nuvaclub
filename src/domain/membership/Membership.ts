@@ -80,4 +80,5 @@ export interface MembershipRepository {
     findByMemberNo(memberNo: string): Promise<Membership | null>;
     findByEmail(email: string): Promise<Membership[]>;
     count(): Promise<number>;
+    deleteAll(): Promise<void>;
 }

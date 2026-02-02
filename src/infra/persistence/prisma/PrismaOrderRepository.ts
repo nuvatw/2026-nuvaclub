@@ -58,4 +58,8 @@ export class PrismaOrderRepository implements OrderRepository {
         });
         return result._sum.totalAmount || 0;
     }
+
+    async deleteAll(): Promise<void> {
+        await prisma.order.deleteMany();
+    }
 }

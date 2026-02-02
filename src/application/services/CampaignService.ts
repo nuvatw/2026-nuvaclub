@@ -57,4 +57,20 @@ export class CampaignService {
             isValid: true
         };
     }
+
+    /**
+     * Reset campaign data (deletes all memberships and orders)
+     * For development use only.
+     */
+    async resetCampaign(): Promise<{ ok: boolean; error?: string }> {
+        try {
+            // Must delete memberships first due to foreign key constraints
+            await this.membershipRepo.deleteAll();
+            await this.orderRepo.deleteAll();
+            return { ok: true };
+        } catch (error: any) {
+            console.error('[CampaignService] Failed to reset campaign:', error);
+            return { ok: false, error: error.message || 'Unknown error' };
+        }
+    }
 }
